@@ -36,6 +36,8 @@ export function ProvenanceDisclosure({ entries, loading, error }: Props) {
                   {" — "}
                   {entry.originKind} ({entry.transformationId},{" "}
                   {entry.ruleVersion})
+                  {entry.artifactName ? ` — archivo ${entry.artifactName}` : ""}
+                  {entry.sourceLocator ? ` — fila ${entry.sourceLocator}` : ""}
                 </li>
               ))}
             </ul>

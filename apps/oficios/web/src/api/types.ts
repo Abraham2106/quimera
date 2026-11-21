@@ -8,6 +8,26 @@ export type SerializedWorkOrder = {
   readonly customerAuthorized: boolean;
   readonly version: number;
   readonly fiscalIntentId: string | null;
+  readonly customerLegalName?: string | null;
+  readonly equipmentSerial?: string | null;
+  readonly diagnoses?: readonly {
+    readonly id: string;
+    readonly notes: string;
+    readonly measurements: Record<string, unknown>;
+    readonly attachments: readonly { readonly sha256: string; readonly filename: string }[];
+  }[];
+  readonly materials?: readonly {
+    readonly cabysCode: string;
+    readonly quantity: string;
+    readonly unitPriceMinor: string;
+    readonly taxRateBps: number;
+  }[];
+};
+
+export type CustomerListItem = {
+  readonly id: string;
+  readonly legalName: string;
+  readonly taxId: string | null;
 };
 
 export type WorkOrderListResponse = {
@@ -36,6 +56,8 @@ export type ProvenanceEntry = {
   readonly transformationId: string;
   readonly ruleVersion: string;
   readonly artifactId: string;
+  readonly artifactName?: string | null;
+  readonly sourceLocator?: string | null;
   readonly createdAt: string;
 };
 

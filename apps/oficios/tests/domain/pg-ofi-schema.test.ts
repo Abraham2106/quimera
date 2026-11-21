@@ -24,6 +24,9 @@ async function readSql(relativePath: string): Promise<string> {
 
 async function dropOfiObjects(client: Sql): Promise<void> {
   const tables = [
+    "ofi_materials",
+    "ofi_diagnosis_attachments",
+    "ofi_diagnoses",
     "ofi_work_order_events",
     "ofi_work_orders",
     "ofi_equipment",
@@ -75,6 +78,7 @@ async function resetSchema(client: Sql): Promise<void> {
     await readSql("packages/fiscal-outbox/drizzle/0001_init_fob.sql"),
   );
   await client.unsafe(await readSql("apps/oficios/drizzle/0001_init_ofi.sql"));
+  await client.unsafe(await readSql("apps/oficios/drizzle/0002_diagnosis_materials.sql"));
 }
 
 describe("T-OFI-002 — integración PostgreSQL ofi_*", () => {

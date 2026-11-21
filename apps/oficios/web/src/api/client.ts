@@ -2,6 +2,7 @@ import type { DevApiConfig } from "../config.js";
 import type {
   ApiErrorResponse,
   CabysSearchResponse,
+  CustomerListItem,
   ProvenanceResponse,
   SerializedWorkOrder,
   WorkOrderDetailResponse,
@@ -61,6 +62,86 @@ export function formatOrdenFolio(workOrderId: string): string {
   const compact = workOrderId.replace(/-/g, "").toLowerCase();
   const suffix = compact.slice(-4).padStart(4, "0");
   return `OS-2026-${suffix}`;
+}
+
+export async function fetchEquipment(
+  config: DevApiConfig,
+  customerId: string,
+): Promise<readonly { id: string; serialNumber: string | null }[]> {
+  const res = await fetch(
+    `${config.apiBase}/api/v1/customers/${encodeURIComponent(customerId)}/equipment`,
+    { headers: headers(config) },
+  );
+  if (!res.ok) throw await parseError(res);
+  const json = (await res.json()) as {
+    equipment: Array<{ id: string; serialNumber: string | null }>;
+  };
+  return json.equipment;
+}
+
+export async function fetchCustomers(config: DevApiConfig): Promise<readonly CustomerListItem[]> {
+  const res = await fetch(`${config.apiBase}/api/v1/customers`, { headers: headers(config) });
+  if (!res.ok) {
+    throw await parseError(res);
+  }
+  const json = (await res.json()) as { customers: CustomerListItem[] };
+  return json.customers;
+}
+
+export async function createWorkOrder(
+  config: DevApiConfig,
+  customerId: string,
+  equipmentId: string,
+): Promise<SerializedWorkOrder> {
+  const res = await fetch(`${config.apiBase}/api/v1/work-orders`, {
+    method: "POST",
+    headers: headers(config, true),
+    body: JSON.stringify({ customerId, equipmentId }),
+  });
+  if (!res.ok) throw await parseError(res);
+  const json = (await res.json()) as WorkOrderDetailResponse;
+  return json.workOrder;
+}
+
+export async function saveDiagnosis(
+  config: DevApiConfig,
+  workOrderId: string,
+  notes: string,
+  measurements: Record<string, unknown>,
+): Promise<void> {
+  const res = await fetch(`${config.apiBase}/api/v1/work-orders/${encodeURIComponent(workOrderId)}/diagnosis`, {
+    method: "POST",
+    headers: headers(config, true),
+    body: JSON.stringify({ notes, measurements, attachments: [] }),
+  });
+  if (!res.ok) throw await parseError(res);
+}
+
+export async function saveMaterial(
+  config: DevApiConfig,
+  workOrderId: string,
+  input: { cabysCode: string; quantity: string; unitPriceMinor: number; taxRate: string },
+): Promise<void> {
+  const res = await fetch(`${config.apiBase}/api/v1/work-orders/${encodeURIComponent(workOrderId)}/materials`, {
+    method: "POST",
+    headers: headers(config, true),
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw await parseError(res);
+}
+
+export async function closeWorkOrder(
+  config: DevApiConfig,
+  workOrderId: string,
+  expectedVersion: number,
+): Promise<{ fiscalIntentId: string }> {
+  const res = await fetch(`${config.apiBase}/api/v1/work-orders/${encodeURIComponent(workOrderId)}/close`, {
+    method: "POST",
+    headers: headers(config, true),
+    body: JSON.stringify({ expectedVersion }),
+  });
+  if (!res.ok) throw await parseError(res);
+  return (await res.json()) as { fiscalIntentId: string };
 }
 
 export async function fetchWorkOrder(

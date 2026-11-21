@@ -7,6 +7,12 @@
     "node": ">=22"
   },
   "packageManager": "pnpm@10.33.4",
+  "pnpm": {
+    "overrides": {
+      "tinypool": "2.1.2",
+      "drizzle-orm": "0.45.2"
+    }
+  },
   "scripts": {
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
@@ -14,6 +20,9 @@
     "test": "DATABASE_URL=${DATABASE_URL:-postgres://quimera:quimera@127.0.0.1:5432/quimera} vitest run --passWithNoTests --fileParallelism=false --maxWorkers=1",
     "test:isolation": "node scripts/test-isolation.mjs",
     "demo:verify": "node scripts/demo-verify.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "quimera": "node scripts/quimera.mjs",
+    "oficios:serve": "pnpm exec tsx apps/oficios/src/server.ts",
     "test:security": "DATABASE_URL=${DATABASE_URL:-postgres://quimera:quimera@127.0.0.1:5432/quimera} vitest run --fileParallelism=false packages/data-exodus/tests/storage/fs-artifact-store.test.ts packages/data-exodus/tests/importers/fe-xml.test.ts packages/factura-ci/src/t-sec-012-loopback-only.test.ts packages/data-exodus/tests/db/postgres-qum.integration.test.ts"
   },
   "devDependencies": {

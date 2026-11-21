@@ -60,3 +60,6 @@ jobs:
 
       - name: Security
         run: pnpm test:security
+
+      - name: Audit
+        run: pnpm audit --audit-level=high
