@@ -83,6 +83,7 @@ export async function resetApiSchema(client: Sql): Promise<void> {
   await dropFobObjects(client);
   await dropQumObjects(client);
   await client.unsafe(await readSql("packages/data-exodus/drizzle/0001_init_qum.sql"));
+  await client.unsafe(await readSql("packages/data-exodus/drizzle/0002_evidence_append_only.sql"));
   await client.unsafe(await readSql("packages/fiscal-outbox/drizzle/0001_init_fob.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0001_init_ofi.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0002_diagnosis_materials.sql"));
