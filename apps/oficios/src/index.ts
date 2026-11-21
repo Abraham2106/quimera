@@ -5,6 +5,31 @@ import { fiscalOutboxBootstrap } from "@quimera/fiscal-outbox";
 
 export const OFICIOS_APP = "oficios" as const;
 
+export {
+  HVAC_REFRIGERATION_V1_CONTRACT_ID,
+  type HvacRefrigerationV1ContractId,
+} from "./domain/hvac-refrigeration-v1.js";
+export {
+  WORK_ORDER_STATUSES,
+  type WorkOrderStatus,
+  isTerminalWorkOrderStatus,
+} from "./domain/work-order-status.js";
+export {
+  ERR_WORK_ORDER_APPROVAL_REQUIRED,
+  ERR_WORK_ORDER_INVALID_TRANSITION,
+  ERR_WORK_ORDER_VERSION_MISMATCH,
+  type WorkOrderFsmErrorCode,
+} from "./domain/work-order-errors.js";
+export {
+  getAllowedTransitions,
+  transitionWorkOrder,
+  walkHvacHappyPath,
+  type WorkOrderTransitionContext,
+  type WorkOrderTransitionFailure,
+  type WorkOrderTransitionResult,
+  type WorkOrderTransitionSuccess,
+} from "./domain/work-order-fsm.js";
+
 type HonoFramework = typeof import("hono").Hono;
 
 export type OficiosBootstrap = {
