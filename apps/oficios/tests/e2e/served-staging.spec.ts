@@ -11,7 +11,6 @@ import { withOfiTenantTransaction } from "../../src/db/connection.js";
 import { startOficiosServer, type StartedOficiosServer } from "../../src/server.ts";
 import {
   TENANT_ID,
-  apiTestHeaders,
   seedCustomerEquipment,
   setupApiDb,
 } from "../api/helpers.js";
@@ -168,22 +167,21 @@ test("pantalla servida: onboarding, Data Exodus, orden, cobro y auditoría", asy
     timeout: 15_000,
   });
 
-  const created = await api.post("/api/v1/work-orders", {
-    headers: { ...apiTestHeaders("OPERATOR"), "content-type": "application/json" },
-    data: { customerId, equipmentId },
-  });
-  const workOrderId = ((await created.json()) as { workOrder: { id: string } }).workOrder.id;
-  const attachHeaders = { ...apiTestHeaders("OPERATOR") };
-  delete attachHeaders["content-type"];
-  const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
-  const pngForm = new FormData();
-  pngForm.set("file", new File([pngBytes], "foto.png", { type: "image/png" }));
-  const pngResponse = await fetch(
-    `${server.url}/api/v1/work-orders/${workOrderId}/attachments`,
-    { method: "POST", headers: attachHeaders, body: pngForm },
-  );
-  expect(pngResponse.status).toBe(201);
   expect(idFromFolio).toBeTruthy();
+
+  const pngDir = await mkdtemp(path.join(os.tmpdir(), "ofi-png-"));
+  const pngPath = path.join(pngDir, "foto.png");
+  await writeFile(
+    pngPath,
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]),
+  );
+  const workOrderSection = page.locator("section").filter({ hasText: "Orden de servicio" });
+  const photoInput = workOrderSection.locator('input[type="file"][name="file"]');
+  await photoInput.setInputFiles(pngPath);
+  await workOrderSection.getByRole("button", { name: "Subir adjunto" }).click();
+  await expect(page.getByText("Adjunto subido correctamente.")).toBeVisible({
+    timeout: 15_000,
+  });
 
   await page.context().setOffline(true);
   const offlineNote = `offline-e2e-${Date.now()}`;
