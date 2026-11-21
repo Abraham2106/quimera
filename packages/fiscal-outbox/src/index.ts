@@ -13,3 +13,24 @@ export function fiscalOutboxBootstrap(): FiscalOutboxBootstrap {
     coreVersion: QUIMERA_CORE_VERSION,
   };
 }
+
+export {
+  createPostgresClient,
+  resolveDatabaseUrl,
+  FiscalOutboxDbError,
+  INIT_FOB_MIGRATION_SQL_PATH,
+  applyFobMigration,
+  dropFobObjects,
+} from "./db/index.js";
+
+export {
+  PgDocumentStore,
+  enqueueIntent,
+  allocateConsecutive,
+  type PgDocumentStoreScope,
+  type AllocateConsecutiveScope,
+  type EnqueueFiscalIntentInput,
+  type FiscalIntentRecord,
+  type FiscalEnvironment,
+  type FiscalIntentStatus,
+} from "./store/index.js";

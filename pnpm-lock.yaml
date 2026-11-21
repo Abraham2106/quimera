@@ -77,6 +77,13 @@ importers:
       hono:
         specifier: ^4.13.19
         version: 4.13.19
+      postgres:
+        specifier: ^3.4.7
+        version: 3.4.9
+    devDependencies:
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.5)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/core:
     dependencies:
@@ -148,12 +155,25 @@ importers:
       '@quimera/core':
         specifier: workspace:*
         version: link:../core
+      postgres:
+        specifier: ^3.4.7
+        version: 3.4.9
+    devDependencies:
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.5)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/pipeline:
     dependencies:
       '@quimera/core':
         specifier: workspace:*
         version: link:../core
+      postgres:
+        specifier: ^3.4.7
+        version: 3.4.9
+      yaml:
+        specifier: ^2.8.1
+        version: 2.9.1
 
 packages:
 
