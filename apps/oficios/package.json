@@ -1,0 +1,19 @@
+{
+  "name": "@quimera/oficios",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@quimera/core": "workspace:*",
+    "@quimera/cr-api-passport": "workspace:*",
+    "@quimera/data-exodus": "workspace:*",
+    "@quimera/fiscal-outbox": "workspace:*",
+    "hono": "^4.13.19"
+  }
+}
