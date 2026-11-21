@@ -9,10 +9,12 @@ const postgres = require("postgres");
 
 const migrations = [
   "packages/data-exodus/drizzle/0001_init_qum.sql",
+  "packages/data-exodus/drizzle/0002_evidence_append_only.sql",
   "packages/fiscal-outbox/drizzle/0001_init_fob.sql",
   "apps/oficios/drizzle/0001_init_ofi.sql",
   "apps/oficios/drizzle/0002_diagnosis_materials.sql",
   "apps/oficios/drizzle/0003_ofi_rls.sql",
+  "apps/oficios/drizzle/0004_saas_b2b_onboarding.sql",
 ];
 
 const databaseUrl =

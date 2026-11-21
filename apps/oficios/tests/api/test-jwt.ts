@@ -13,8 +13,8 @@ export function createEphemeralJwtSecret(): string {
 
 export type SignTestOficiosJwtInput = {
   readonly secret: string;
-  readonly tenantId: string;
-  readonly role: OficiosRole;
+  readonly tenantId?: string;
+  readonly role?: OficiosRole;
   readonly actorId: string;
   readonly expiresAtSec?: number;
 };
@@ -23,13 +23,17 @@ export function signTestOficiosJwt(input: SignTestOficiosJwtInput): string {
   const header = { alg: "HS256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
   const exp = input.expiresAtSec ?? now + 3600;
-  const payload = {
-    tenant_id: input.tenantId,
-    role: input.role,
+  const payload: Record<string, unknown> = {
     sub: input.actorId,
     exp,
     iat: now,
   };
+  if (input.tenantId) {
+    payload.tenant_id = input.tenantId;
+  }
+  if (input.role) {
+    payload.role = input.role;
+  }
   const headerB64 = base64UrlEncode(JSON.stringify(header));
   const payloadB64 = base64UrlEncode(JSON.stringify(payload));
   const signingInput = `${headerB64}.${payloadB64}`;

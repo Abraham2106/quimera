@@ -16,6 +16,8 @@ import {
 } from "./api/client.js";
 import type { CustomerListItem } from "./api/types.js";
 import type { ProvenanceEntry, SerializedWorkOrder } from "./api/types.js";
+import { OrgOnboardingPanel } from "./components/OrgOnboardingPanel.js";
+import { TeamManagementPanel } from "./components/TeamManagementPanel.js";
 import { ApprovalBlock } from "./components/ApprovalBlock.js";
 import { CabysRepuestosSearch } from "./components/CabysRepuestosSearch.js";
 import { ProvenanceDisclosure } from "./components/ProvenanceDisclosure.js";
@@ -191,6 +193,9 @@ export function App() {
           Pantalla operativa para técnico y recepción
         </p>
       </header>
+
+      <OrgOnboardingPanel config={config} />
+      <TeamManagementPanel config={config} />
 
       <form
         className="mb-6 flex flex-wrap items-end gap-2"

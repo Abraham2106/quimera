@@ -29,10 +29,16 @@ export function resolveJwtVerificationSecret(): string | null {
   return fromEnv && fromEnv.length > 0 ? fromEnv : null;
 }
 
-export function verifyBearerJwt(
+export type VerifiedBootstrapJwt = {
+  readonly actorId: string;
+  readonly tenantId: string | null;
+  readonly role: OficiosRole | null;
+};
+
+function parseAndVerifyJwtPayload(
   token: string,
   options: JwtVerifyOptions,
-): VerifiedOficiosIdentity | null {
+): Record<string, unknown> | null {
   const parts = token.split(".");
   if (parts.length !== 3) {
     return null;
@@ -97,27 +103,60 @@ export function verifyBearerJwt(
     }
   }
 
+  return payload;
+}
+
+export function verifiedClaimsFromPayload(
+  payload: Record<string, unknown>,
+): VerifiedBootstrapJwt | null {
   const tenantId = payload.tenant_id;
   const roleRaw = payload.role;
   const sub = payload.sub;
 
-  if (typeof tenantId !== "string" || !UUID_RE.test(tenantId)) {
-    return null;
-  }
   if (typeof sub !== "string" || sub.trim().length === 0) {
     return null;
   }
+
+  const tenantOk =
+    typeof tenantId === "string" && UUID_RE.test(tenantId) ? tenantId : null;
   const role =
     typeof roleRaw === "string" ? parseOficiosRole(roleRaw) : null;
-  if (!role) {
-    return null;
-  }
 
   return {
-    tenantId,
+    actorId: sub.trim(),
+    tenantId: tenantOk,
     role,
-    actorId: sub,
   };
+}
+
+export function verifyBearerJwt(
+  token: string,
+  options: JwtVerifyOptions,
+): VerifiedOficiosIdentity | null {
+  const payload = parseAndVerifyJwtPayload(token, options);
+  if (!payload) {
+    return null;
+  }
+  const claims = verifiedClaimsFromPayload(payload);
+  if (!claims?.tenantId || !claims.role) {
+    return null;
+  }
+  return {
+    tenantId: claims.tenantId,
+    role: claims.role,
+    actorId: claims.actorId,
+  };
+}
+
+export function verifyBearerJwtBootstrap(
+  token: string,
+  options: JwtVerifyOptions,
+): VerifiedBootstrapJwt | null {
+  const payload = parseAndVerifyJwtPayload(token, options);
+  if (!payload) {
+    return null;
+  }
+  return verifiedClaimsFromPayload(payload);
 }
 
 export function parseAuthorizationBearer(
