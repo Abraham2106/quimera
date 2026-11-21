@@ -27,12 +27,12 @@
 
 ## 2. Tablero de Avance de Implementación (Slices 1–7)
 
-| Slice | Alcance | Historias | Estado |
-|---|---|---|---|
-| **Slice 1** | Bootstrap Monorepo, `@quimera/core`, CAS local, DDL `qum_*`, Importador CSV | `US-001`..`US-005` | Pendiente (Siguiente paso) |
-| **Slice 2** | Importadores XLSX + XML FE 4.4 (`hacienda-sdk`), Idempotencia y `demo-hvac-1000` | `US-006`..`US-008` | Pendiente |
-| **Slice 3** | Perfilador, 10 reglas de reconciliación, decisiones, carga PG y `@quimera/pipeline` | `US-009`..`US-013` | Pendiente |
-| **Slice 4** | `@quimera/cr-api-passport` (3 pasaportes, rate limit, caché, `verify`, MCP) | `US-014`..`US-017` | Pendiente (Paralelizable tras Slice 1) |
-| **Slice 5** | `apps/oficios` (`hvac-refrigeration-v1`, API Hono, RBAC, procedencia, UI) | `US-018`..`US-020` | Pendiente |
-| **Slice 6** | `@quimera/fiscal-outbox`, `@quimera/factura-ci` (25 escenarios) y `apps/demo-pos` | `US-021`..`US-025` | Pendiente (Paralelizable tras Slice 1) |
-| **Slice 7** | Integración `OficiOS -> Outbox`, aislamiento por paquete, seguridad y `pnpm demo:verify` | `US-026`..`US-028` | Pendiente |
+| Slice | Alcance | Historias | Paquetes WBS | Estado |
+|---|---|---|---|---|
+| **Slice 1** | Bootstrap Monorepo, `@quimera/core`, CAS local, DDL `qum_*`, Importador CSV | `US-001`..`US-005` | `WBS-1.1`..`WBS-1.5` (Oleadas 0–1) | Pendiente (Siguiente paso) |
+| **Slice 2** | Importadores XLSX + XML FE 4.4 (`hacienda-sdk`), Idempotencia y `demo-hvac-1000` | `US-006`..`US-008` | `WBS-2.1`..`WBS-2.3` (Oleada 2 — Carril A) | Pendiente |
+| **Slice 3** | Perfilador, 10 reglas de reconciliación, decisiones, carga PG y `@quimera/pipeline` | `US-009`..`US-013` | `WBS-3.1`..`WBS-3.5` (Oleada 3 — Carril A) | Pendiente |
+| **Slice 4** | `@quimera/cr-api-passport` (3 pasaportes, rate limit, caché, `verify`, MCP) | `US-014`..`US-017` | `WBS-4.1`..`WBS-4.4` (Oleada 2 — Carril B) | Pendiente (Paralelizable tras `SYNC-1`) |
+| **Slice 5** | `apps/oficios` (`hvac-refrigeration-v1`, API Hono, RBAC, procedencia, UI) | `US-018`..`US-020`, `US-026` | `WBS-5.1`..`WBS-5.4` (Oleada 4) | Pendiente |
+| **Slice 6** | `@quimera/fiscal-outbox`, `@quimera/factura-ci` (25 escenarios) y `apps/demo-pos` | `US-021`..`US-025` | `WBS-6.1`..`WBS-6.5` (Oleada 2 — Carril C) | Pendiente (Paralelizable tras `SYNC-1`) |
+| **Slice 7** | Aislamiento por paquete, seguridad transversal y `pnpm demo:verify` | `US-027`..`US-028` | `WBS-7.1`..`WBS-7.2` (Oleada 5) | Pendiente |

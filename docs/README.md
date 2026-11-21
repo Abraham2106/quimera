@@ -85,6 +85,7 @@
 
 ### Fase 10 y 11 — Implementación y Estrategia de Producto (`docs/11-implementation/` y `docs/12-product-strategy/`)
 - [`MVP-plan.md`](./11-implementation/MVP-plan.md) — Arquitectura mínima viable, 7 vertical slices, plan de recorte y guión de demo 100% offline.
+- [`agent-wbs.md`](./11-implementation/agent-wbs.md) — WBS orientada a agentes (oleadas 0–5, write-sets disjuntos, barreras `SYNC-1..4`, comandos de verificación y plantilla de despacho).
 - [`development-roadmap.md`](./11-implementation/development-roadmap.md) — Evolución por etapas (MVP → Beta → Pilotos → v1.0 → Plugins → LATAM).
 - [`implementation-backlog.md`](./11-implementation/implementation-backlog.md) — 28 historias MVP (`US-001`..`US-028`) + 4 post-MVP (`US-029`..`US-032`).
 - [`dependency-graph.md`](./11-implementation/dependency-graph.md) — DAG Mermaid, camino crítico y 3 carriles paralelizables.
