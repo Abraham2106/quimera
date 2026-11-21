@@ -15,6 +15,20 @@ export function dataExodusBootstrap(): DataExodusBootstrap {
 }
 
 export {
+  applyDecision,
+  applyDecisionById,
+  DataExodusError,
+  type ApplyDecisionOptions,
+  type ApplyDecisionResult,
+  type DataExodusErrorCode,
+} from "./decisions/index.js";
+export {
+  migrateVerified,
+  type MigrateVerifiedOptions,
+  type ReconciliationReport,
+} from "./migrate/index.js";
+export { trace, type TraceResult } from "./profile/index.js";
+export {
   CsvSourceImporter,
   neutralizeCsvExportRow,
   neutralizeCsvFormulaPrefix,

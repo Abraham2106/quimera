@@ -1,7 +1,11 @@
+import { Hono } from "hono";
+
 import { QUIMERA_CORE_VERSION } from "@quimera/core";
 import { dataExodusBootstrap } from "@quimera/data-exodus";
 import { crApiPassportBootstrap } from "@quimera/cr-api-passport";
 import { fiscalOutboxBootstrap } from "@quimera/fiscal-outbox";
+
+export { createApp, type CreateAppOptions } from "./api/app.js";
 
 export const OFICIOS_APP = "oficios" as const;
 
@@ -30,7 +34,7 @@ export {
   type WorkOrderTransitionSuccess,
 } from "./domain/work-order-fsm.js";
 
-type HonoFramework = typeof import("hono").Hono;
+type HonoFramework = typeof Hono;
 
 export type OficiosBootstrap = {
   readonly app: typeof OFICIOS_APP;
@@ -49,6 +53,6 @@ export function oficiosBootstrap(): OficiosBootstrap {
       crApiPassportBootstrap().module,
       fiscalOutboxBootstrap().module,
     ],
-    httpFramework: undefined as unknown as HonoFramework,
+    httpFramework: Hono,
   };
 }

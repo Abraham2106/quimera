@@ -34,3 +34,16 @@ export {
   type FiscalEnvironment,
   type FiscalIntentStatus,
 } from "./store/index.js";
+
+export {
+  processOnce,
+  claimNextDocument,
+  releaseDocumentLease,
+  isPostDispatched,
+  type FiscalOutboxTransport,
+  type ProcessOnceOptions,
+  type ProcessOnceResult,
+  type TransportCallResult,
+  type ClaimedFiscalDocument,
+  type FobDeliveryState,
+} from "./worker/index.js";

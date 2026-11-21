@@ -1,20 +1,11 @@
-import { facturaCiBootstrap } from "@quimera/factura-ci";
-import { fiscalOutboxBootstrap } from "@quimera/fiscal-outbox";
-
 export const DEMO_POS_APP = "demo-pos" as const;
 
-type HonoFramework = typeof import("hono").Hono;
-
-export type DemoPosBootstrap = {
-  readonly app: typeof DEMO_POS_APP;
-  readonly linkedModules: readonly [string, string];
-  readonly httpFramework: HonoFramework;
-};
-
-export function demoPosBootstrap(): DemoPosBootstrap {
-  return {
-    app: DEMO_POS_APP,
-    linkedModules: [facturaCiBootstrap().module, fiscalOutboxBootstrap().module],
-    httpFramework: undefined as unknown as HonoFramework,
-  };
-}
+export type { DemoPosMode } from "./sut-factory.js";
+export { createDemoPosSut } from "./sut-factory.js";
+export { createOutboxSut } from "./outbox-sut.js";
+export {
+  startDemoPosServer,
+  createDemoPosApp,
+  type DemoPosServerHandle,
+} from "./server.js";
+export { emisorForTenant, tenantUuidForSlug, TENANT_SLUG_TO_UUID } from "./tenant-config.js";
