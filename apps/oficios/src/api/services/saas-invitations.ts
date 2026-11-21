@@ -2,6 +2,8 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 
 import type { CreateInvitationBody, SaasMembershipRole } from "@quimera/core";
 
+import type { Sql } from "postgres";
+
 import type { OficiosSql } from "../../db/connection.js";
 import {
   hashInvitationEmail,
@@ -59,7 +61,7 @@ export type AcceptInvitationResult =
   | { ok: false; reason: "consumed" };
 
 export async function acceptInvitation(
-  client: OficiosSql,
+  client: Sql,
   actorSub: string,
   rawToken: string,
 ): Promise<AcceptInvitationResult> {
@@ -184,7 +186,7 @@ export async function revokeInvitation(
 }
 
 export async function forceExpireInvitationForTests(
-  client: OficiosSql,
+  client: Sql,
   token: string,
 ): Promise<void> {
   const tokenHash = hashInvitationToken(token);

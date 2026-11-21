@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { Sql } from "postgres";
 import {
   RegisterOrganizationBodySchema,
   UpdateMemberRoleBodySchema,
@@ -66,7 +67,7 @@ export function createOrgRegisterRoute() {
     }
 
     const result = await provisionOrganization(
-      c.get("sql"),
+      c.get("sql") as Sql,
       c.get("actorId"),
       parsed.data,
     );

@@ -6,6 +6,8 @@ import {
   type SaasOrgStatus,
 } from "@quimera/core";
 
+import type { Sql } from "postgres";
+
 import type { OficiosSql } from "../../db/connection.js";
 export type ProvisionedOrganization = {
   readonly tenantId: string;
@@ -23,7 +25,7 @@ export type OrganizationProfile = ProvisionedOrganization & {
 };
 
 export async function provisionOrganization(
-  client: OficiosSql,
+  client: Sql,
   actorSub: string,
   body: RegisterOrganizationBody,
 ): Promise<

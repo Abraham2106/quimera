@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { Sql } from "postgres";
 import {
   AcceptInvitationBodySchema,
   CreateInvitationBodySchema,
@@ -49,7 +50,7 @@ export function createInvitationAcceptRoute() {
     }
 
     const result = await acceptInvitation(
-      c.get("sql"),
+      c.get("sql") as Sql,
       c.get("actorId"),
       parsed.data.token,
     );
