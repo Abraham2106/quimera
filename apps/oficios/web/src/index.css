@@ -1,31 +1,33 @@
 @import "tailwindcss";
 
 /*
-  Paleta de campo, tomada de shots públicos de Dribbble:
-  - SwiftFix Plumbing (Tahrim Jim): carbón #1A1511, cobre #9A5A3A, arena #D0BBA9, lienzo #E0E0E0
-    https://dribbble.com/shots/25561228--
-  - Loacl Home Service (Md Shamim Hossain): naranja de acción #DF4B22, azul #1A53B9, gris frío #DDE4EC
-    https://dribbble.com/shots/14135455-Loacl-Home-Service-App-UI
-  - Dispatch KPI Dashboard (Andy Hamilton): salvia #6BB29B y cian #2DA3D9 sobre #F8F8F9
-    https://dribbble.com/shots/1813095-Dispatch-KPI-Dashboard
-  El naranja queda solo en la acción principal, como en los tableros industriales de despacho HVAC.
+  Paleta de campo inspirada en tableros de servicio en Dribbble:
+  - SwiftFix Plumbing (Tahrim Jim): riel carbón #1A1511, arena #D0BBA9, piedra #F4EFE8
+  - Loacl Home Service (Md Shamim Hossain): naranja acción #C2410C/#DF4B22, azul foco #1A53B9
+  - Dispatch KPI Dashboard (Andy Hamilton): salvia #1F6B52/#6BB29B y cian #0F6F93/#2DA3D9
 */
 :root {
   --surface-canvas: #f4efe8;
   --surface-card: #fffcf8;
-  --surface-muted: #e7dfd6;
+  --surface-subtle: #f7f3ec;
+  --surface-muted: #eae2d8;
   --surface-rail: #1a1511;
-  --border-subtle: #d8cfc4;
+  --surface-rail-elevated: #28211b;
+  --border-subtle: #ded5c8;
+  --border-strong: #c8bcb0;
   --accent: #c2410c;
-  --accent-soft: #df4b22;
+  --accent-hover: #9a3412;
+  --accent-tint: #fff1e8;
   --ink: #1a1511;
-  --ink-muted: #645e59;
-  --on-rail: #f6f1ea;
-  --on-rail-muted: #d0bba9;
-  --status-done: #e5f4ee;
-  --status-done-ink: #1f6b52;
-  --status-now: #e7f6fb;
-  --status-now-ink: #0f6f93;
+  --ink-muted: #5c554f;
+  --on-rail: #f8f4ee;
+  --on-rail-muted: #cbb9a8;
+  --status-done: #e3f3ec;
+  --status-done-ink: #165942;
+  --status-now: #e4f3fa;
+  --status-now-ink: #0d5e7d;
+  --status-warn: #fef3c7;
+  --status-warn-ink: #92400e;
   --focus: #1a53b9;
   color-scheme: light;
 }
@@ -46,6 +48,91 @@ body {
 .touch {
   min-height: 44px;
   min-width: 44px;
+}
+
+@layer components {
+  .card {
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-card);
+    box-shadow: 0 1px 2px rgba(26, 21, 17, 0.04), 0 6px 18px -12px rgba(26, 21, 17, 0.12);
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: #ffffff;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    color: var(--ink);
+    transition: border-color 140ms ease, box-shadow 140ms ease;
+  }
+
+  .field:hover {
+    border-color: #a99b8c;
+  }
+
+  .field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.14);
+    outline: none;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 10px;
+    background: var(--accent);
+    padding: 0 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(26, 21, 17, 0.16);
+    transition: background-color 140ms ease, transform 120ms ease;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: #ffffff;
+    padding: 0 14px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink);
+    transition: background-color 140ms ease, border-color 140ms ease;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--surface-subtle);
+    border-color: #a99b8c;
+  }
+
+  .btn-secondary:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
 }
 
 button:focus-visible,

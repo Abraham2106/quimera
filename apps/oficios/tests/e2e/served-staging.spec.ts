@@ -72,7 +72,7 @@ test("recorrido del shell, orden, material y evidencia", async ({ page }) => {
   await page.getByRole("button", { name: "Materiales y CAByS" }).click();
   await page.getByLabel("Precio (₡)").fill("1.500,00");
   await page.getByRole("button", { name: "Agregar material con IVA 13%" }).click();
-  await expect(page.getByText("₡1.500,00")).toBeVisible();
+  await expect(page.getByText("₡1.500,00").first()).toBeVisible();
   await page.getByRole("button", { name: "Diagnóstico y evidencia" }).click();
   const dir = await mkdtemp(path.join(os.tmpdir(), "ofi-png-"));
   const png = path.join(dir, "foto.png");

@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import type { DevApiConfig } from "../config.js";
 import { appendDevAuthHeaders } from "../dev-auth-headers.js";
+import { CheckIcon, UploadCloudIcon } from "./Icons.js";
 
 type NeedsReview = { column: string; status: string; confidence: number };
 type ConflictRow = { id: string; status: string; summary: string };
@@ -27,17 +28,51 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
   const [message, setMessage] = useState<string | null>(null);
 
   return (
-    <section>
-      <h2 className="text-base font-semibold">Data Exodus</h2>
-      <p className="mb-3 text-sm text-[var(--ink-muted)]">Cargue el archivo, revise NEEDS_REVIEW, resuelva conflictos y reanude la carga sin usar la CLI.</p>
-      <ol className="mb-4 flex flex-wrap gap-2 text-xs">
-        {STEPS.map((label, index) => (
-          <li key={label} className={`rounded px-2 py-2 ${index === step ? "bg-[var(--status-now)] text-[var(--status-now-ink)]" : "bg-[var(--surface-card)]"}`}>{index + 1}. {label}</li>
-        ))}
+    <section className="card p-5 sm:p-6">
+      <div className="border-b border-[var(--border-subtle)] pb-4">
+        <h2 className="text-lg font-semibold text-[var(--ink)]">Data Exodus</h2>
+        <p className="mt-1 text-sm text-[var(--ink-muted)]">
+          Cargue el archivo, revise NEEDS_REVIEW, resuelva conflictos y reanude la carga sin usar la CLI.
+        </p>
+      </div>
+
+      <ol className="my-5 grid gap-2 sm:grid-cols-4">
+        {STEPS.map((label, index) => {
+          const done = index < step;
+          const active = index === step;
+          return (
+            <li
+              key={label}
+              className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-xs font-medium ${
+                done
+                  ? "border-emerald-200 bg-[var(--status-done)] text-[var(--status-done-ink)]"
+                  : active
+                    ? "border-sky-300 bg-[var(--status-now)] font-semibold text-[var(--status-now-ink)]"
+                    : "border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-[var(--ink-muted)]"
+              }`}
+            >
+              <span
+                className={`num flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                  done
+                    ? "bg-[var(--status-done-ink)] text-white"
+                    : active
+                      ? "bg-[var(--status-now-ink)] text-white"
+                      : "bg-[var(--surface-muted)] text-[var(--ink-muted)]"
+                }`}
+              >
+                {done ? <CheckIcon width={12} height={12} /> : index + 1}
+              </span>
+              <span>
+                {index + 1}. {label}
+              </span>
+            </li>
+          );
+        })}
       </ol>
+
       {step === 0 ? (
         <form
-          className="rounded border border-dashed border-[var(--border-subtle)] bg-white p-4"
+          className="flex flex-col items-center rounded-xl border-2 border-dashed border-[var(--border-strong)] bg-[var(--surface-subtle)]/50 p-8 text-center"
           onSubmit={(event) => {
             event.preventDefault();
             const input = event.currentTarget.elements.namedItem("file");
@@ -58,44 +93,78 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
             })();
           }}
         >
-          <input name="file" type="file" accept=".csv,.xlsx,.xml,text/csv" />
-          <button type="submit" className="touch mt-3 rounded bg-[var(--accent)] px-3 text-sm text-white">Subir</button>
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-tint)] text-[var(--accent)]">
+            <UploadCloudIcon width={24} height={24} />
+          </span>
+          <p className="mt-3 text-sm font-semibold text-[var(--ink)]">
+            Seleccione un archivo CSV, XLSX o XML de clientes / equipos
+          </p>
+          <p className="mt-1 text-xs text-[var(--ink-muted)]">
+            Cada columna ambigua quedará marcada como NEEDS_REVIEW para confirmación humana.
+          </p>
+          <input
+            name="file"
+            type="file"
+            accept=".csv,.xlsx,.xml,text/csv"
+            className="mt-4 max-w-full text-sm text-[var(--ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--surface-rail)] file:px-3.5 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#322923]"
+          />
+          <button type="submit" className="touch btn-primary mt-5">
+            Subir
+          </button>
         </form>
       ) : null}
+
       {step === 1 ? (
-        <button
-          type="button"
-          className="touch rounded border bg-white px-3 text-sm"
-          onClick={() => {
-            void (async () => {
-              const response = await send(props.config, `/api/v1/migrations/${runId}/profile`, { method: "POST" });
-              const json = (await response.json()) as { needsReview?: NeedsReview[]; error?: { message?: string } };
-              if (!response.ok) {
-                setMessage(json.error?.message ?? "No se pudo perfilar.");
-                return;
-              }
-              setNeedsReview(json.needsReview ?? []);
-              const conflictsResponse = await send(props.config, `/api/v1/migrations/${runId}/conflicts`);
-              const conflictsJson = (await conflictsResponse.json()) as { conflicts?: ConflictRow[] };
-              setConflicts(conflictsJson.conflicts ?? []);
-              setStep(2);
-            })();
-          }}
-        >
-          Perfilar
-        </button>
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-5">
+          <p className="text-sm text-[var(--ink)]">
+            Corrida preparada <span className="num font-semibold">{runId}</span>. Ejecute el perfilado para
+            detectar columnas ambiguas y posibles duplicados.
+          </p>
+          <button
+            type="button"
+            className="touch btn-primary mt-4"
+            onClick={() => {
+              void (async () => {
+                const response = await send(props.config, `/api/v1/migrations/${runId}/profile`, { method: "POST" });
+                const json = (await response.json()) as { needsReview?: NeedsReview[]; error?: { message?: string } };
+                if (!response.ok) {
+                  setMessage(json.error?.message ?? "No se pudo perfilar.");
+                  return;
+                }
+                setNeedsReview(json.needsReview ?? []);
+                const conflictsResponse = await send(props.config, `/api/v1/migrations/${runId}/conflicts`);
+                const conflictsJson = (await conflictsResponse.json()) as { conflicts?: ConflictRow[] };
+                setConflicts(conflictsJson.conflicts ?? []);
+                setStep(2);
+              })();
+            }}
+          >
+            Perfilar
+          </button>
+        </div>
       ) : null}
+
       {step === 2 ? (
-        <div>
-          <ul className="mb-3 text-sm text-amber-800">
-            {needsReview.map((column) => (
-              <li key={column.column}>NEEDS_REVIEW {column.column} ({column.confidence})</li>
-            ))}
-          </ul>
+        <div className="space-y-4">
+          {needsReview.length > 0 ? (
+            <div className="rounded-xl border border-amber-300 bg-[var(--status-warn)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-amber-900">
+                Columnas marcadas como NEEDS_REVIEW
+              </p>
+              <ul className="mt-2 space-y-1 text-sm text-amber-950">
+                {needsReview.map((column) => (
+                  <li key={column.column} className="num">
+                    NEEDS_REVIEW {column.column} ({column.confidence})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
           {conflicts.map((conflict) => (
             <form
               key={conflict.id}
-              className="mb-3 rounded border bg-white p-3 text-sm"
+              className="rounded-xl border border-[var(--border-subtle)] bg-white p-4 text-sm"
               onSubmit={(event) => {
                 event.preventDefault();
                 const rationale = new FormData(event.currentTarget).get("rationale");
@@ -115,30 +184,57 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
                 })();
               }}
             >
-              <p>{conflict.summary} ({conflict.status})</p>
-              <input name="rationale" required className="mt-2 w-full rounded border px-2 py-2" placeholder="Justificación" />
-              <button type="submit" className="touch mt-2 rounded border px-3">Registrar decisión</button>
+              <p className="font-semibold text-[var(--ink)]">
+                {conflict.summary} <span className="num text-xs text-[var(--ink-muted)]">({conflict.status})</span>
+              </p>
+              <input name="rationale" required className="field mt-2.5" placeholder="Justificación de la decisión" />
+              <button type="submit" className="touch btn-secondary mt-3">
+                Registrar decisión
+              </button>
             </form>
           ))}
-          <button type="button" className="touch rounded border px-3 text-sm" disabled={conflicts.length > 0} onClick={() => setStep(3)}>Continuar</button>
+
+          <button
+            type="button"
+            className="touch btn-primary"
+            disabled={conflicts.length > 0}
+            onClick={() => setStep(3)}
+          >
+            Continuar
+          </button>
         </div>
       ) : null}
+
       {step === 3 ? (
-        <button
-          type="button"
-          className="touch rounded bg-[var(--accent)] px-3 text-sm text-white"
-          onClick={() => {
-            void (async () => {
-              const response = await send(props.config, `/api/v1/migrations/${runId}/resume`, { method: "POST" });
-              const json = (await response.json()) as { status?: string; error?: { message?: string } };
-              setMessage(response.ok ? `Carga ${json.status ?? "completada"}.` : (json.error?.message ?? "No se pudo reanudar."));
-            })();
-          }}
-        >
-          Reanudar carga
-        </button>
+        <div className="rounded-xl border border-emerald-200 bg-[var(--status-done)]/60 p-5">
+          <p className="text-sm font-medium text-[var(--ink)]">
+            Todos los conflictos han sido resueltos. Puede reanudar la carga final hacia el taller.
+          </p>
+          <button
+            type="button"
+            className="touch btn-primary mt-4"
+            onClick={() => {
+              void (async () => {
+                const response = await send(props.config, `/api/v1/migrations/${runId}/resume`, { method: "POST" });
+                const json = (await response.json()) as { status?: string; error?: { message?: string } };
+                setMessage(
+                  response.ok
+                    ? `Carga ${json.status ?? "completada"}.`
+                    : (json.error?.message ?? "No se pudo reanudar."),
+                );
+              })();
+            }}
+          >
+            Reanudar carga
+          </button>
+        </div>
       ) : null}
-      {message ? <p className="mt-3 text-sm">{message}</p> : null}
+
+      {message ? (
+        <p className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-2.5 text-sm text-[var(--ink)]">
+          {message}
+        </p>
+      ) : null}
     </section>
   );
 }

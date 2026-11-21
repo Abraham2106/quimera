@@ -33,57 +33,99 @@ export function OfflineSyncDrawer(props: {
   }, [props.config]);
 
   if (!props.open) return null;
+
   return (
-    <aside className="fixed inset-y-0 right-0 z-20 w-full max-w-md overflow-auto border-l bg-white p-4 shadow-lg" role="dialog" aria-label="Cola sin conexión">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold">Sincronización</h2>
-        <button type="button" className="touch rounded border px-3 text-sm" onClick={props.onClose}>Cerrar</button>
-      </div>
-      <button
-        type="button"
-        className="touch mb-3 rounded bg-[var(--accent)] px-3 text-sm text-white"
-        onClick={() => {
-          void (async () => {
-            const db = await openOfflineDatabase(indexedDB);
-            const result = await flushMutationQueue(db, (item) =>
-              postOfflineSync(props.config, item.workOrderId, {
-                clientMutationId: item.clientMutationId,
-                expectedVersion: item.expectedVersion,
-                kind: item.kind,
-                ...item.payload,
-              }),
-            );
-            setConflicts(result.conflicts);
-            await refresh();
-          })();
-        }}
+    <div className="fixed inset-0 z-30 flex justify-end bg-[#1a1511]/40 backdrop-blur-[1px]">
+      <div className="flex-1" onClick={props.onClose} aria-hidden="true" />
+      <aside
+        className="flex h-full w-full max-w-md flex-col border-l border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-2xl"
+        role="dialog"
+        aria-label="Cola sin conexión"
       >
-        Sincronizar ahora
-      </button>
-      <ul className="space-y-2 text-sm">
-        {rows.map((row) => (
-          <li key={row.clientMutationId} className="rounded border p-2">
-            <p>{row.kind} · orden {row.workOrderId.slice(0, 8)}</p>
-            <p className="text-xs text-[var(--ink-muted)]">{new Date(row.enqueuedAt).toLocaleString("es-CR", { timeZone: "America/Costa_Rica" })}</p>
-            {conflicts.includes(row.clientMutationId) ? (
-              <div className="mt-2" role="alert">
-                <p>Conflicto HTTP 409: la orden cambió en el servidor.</p>
-                <button
-                  type="button"
-                  className="touch mt-1 rounded border px-2"
-                  onClick={() => {
-                    void openOfflineDatabase(indexedDB).then((db) => removeMutation(db, row.clientMutationId)).then(refresh);
-                  }}
+        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-5 py-4">
+          <div>
+            <h2 className="text-base font-semibold text-[var(--ink)]">Sincronización</h2>
+            <p className="text-xs text-[var(--ink-muted)]">
+              {rows.length} {rows.length === 1 ? "operación pendiente" : "operaciones pendientes"}
+            </p>
+          </div>
+          <button type="button" className="touch btn-secondary text-xs" onClick={props.onClose}>
+            Cerrar
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-auto p-5">
+          <button
+            type="button"
+            className="touch btn-primary mb-4 w-full"
+            onClick={() => {
+              void (async () => {
+                const db = await openOfflineDatabase(indexedDB);
+                const result = await flushMutationQueue(db, (item) =>
+                  postOfflineSync(props.config, item.workOrderId, {
+                    clientMutationId: item.clientMutationId,
+                    expectedVersion: item.expectedVersion,
+                    kind: item.kind,
+                    ...item.payload,
+                  }),
+                );
+                setConflicts(result.conflicts);
+                await refresh();
+              })();
+            }}
+          >
+            Sincronizar ahora
+          </button>
+
+          {rows.length === 0 ? (
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-8 text-center text-sm text-[var(--ink-muted)]">
+              No hay cambios pendientes en el dispositivo.
+            </div>
+          ) : (
+            <ul className="space-y-3 text-sm">
+              {rows.map((row) => (
+                <li
+                  key={row.clientMutationId}
+                  className="rounded-xl border border-[var(--border-subtle)] bg-white p-3.5 shadow-xs"
                 >
-                  Descartar borrador local
-                </button>
-              </div>
-            ) : (
-              <p className="text-xs">En cola</p>
-            )}
-          </li>
-        ))}
-      </ul>
-    </aside>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="num text-xs font-semibold text-[var(--ink)]">
+                      {row.kind} · orden {row.workOrderId.slice(0, 8)}
+                    </p>
+                    {!conflicts.includes(row.clientMutationId) ? (
+                      <span className="rounded-full bg-[var(--status-warn)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--status-warn-ink)]">
+                        En cola
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="num mt-1 text-xs text-[var(--ink-muted)]">
+                    {new Date(row.enqueuedAt).toLocaleString("es-CR", { timeZone: "America/Costa_Rica" })}
+                  </p>
+                  {conflicts.includes(row.clientMutationId) ? (
+                    <div
+                      className="mt-3 rounded-lg border border-amber-300 bg-[var(--status-warn)] p-3 text-xs text-amber-950"
+                      role="alert"
+                    >
+                      <p className="font-semibold">Conflicto HTTP 409: la orden cambió en el servidor.</p>
+                      <button
+                        type="button"
+                        className="touch btn-secondary mt-2 text-xs"
+                        onClick={() => {
+                          void openOfflineDatabase(indexedDB)
+                            .then((db) => removeMutation(db, row.clientMutationId))
+                            .then(refresh);
+                        }}
+                      >
+                        Descartar borrador local
+                      </button>
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </aside>
+    </div>
   );
 }
