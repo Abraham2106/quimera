@@ -34,3 +34,8 @@
 - OficiOS: HTTP 409, un `FiscalIntent`, CAByS en modo fixture del pasaporte, UI en `apps/oficios/web` (Vite en `127.0.0.1:5173`).
 - `pnpm typecheck` 0, `pnpm lint` 0, `pnpm test` 55 archivos / 128 pruebas, `pnpm test:isolation` 0, `pnpm test:security` 17/17, `QUIMERA_AI_ENABLED=false pnpm demo:verify` 0.
 - `pnpm audit --audit-level=high` sigue en rojo por `tinypool` y `drizzle-orm`. Sin override. Post-MVP no se inició.
+
+## 2026-11-21 — Más allá del MVP y QA en paralelo
+
+- Objetivo nuevo: `WBS-8.1`..`WBS-8.4` más una pasada de QA real sobre lo ya logrado.
+- QA sin escritura, carriles disjuntos. Un solo agente toca PostgreSQL.
