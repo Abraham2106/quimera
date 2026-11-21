@@ -5,13 +5,14 @@ import { resolveDatabaseUrl } from "../db/connection.js";
 import { loadDemoHvac1000 } from "./load-demo-hvac-1000.js";
 import { resolveDemoHvacFixtureRoot } from "./resolve-repo-root.js";
 
-const SCHEMA_VERSION_ID = "33333333-3333-4333-8333-333333333333";
 const HVAC_CONTRACT = "hvac-refrigeration-v1";
 
 function uuidFromKey(key: string): string {
   const hex = createHash("sha256").update(key).digest("hex");
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 }
+
+const SCHEMA_VERSION_ID = uuidFromKey("schema:oficios-v1@1.0.0");
 
 function sha256Hex(value: string): string {
   return createHash("sha256").update(value).digest("hex");
