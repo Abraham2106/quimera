@@ -6,6 +6,7 @@ Este directorio es la raíz OpenSpec del repositorio: aquí viven las **specs pr
 openspec/
 ├── config.yaml                          # esquema spec-driven, contexto e invariantes de QUIMERA
 ├── BACKFILL.md                          # registro de reconciliación del baseline MVP
+├── SAAS_ROADMAP.md                      # hoja de ruta por oleadas: de Demo Offline a SaaS B2B
 ├── specs/                               # specs principales vigentes, por capacidad (un solo segmento)
 │   ├── core-contracts-money/
 │   ├── exodus-profiling-mapping/
@@ -18,9 +19,15 @@ openspec/
 │   ├── factura-ci-harness/
 │   ├── oficios-workshop-flow/
 │   └── clairic-optional-isolation/
-└── changes/                             # cambios activos y archivo histórico
+└── changes/                             # cambios activos (Demo → SaaS B2B) y archivo histórico
     ├── add-oficios-rls-policies/
     ├── replace-oficios-test-headers-auth/
+    ├── add-b2b-tenant-onboarding-lifecycle/
+    ├── add-cloud-cas-retention-and-pitr/
+    ├── add-hacienda-production-fiscal-delivery/
+    ├── add-b2b-migration-portal-and-offline-pwa/
+    ├── add-saas-billing-plans-and-quotas/
+    ├── add-saas-observability-deployment-and-ci-gates/
     └── archive/                         # YYYY-MM-DD-<nombre>/
 ```
 

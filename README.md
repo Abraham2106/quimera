@@ -198,7 +198,7 @@ pnpm --filter @quimera/oficios dev:web
 
 ## Documentación
 
-- [Contratos OpenSpec](openspec/README.md) y [Backfill](openspec/BACKFILL.md): specs de comportamiento vigente (`openspec/specs/`) y cambios activos hacia producción (`openspec/changes/`).
+- [Contratos OpenSpec](openspec/README.md), [Backfill](openspec/BACKFILL.md) y [Hoja de ruta Demo → SaaS B2B](openspec/SAAS_ROADMAP.md): specs de comportamiento vigente (`openspec/specs/`) y 8 cambios activos hacia producción (`openspec/changes/`).
 - [Índice maestro de ingeniería](docs/README.md): mapa completo de las 12 fases documentales.
 - [Arquitectura de software](docs/04-architecture/software-architecture.md) y [15 ADRs](docs/DECISIONS.md): fronteras de módulos, dependencias y decisiones.
 - [Diseño de CR API Passport](docs/06-interfaces/api-passport-design.md) y [Diseño MCP](docs/06-interfaces/MCP-design.md): manifiestos, cuotas de Hacienda/BCCR y seguridad para agentes.
