@@ -1,5 +1,7 @@
 import type { Sql } from "postgres";
 
+import type { OficiosSql } from "../../db/connection.js";
+
 import { enqueueIntent } from "@quimera/fiscal-outbox";
 
 import { applyWorkOrderTransition, loadWorkOrderForTenant } from "./work-order-store.js";
@@ -15,7 +17,7 @@ export type CloseWorkOrderResult = {
 };
 
 export async function closeWorkOrderWithFiscalIntent(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
   actorId: string,
@@ -35,7 +37,7 @@ export async function closeWorkOrderWithFiscalIntent(
     let fiscalIntentId = row.fiscal_intent_id;
     let enqueued = false;
     if (!fiscalIntentId) {
-      const intent = await enqueueIntent(sql, {
+      const intent = await enqueueIntent(sql as Sql, {
         tenantId,
         issuerId: DEFAULT_ISSUER_ID,
         environment: "mock",
@@ -78,7 +80,7 @@ export async function closeWorkOrderWithFiscalIntent(
     return { ok: false, kind: "fsm", response: transition.response };
   }
 
-  const intent = await enqueueIntent(sql, {
+  const intent = await enqueueIntent(sql as Sql, {
     tenantId,
     issuerId: DEFAULT_ISSUER_ID,
     environment: "mock",

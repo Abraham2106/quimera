@@ -1,6 +1,9 @@
 import { createMiddleware } from "hono/factory";
 
-import { createOficiosPostgresClient } from "../../db/connection.js";
+import {
+  createOficiosPostgresClient,
+  withOfiTenantTransaction,
+} from "../../db/connection.js";
 import {
   ERR_VALIDATION,
   errorResponse,
@@ -59,8 +62,10 @@ export function createRequestContextMiddleware(
     c.set("tenantId", tenantHeader);
     c.set("role", role);
     c.set("actorId", actorId);
-    c.set("sql", sql);
 
-    await next();
+    await withOfiTenantTransaction(sql, tenantHeader, async (tx) => {
+      c.set("sql", tx);
+      await next();
+    });
   });
 }

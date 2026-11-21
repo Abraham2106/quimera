@@ -2,6 +2,8 @@ import type { Sql } from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../../src/api/app.js";
+import { withOfiTenantTransaction } from "../../src/db/connection.js";
+import { TENANT_ID } from "./helpers.js";
 import { ERR_WORK_ORDER_APPROVAL_REQUIRED } from "../../src/domain/work-order-errors.js";
 import { apiTestHeaders, seedCustomerEquipment, setupApiDb } from "./helpers.js";
 
@@ -22,11 +24,13 @@ describe("flujo OficiOS recepción → cierre con FiscalIntent", () => {
   it("bloquea el cierre sin aprobación y encola una intención fiscal al cerrar", async () => {
     if (!dbAvailable) return;
     const { customerId, equipmentId } = await seedCustomerEquipment(client);
-    await client`
-      UPDATE ofi_customers
-      SET legal_name = ${"Distribuidora Sintetica Flujo"}
-      WHERE id = ${customerId}::uuid
-    `;
+    await withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+      await tx`
+        UPDATE ofi_customers
+        SET legal_name = ${"Distribuidora Sintetica Flujo"}
+        WHERE id = ${customerId}::uuid
+      `;
+    });
     const app = createApp({ sql: client });
     const headers = apiTestHeaders();
 
