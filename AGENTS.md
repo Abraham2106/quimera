@@ -47,10 +47,10 @@ pnpm db:migrate
 pnpm verify
 ```
 
-`pnpm verify` is the local end-to-end offline gate: typecheck, lint, full test
-suite, security tests, `pnpm deploy` package isolation, and `demo:verify` with
-`QUIMERA_AI_ENABLED=false`. Run `pnpm audit --audit-level=high` to match CI's
-dependency audit step.
+`pnpm verify` is the local end-to-end offline gate: OpenSpec strict validation
+(`pnpm spec:validate`), typecheck, lint, full test suite, security tests,
+`pnpm deploy` package isolation, and `demo:verify` with `QUIMERA_AI_ENABLED=false`.
+Run `pnpm audit --audit-level=high` to match CI's dependency audit step.
 
 Inspect `git status` before editing. Preserve unrelated changes and untracked
 files. Stage only files belonging to your task.
@@ -72,6 +72,7 @@ files. Stage only files belonging to your task.
 ## Documentation map
 
 - [README](README.md): product overview, quickstart, CLI, MCP, and boundaries.
+- [OpenSpec root](openspec/README.md) and [Backfill](openspec/BACKFILL.md): behavioral capability specs (`openspec/specs/`) and active evolution changes (`openspec/changes/`). Do not hand-edit `openspec/specs/` for product changes; author a change delta and validate with `pnpm spec:validate`.
 - [Docs index](docs/README.md): full 12-phase engineering documentation map.
 - [Architecture](docs/04-architecture/software-architecture.md) and [ADRs](docs/DECISIONS.md).
 - [API Passport design](docs/06-interfaces/api-passport-design.md) and [MCP design](docs/06-interfaces/MCP-design.md).

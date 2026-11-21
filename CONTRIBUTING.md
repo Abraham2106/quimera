@@ -17,18 +17,20 @@ Si corrés PostgreSQL 16 directamente en tu host sin Docker, creá un rol `quime
 
 `pnpm verify` ejecuta en modo 100% offline:
 
-1. `pnpm typecheck` (9 paquetes)
-2. `pnpm lint`
-3. `pnpm test` (suite completa contra PostgreSQL 16)
-4. `pnpm test:security` (aislamiento RLS por tenant, XXE, loopback-only, CAS)
-5. `pnpm test:isolation` (instala cada paquete `@quimera/*` con `pnpm deploy` verificando que no arrastra `@quimera/oficios` ni `@quimera/adapter-clairic`)
-6. `pnpm demo:verify` (guión completo de cuatro actos con `QUIMERA_AI_ENABLED=false`)
+1. `pnpm spec:validate` (validación estricta de specs y deltas OpenSpec en `openspec/`)
+2. `pnpm typecheck` (9 paquetes)
+3. `pnpm lint`
+4. `pnpm test` (suite completa contra PostgreSQL 16)
+5. `pnpm test:security` (aislamiento RLS por tenant, XXE, loopback-only, CAS)
+6. `pnpm test:isolation` (instala cada paquete `@quimera/*` con `pnpm deploy` verificando que no arrastra `@quimera/oficios` ni `@quimera/adapter-clairic`)
+7. `pnpm demo:verify` (guión completo de cuatro actos con `QUIMERA_AI_ENABLED=false`)
 
 `pnpm verify` deshabilita explícitamente IA y tokens externos aunque estén definidos en tu shell. Nunca envía comprobantes reales a Hacienda ni consume APIs públicas en vivo.
 
 ## Guía del repositorio
 
 - Agentes de código e IA deben empezar por [`AGENTS.md`](AGENTS.md).
+- Contratos de comportamiento y propuestas de cambio: [`openspec/README.md`](openspec/README.md) (`pnpm spec:validate`).
 - Arquitectura, dependencias permitidas y ADRs: [`docs/04-architecture/software-architecture.md`](docs/04-architecture/software-architecture.md) y [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - Estrategia y matriz de pruebas: [`docs/08-quality/test-strategy.md`](docs/08-quality/test-strategy.md).
 - Política de seguridad y límites operativos: [`SECURITY.md`](SECURITY.md).
