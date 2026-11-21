@@ -147,12 +147,12 @@ test("pantalla servida: onboarding, Data Exodus, orden, cobro y auditoría", asy
   await page.reload();
   const workOrderForm = page.locator("form").filter({ hasText: "Recibir orden" });
   const customerSelect = workOrderForm.locator("select").first();
-  await customerSelect.selectOption({ index: 1 });
+  await customerSelect.selectOption({ value: customerId });
   const equipmentSelect = workOrderForm.locator("select").nth(1);
   await expect(equipmentSelect.locator("option")).not.toHaveCount(0);
-  await equipmentSelect.selectOption({ index: 0 });
+  await equipmentSelect.selectOption({ value: equipmentId });
   const equipmentValue = await equipmentSelect.inputValue();
-  expect(equipmentValue.length).toBeGreaterThan(0);
+  expect(equipmentValue).toBe(equipmentId);
   await page.getByRole("button", { name: "Recibir orden" }).click();
   await expect(page.getByText("Orden de servicio")).toBeVisible({ timeout: 15_000 });
 
@@ -193,14 +193,17 @@ test("pantalla servida: onboarding, Data Exodus, orden, cobro y auditoría", asy
   await page.waitForTimeout(2500);
 
   const rows = await withOfiTenantTransaction(dbClient, TENANT_ID, async (tx) =>
-    tx<{ count: string; notes: string | null }[]>`
-      SELECT count(*)::text AS count, max(notes) AS notes
+    tx<{ count: string; offline_count: string }[]>`
+      SELECT
+        count(*)::text AS count,
+        count(*) FILTER (WHERE d.notes = ${offlineNote})::text AS offline_count
       FROM ofi_diagnoses d
       INNER JOIN ofi_work_orders w ON w.id = d.work_order_id
       WHERE w.customer_id = ${customerId}::uuid
     `,
   );
   expect(Number(rows[0]?.count ?? "0")).toBeGreaterThanOrEqual(1);
+  expect(Number(rows[0]?.offline_count ?? "0")).toBeGreaterThanOrEqual(1);
 
   await api.dispose();
 });
