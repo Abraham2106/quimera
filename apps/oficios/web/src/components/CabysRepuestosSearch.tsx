@@ -6,9 +6,11 @@ import type { CabysItem } from "../api/types.js";
 
 type Props = {
   readonly config: DevApiConfig;
+  readonly onPick?: (code: string) => void;
 };
 
-export function CabysRepuestosSearch({ config }: Props) {
+export function CabysRepuestosSearch(props: Props) {
+  const { config } = props;
   const [query, setQuery] = useState("refriger");
   const [items, setItems] = useState<readonly CabysItem[]>([]);
   const [metaSource, setMetaSource] = useState<string | null>(null);
@@ -69,7 +71,13 @@ export function CabysRepuestosSearch({ config }: Props) {
         <ul className="mt-3 divide-y divide-slate-100 rounded border border-slate-100">
           {items.map((item) => (
             <li key={item.codigo ?? item.descripcion} className="px-3 py-2 text-sm">
-              <span className="font-mono text-slate-800">{item.codigo}</span>
+              {item.codigo && props.onPick ? (
+                <button type="button" className="touch font-mono text-[var(--accent)]" onClick={() => props.onPick?.(item.codigo!)}>
+                  Usar {item.codigo}
+                </button>
+              ) : (
+                <span className="font-mono text-slate-800">{item.codigo}</span>
+              )}
               {item.descripcion ? (
                 <span className="text-slate-600"> — {item.descripcion}</span>
               ) : null}

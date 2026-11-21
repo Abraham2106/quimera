@@ -1,5 +1,47 @@
 @import "tailwindcss";
 
+:root {
+  --surface-canvas: #f7f7f5;
+  --surface-card: #ffffff;
+  --surface-muted: #f0f0ec;
+  --border-subtle: #e5e5e0;
+  --accent: #0f4c81;
+  --ink: #111827;
+  --ink-muted: #52525b;
+  color-scheme: light;
+}
+
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  margin: 0;
+  background: var(--surface-canvas);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.num {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.touch {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #0284c7;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }
