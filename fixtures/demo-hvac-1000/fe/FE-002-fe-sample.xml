@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- quimera:fe-sample — comprobante sintético, NO válido para validación SDK en producción -->
+<FacturaElectronica
+  xmlns="https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/facturaElectronica"
+  quimera-fe-sample="true">
+  <Clave>506110100900100000100100001010000000221</Clave>
+  <NumeroConsecutivo>00100001010000000221</NumeroConsecutivo>
+  <FechaEmision>2025-04-12T10:00:00-06:00</FechaEmision>
+  <Emisor>
+    <Nombre>Emisor Sintetico Demo QUIMERA</Nombre>
+    <Identificacion>
+      <Tipo>02</Tipo>
+      <Numero>9000100000</Numero>
+    </Identificacion>
+  </Emisor>
+  <Receptor>
+    <Nombre>Taller Sintetico Conflicto A</Nombre>
+    <Identificacion>
+      <Tipo>02</Tipo>
+      <Numero>9001000001</Numero>
+    </Identificacion>
+  </Receptor>
+  <ResumenFactura>
+    <CodigoTipoMoneda>
+      <CodigoMoneda>CRC</CodigoMoneda>
+    </CodigoTipoMoneda>
+    <TotalComprobante>45250.00</TotalComprobante>
+  </ResumenFactura>
+</FacturaElectronica>
