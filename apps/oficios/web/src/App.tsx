@@ -10,18 +10,21 @@ import {
   fetchWorkOrder,
   formatOrdenFolio,
   registerCustomerApproval,
+  postOfflineSync,
   saveDiagnosis,
   saveMaterial,
   transitionWorkOrder,
 } from "./api/client.js";
 import type { CustomerListItem } from "./api/types.js";
 import type { ProvenanceEntry, SerializedWorkOrder } from "./api/types.js";
+import { MigrationWorkbench } from "./components/MigrationWorkbench.js";
 import { OrgOnboardingPanel } from "./components/OrgOnboardingPanel.js";
 import { TeamManagementPanel } from "./components/TeamManagementPanel.js";
 import { ApprovalBlock } from "./components/ApprovalBlock.js";
 import { CabysRepuestosSearch } from "./components/CabysRepuestosSearch.js";
 import { ProvenanceDisclosure } from "./components/ProvenanceDisclosure.js";
 import { loadDevApiConfig } from "./config.js";
+import { enqueueMutation, flushMutationQueue, openOfflineDatabase } from "./offline/mutation-queue.js";
 import { statusLabel } from "./status-labels.js";
 
 const ERR_WORK_ORDER_APPROVAL_REQUIRED = "ERR_WORK_ORDER_APPROVAL_REQUIRED";
@@ -97,6 +100,24 @@ export function App() {
       void loadOrder(config.workOrderId);
     }
   }, [config.workOrderId, loadOrder]);
+
+  useEffect(() => {
+    const syncQueued = () => {
+      void (async () => {
+        const db = await openOfflineDatabase(indexedDB);
+        await flushMutationQueue(db, async (item) =>
+          postOfflineSync(config, item.workOrderId, {
+            clientMutationId: item.clientMutationId,
+            expectedVersion: item.expectedVersion,
+            kind: item.kind,
+            ...item.payload,
+          }),
+        );
+      })();
+    };
+    window.addEventListener("online", syncQueued);
+    return () => window.removeEventListener("online", syncQueued);
+  }, [config]);
 
   useEffect(() => {
     void fetchCustomers(config)
@@ -194,6 +215,7 @@ export function App() {
         </p>
       </header>
 
+      <MigrationWorkbench config={config} />
       <OrgOnboardingPanel config={config} />
       <TeamManagementPanel config={config} />
 
@@ -359,6 +381,19 @@ export function App() {
                   setBusy(true);
                   setActionError(null);
                   try {
+                    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+                      const db = await openOfflineDatabase(indexedDB);
+                      await enqueueMutation(db, {
+                        clientMutationId: crypto.randomUUID(),
+                        workOrderId: workOrder.id,
+                        expectedVersion: workOrder.version,
+                        kind: "diagnosis",
+                        payload: { notes: diagnosisNotes, measurements: { succionPsi: 68 } },
+                        enqueuedAt: new Date().toISOString(),
+                      });
+                      setActionError("Diagnóstico en cola. Se enviará al reconectar.");
+                      return;
+                    }
                     await saveDiagnosis(config, workOrder.id, diagnosisNotes, { succionPsi: 68 });
                     if (workOrder.status === "RECEIVED") {
                       await transitionWorkOrder(config, workOrder.id, "DIAGNOSED", workOrder.version);

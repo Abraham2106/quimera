@@ -4,6 +4,12 @@ import { createRoot } from "react-dom/client";
 import { App } from "./App.js";
 import "./index.css";
 
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    void navigator.serviceWorker.register("/sw.js");
+  });
+}
+
 const rootEl = document.getElementById("root");
 if (!rootEl) {
   throw new Error("No se encontró el contenedor #root");

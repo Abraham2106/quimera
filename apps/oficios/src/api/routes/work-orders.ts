@@ -10,7 +10,13 @@ import {
   ERR_VALIDATION,
   errorResponse,
 } from "../errors.js";
+import {
+  AttachmentRejected,
+  readDiagnosisAttachment,
+  storeDiagnosisAttachment,
+} from "../services/diagnosis-attachments.js";
 import { closeWorkOrderWithFiscalIntent } from "../services/fiscal-close.js";
+import { applyOfflineMutation, SyncConflict } from "../services/offline-sync.js";
 import {
   applyWorkOrderTransition,
   createWorkOrderReceived,
@@ -80,6 +86,85 @@ export function createWorkOrdersRoutes() {
         materials,
       },
     });
+  });
+
+  app.post("/:id/attachments", async (c) => {
+    const workOrderId = c.req.param("id");
+    const body = await c.req.parseBody();
+    const file = body.file;
+    if (!(file instanceof File)) {
+      const { status, body: errBody } = errorResponse(400, ERR_VALIDATION, "VALIDATION", "Adjuntá un archivo en el campo file.");
+      return c.json(errBody, status);
+    }
+    try {
+      const stored = await storeDiagnosisAttachment(c.get("sql"), c.get("tenantId"), workOrderId, {
+        name: file.name,
+        mime: file.type,
+        bytes: new Uint8Array(await file.arrayBuffer()),
+      });
+      return c.json({ ok: true, ...stored }, 201);
+    } catch (error) {
+      if (error instanceof AttachmentRejected) {
+        const { status, body: errBody } = errorResponse(
+          error.status,
+          error.code,
+          "VALIDATION",
+          error.message,
+        );
+        return c.json(errBody, status);
+      }
+      throw error;
+    }
+  });
+
+  app.get("/:id/attachments/:attachmentId", async (c) => {
+    const file = await readDiagnosisAttachment(
+      c.get("sql"),
+      c.get("tenantId"),
+      c.req.param("id"),
+      c.req.param("attachmentId"),
+    );
+    if (!file) {
+      const { status, body: errBody } = errorResponse(404, ERR_NOT_FOUND, "VALIDATION", "Adjunto no encontrado.");
+      return c.json(errBody, status);
+    }
+    return new Response(file.bytes, {
+      status: 200,
+      headers: { "content-type": file.mime },
+    });
+  });
+
+  app.post("/:id/sync", async (c) => {
+    const body = await c.req.json<Record<string, unknown>>();
+    try {
+      const result = await applyOfflineMutation(c.get("sql"), c.get("tenantId"), c.req.param("id"), {
+        clientMutationId: typeof body.clientMutationId === "string" ? body.clientMutationId : undefined,
+        expectedVersion: typeof body.expectedVersion === "number" ? body.expectedVersion : undefined,
+        kind: typeof body.kind === "string" ? body.kind : undefined,
+        notes: typeof body.notes === "string" ? body.notes : undefined,
+        measurements:
+          body.measurements && typeof body.measurements === "object"
+            ? (body.measurements as Record<string, unknown>)
+            : undefined,
+        cabysCode: typeof body.cabysCode === "string" ? body.cabysCode : undefined,
+        quantity: typeof body.quantity === "string" ? body.quantity : undefined,
+        unitPriceMinor: typeof body.unitPriceMinor === "number" ? body.unitPriceMinor : undefined,
+        taxRate: typeof body.taxRate === "string" ? body.taxRate : undefined,
+      });
+      return c.json(result, 200);
+    } catch (error) {
+      if (error instanceof SyncConflict) {
+        const { status, body: errBody } = errorResponse(
+          error.status,
+          error.code,
+          error.status === 409 ? "CONFLICT" : "VALIDATION",
+          error.message,
+          error.details,
+        );
+        return c.json(errBody, status);
+      }
+      throw error;
+    }
   });
 
   app.post("/:id/diagnosis", async (c) => {

@@ -27,6 +27,8 @@ async function readSql(relativePath: string): Promise<string> {
 
 async function dropOfiObjects(client: Sql): Promise<void> {
   const tables = [
+    "ofi_client_mutations",
+    "ofi_migration_runs",
     "ofi_materials",
     "ofi_diagnosis_attachments",
     "ofi_diagnoses",
