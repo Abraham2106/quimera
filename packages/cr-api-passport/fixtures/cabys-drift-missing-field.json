@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "body": {
+    "total": 1,
+    "cantidad": 1,
+    "cabys": [
+      {
+        "codigo": "8415109010100",
+        "descripcion": "Equipo de refrigeracion comercial"
+      }
+    ]
+  }
+}

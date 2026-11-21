@@ -1,0 +1,727 @@
+{
+  "seed": 20261121,
+  "generator": "scripts/generate-fixtures.ts",
+  "generated_at": "2026-11-21T00:00:00.000Z",
+  "disclaimer": "Datos 100 % sintéticos. Identificaciones 9xxxxxxxxx, correos *.invalid, sin personas reales de Costa Rica.",
+  "counts": {
+    "duplicate_client_groups": 40,
+    "duplicate_invoices": 12,
+    "misattributed_payments": 7,
+    "conflicting_identity_pairs": 3,
+    "unreconcilable_balances": 1
+  },
+  "duplicate_client_groups": [
+    {
+      "grupo_id": "DUP-01",
+      "identificacion": "9001000007",
+      "variantes": [
+        "Taller Sintetico 01",
+        "Taller Sintetico 01 S.A."
+      ],
+      "filas_xlsx": [
+        7,
+        8
+      ]
+    },
+    {
+      "grupo_id": "DUP-02",
+      "identificacion": "9001000008",
+      "variantes": [
+        "Taller Sintetico 02 S.A.",
+        "Taller Sintetico 02 — sucursal este"
+      ],
+      "filas_xlsx": [
+        9,
+        10
+      ]
+    },
+    {
+      "grupo_id": "DUP-03",
+      "identificacion": "9001000009",
+      "variantes": [
+        "Taller Sintetico 03 — sucursal este",
+        "Taller Sintetico 03 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        11,
+        12
+      ]
+    },
+    {
+      "grupo_id": "DUP-04",
+      "identificacion": "9001000010",
+      "variantes": [
+        "Taller Sintetico 04 (mantenimiento)",
+        "Taller Sintetico 04"
+      ],
+      "filas_xlsx": [
+        13,
+        14
+      ]
+    },
+    {
+      "grupo_id": "DUP-05",
+      "identificacion": "9001000011",
+      "variantes": [
+        "Taller Sintetico 05",
+        "Taller Sintetico 05 S.A."
+      ],
+      "filas_xlsx": [
+        15,
+        16
+      ]
+    },
+    {
+      "grupo_id": "DUP-06",
+      "identificacion": "9001000012",
+      "variantes": [
+        "Taller Sintetico 06 S.A.",
+        "Taller Sintetico 06 — sucursal este"
+      ],
+      "filas_xlsx": [
+        17,
+        18
+      ]
+    },
+    {
+      "grupo_id": "DUP-07",
+      "identificacion": "9001000013",
+      "variantes": [
+        "Taller Sintetico 07 — sucursal este",
+        "Taller Sintetico 07 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        19,
+        20
+      ]
+    },
+    {
+      "grupo_id": "DUP-08",
+      "identificacion": "9001000014",
+      "variantes": [
+        "Taller Sintetico 08 (mantenimiento)",
+        "Taller Sintetico 08"
+      ],
+      "filas_xlsx": [
+        21,
+        22
+      ]
+    },
+    {
+      "grupo_id": "DUP-09",
+      "identificacion": "9001000015",
+      "variantes": [
+        "Taller Sintetico 09",
+        "Taller Sintetico 09 S.A."
+      ],
+      "filas_xlsx": [
+        23,
+        24
+      ]
+    },
+    {
+      "grupo_id": "DUP-10",
+      "identificacion": "9001000016",
+      "variantes": [
+        "Taller Sintetico 10 S.A.",
+        "Taller Sintetico 10 — sucursal este"
+      ],
+      "filas_xlsx": [
+        25,
+        26
+      ]
+    },
+    {
+      "grupo_id": "DUP-11",
+      "identificacion": "9001000017",
+      "variantes": [
+        "Taller Sintetico 11 — sucursal este",
+        "Taller Sintetico 11 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        27,
+        28
+      ]
+    },
+    {
+      "grupo_id": "DUP-12",
+      "identificacion": "9001000018",
+      "variantes": [
+        "Taller Sintetico 12 (mantenimiento)",
+        "Taller Sintetico 12"
+      ],
+      "filas_xlsx": [
+        29,
+        30
+      ]
+    },
+    {
+      "grupo_id": "DUP-13",
+      "identificacion": "9001000019",
+      "variantes": [
+        "Taller Sintetico 13",
+        "Taller Sintetico 13 S.A."
+      ],
+      "filas_xlsx": [
+        31,
+        32
+      ]
+    },
+    {
+      "grupo_id": "DUP-14",
+      "identificacion": "9001000020",
+      "variantes": [
+        "Taller Sintetico 14 S.A.",
+        "Taller Sintetico 14 — sucursal este"
+      ],
+      "filas_xlsx": [
+        33,
+        34
+      ]
+    },
+    {
+      "grupo_id": "DUP-15",
+      "identificacion": "9001000021",
+      "variantes": [
+        "Taller Sintetico 15 — sucursal este",
+        "Taller Sintetico 15 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        35,
+        36
+      ]
+    },
+    {
+      "grupo_id": "DUP-16",
+      "identificacion": "9001000022",
+      "variantes": [
+        "Taller Sintetico 16 (mantenimiento)",
+        "Taller Sintetico 16"
+      ],
+      "filas_xlsx": [
+        37,
+        38
+      ]
+    },
+    {
+      "grupo_id": "DUP-17",
+      "identificacion": "9001000023",
+      "variantes": [
+        "Taller Sintetico 17",
+        "Taller Sintetico 17 S.A."
+      ],
+      "filas_xlsx": [
+        39,
+        40
+      ]
+    },
+    {
+      "grupo_id": "DUP-18",
+      "identificacion": "9001000024",
+      "variantes": [
+        "Taller Sintetico 18 S.A.",
+        "Taller Sintetico 18 — sucursal este"
+      ],
+      "filas_xlsx": [
+        41,
+        42
+      ]
+    },
+    {
+      "grupo_id": "DUP-19",
+      "identificacion": "9001000025",
+      "variantes": [
+        "Taller Sintetico 19 — sucursal este",
+        "Taller Sintetico 19 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        43,
+        44
+      ]
+    },
+    {
+      "grupo_id": "DUP-20",
+      "identificacion": "9001000026",
+      "variantes": [
+        "Taller Sintetico 20 (mantenimiento)",
+        "Taller Sintetico 20"
+      ],
+      "filas_xlsx": [
+        45,
+        46
+      ]
+    },
+    {
+      "grupo_id": "DUP-21",
+      "identificacion": "9001000027",
+      "variantes": [
+        "Taller Sintetico 21",
+        "Taller Sintetico 21 S.A."
+      ],
+      "filas_xlsx": [
+        47,
+        48
+      ]
+    },
+    {
+      "grupo_id": "DUP-22",
+      "identificacion": "9001000028",
+      "variantes": [
+        "Taller Sintetico 22 S.A.",
+        "Taller Sintetico 22 — sucursal este"
+      ],
+      "filas_xlsx": [
+        49,
+        50
+      ]
+    },
+    {
+      "grupo_id": "DUP-23",
+      "identificacion": "9001000029",
+      "variantes": [
+        "Taller Sintetico 23 — sucursal este",
+        "Taller Sintetico 23 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        51,
+        52
+      ]
+    },
+    {
+      "grupo_id": "DUP-24",
+      "identificacion": "9001000030",
+      "variantes": [
+        "Taller Sintetico 24 (mantenimiento)",
+        "Taller Sintetico 24"
+      ],
+      "filas_xlsx": [
+        53,
+        54
+      ]
+    },
+    {
+      "grupo_id": "DUP-25",
+      "identificacion": "9001000031",
+      "variantes": [
+        "Taller Sintetico 25",
+        "Taller Sintetico 25 S.A."
+      ],
+      "filas_xlsx": [
+        55,
+        56
+      ]
+    },
+    {
+      "grupo_id": "DUP-26",
+      "identificacion": "9001000032",
+      "variantes": [
+        "Taller Sintetico 26 S.A.",
+        "Taller Sintetico 26 — sucursal este"
+      ],
+      "filas_xlsx": [
+        57,
+        58
+      ]
+    },
+    {
+      "grupo_id": "DUP-27",
+      "identificacion": "9001000033",
+      "variantes": [
+        "Taller Sintetico 27 — sucursal este",
+        "Taller Sintetico 27 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        59,
+        60
+      ]
+    },
+    {
+      "grupo_id": "DUP-28",
+      "identificacion": "9001000034",
+      "variantes": [
+        "Taller Sintetico 28 (mantenimiento)",
+        "Taller Sintetico 28"
+      ],
+      "filas_xlsx": [
+        61,
+        62
+      ]
+    },
+    {
+      "grupo_id": "DUP-29",
+      "identificacion": "9001000035",
+      "variantes": [
+        "Taller Sintetico 29",
+        "Taller Sintetico 29 S.A."
+      ],
+      "filas_xlsx": [
+        63,
+        64
+      ]
+    },
+    {
+      "grupo_id": "DUP-30",
+      "identificacion": "9001000036",
+      "variantes": [
+        "Taller Sintetico 30 S.A.",
+        "Taller Sintetico 30 — sucursal este"
+      ],
+      "filas_xlsx": [
+        65,
+        66
+      ]
+    },
+    {
+      "grupo_id": "DUP-31",
+      "identificacion": "9001000037",
+      "variantes": [
+        "Taller Sintetico 31 — sucursal este",
+        "Taller Sintetico 31 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        67,
+        68
+      ]
+    },
+    {
+      "grupo_id": "DUP-32",
+      "identificacion": "9001000038",
+      "variantes": [
+        "Taller Sintetico 32 (mantenimiento)",
+        "Taller Sintetico 32"
+      ],
+      "filas_xlsx": [
+        69,
+        70
+      ]
+    },
+    {
+      "grupo_id": "DUP-33",
+      "identificacion": "9001000039",
+      "variantes": [
+        "Taller Sintetico 33",
+        "Taller Sintetico 33 S.A."
+      ],
+      "filas_xlsx": [
+        71,
+        72
+      ]
+    },
+    {
+      "grupo_id": "DUP-34",
+      "identificacion": "9001000040",
+      "variantes": [
+        "Taller Sintetico 34 S.A.",
+        "Taller Sintetico 34 — sucursal este"
+      ],
+      "filas_xlsx": [
+        73,
+        74
+      ]
+    },
+    {
+      "grupo_id": "DUP-35",
+      "identificacion": "9001000041",
+      "variantes": [
+        "Taller Sintetico 35 — sucursal este",
+        "Taller Sintetico 35 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        75,
+        76
+      ]
+    },
+    {
+      "grupo_id": "DUP-36",
+      "identificacion": "9001000042",
+      "variantes": [
+        "Taller Sintetico 36 (mantenimiento)",
+        "Taller Sintetico 36"
+      ],
+      "filas_xlsx": [
+        77,
+        78
+      ]
+    },
+    {
+      "grupo_id": "DUP-37",
+      "identificacion": "9001000043",
+      "variantes": [
+        "Taller Sintetico 37",
+        "Taller Sintetico 37 S.A."
+      ],
+      "filas_xlsx": [
+        79,
+        80
+      ]
+    },
+    {
+      "grupo_id": "DUP-38",
+      "identificacion": "9001000044",
+      "variantes": [
+        "Taller Sintetico 38 S.A.",
+        "Taller Sintetico 38 — sucursal este"
+      ],
+      "filas_xlsx": [
+        81,
+        82
+      ]
+    },
+    {
+      "grupo_id": "DUP-39",
+      "identificacion": "9001000045",
+      "variantes": [
+        "Taller Sintetico 39 — sucursal este",
+        "Taller Sintetico 39 (mantenimiento)"
+      ],
+      "filas_xlsx": [
+        83,
+        84
+      ]
+    },
+    {
+      "grupo_id": "DUP-40",
+      "identificacion": "9001000046",
+      "variantes": [
+        "Taller Sintetico 40 (mantenimiento)",
+        "Taller Sintetico 40"
+      ],
+      "filas_xlsx": [
+        85,
+        86
+      ]
+    }
+  ],
+  "duplicate_invoices": [
+    {
+      "numero_factura": "FV-2025-DUP-001",
+      "filas_ventas_csv": [
+        1,
+        2
+      ],
+      "montos_crc": [
+        "50000.00",
+        "50500.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-002",
+      "filas_ventas_csv": [
+        3,
+        4
+      ],
+      "montos_crc": [
+        "51337.00",
+        "51337.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-003",
+      "filas_ventas_csv": [
+        5,
+        6
+      ],
+      "montos_crc": [
+        "52674.00",
+        "52674.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-004",
+      "filas_ventas_csv": [
+        7,
+        8
+      ],
+      "montos_crc": [
+        "54011.00",
+        "54511.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-005",
+      "filas_ventas_csv": [
+        9,
+        10
+      ],
+      "montos_crc": [
+        "55348.00",
+        "55348.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-006",
+      "filas_ventas_csv": [
+        11,
+        12
+      ],
+      "montos_crc": [
+        "56685.00",
+        "56685.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-007",
+      "filas_ventas_csv": [
+        13,
+        14
+      ],
+      "montos_crc": [
+        "58022.00",
+        "58522.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-008",
+      "filas_ventas_csv": [
+        15,
+        16
+      ],
+      "montos_crc": [
+        "59359.00",
+        "59359.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-009",
+      "filas_ventas_csv": [
+        17,
+        18
+      ],
+      "montos_crc": [
+        "60696.00",
+        "60696.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-010",
+      "filas_ventas_csv": [
+        19,
+        20
+      ],
+      "montos_crc": [
+        "62033.00",
+        "62533.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-011",
+      "filas_ventas_csv": [
+        21,
+        22
+      ],
+      "montos_crc": [
+        "63370.00",
+        "63370.00"
+      ]
+    },
+    {
+      "numero_factura": "FV-2025-DUP-012",
+      "filas_ventas_csv": [
+        23,
+        24
+      ],
+      "montos_crc": [
+        "64707.00",
+        "64707.00"
+      ]
+    }
+  ],
+  "misattributed_payments": [
+    {
+      "id_pago": "PAG-MIS-01",
+      "factura_cliente_id": "9001000009",
+      "pago_cliente_id": "9001000010",
+      "numero_factura": "FV-2025-DUP-011"
+    },
+    {
+      "id_pago": "PAG-MIS-02",
+      "factura_cliente_id": "9001000009",
+      "pago_cliente_id": "9001000014",
+      "numero_factura": "FV-2025-DUP-011"
+    },
+    {
+      "id_pago": "PAG-MIS-03",
+      "factura_cliente_id": "9001000009",
+      "pago_cliente_id": "9001000017",
+      "numero_factura": "FV-2025-DUP-012"
+    },
+    {
+      "id_pago": "PAG-MIS-04",
+      "factura_cliente_id": "9001000009",
+      "pago_cliente_id": "9001000021",
+      "numero_factura": "FV-2025-DUP-012"
+    },
+    {
+      "id_pago": "PAG-MIS-05",
+      "factura_cliente_id": "9001000200",
+      "pago_cliente_id": "9001000024",
+      "numero_factura": "FV-2025-BAL-001"
+    },
+    {
+      "id_pago": "PAG-MIS-06",
+      "factura_cliente_id": "9001000200",
+      "pago_cliente_id": "9001000028",
+      "numero_factura": "FV-2025-BAL-002"
+    },
+    {
+      "id_pago": "PAG-MIS-07",
+      "factura_cliente_id": "9001000126",
+      "pago_cliente_id": "9001000031",
+      "numero_factura": "FV-2025-00027"
+    }
+  ],
+  "conflicting_identity_pairs": [
+    {
+      "razon_social": "Taller Sintetico Conflicto A",
+      "identificaciones": [
+        "9001000001",
+        "9001000002"
+      ],
+      "filas_xlsx": [
+        1,
+        2
+      ]
+    },
+    {
+      "razon_social": "Distribuidora Sintetica Conflicto B",
+      "identificaciones": [
+        "9001000003",
+        "9001000004"
+      ],
+      "filas_xlsx": [
+        3,
+        4
+      ]
+    },
+    {
+      "razon_social": "Refrigeración Sintetica Conflicto C",
+      "identificaciones": [
+        "9001000005",
+        "9001000006"
+      ],
+      "filas_xlsx": [
+        5,
+        6
+      ]
+    }
+  ],
+  "unreconcilable_balances": [
+    {
+      "identificacion": "9001000200",
+      "razon_social": "Cliente Saldo Irreconciliable Sintetico",
+      "saldo_declarado_crc": "125000.00",
+      "saldo_calculado_crc": "98450.50",
+      "fila_xlsx": 240
+    }
+  ],
+  "record_totals": {
+    "clientes_xlsx": 240,
+    "ventas_2025_csv": 280,
+    "pagos_csv": 160,
+    "equipos_hvac_csv": 140,
+    "inventario_csv": 130,
+    "notas_csv": 50,
+    "facturas_fe_xml": 2,
+    "total_filas_datos": 1000
+  }
+}

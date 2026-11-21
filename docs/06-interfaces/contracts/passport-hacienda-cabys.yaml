@@ -1,0 +1,110 @@
+# Ejemplo de manifiesto declarativo de CR API Passport
+passportId: cr.hacienda.cabys
+passportVersion: 1.0.0
+status: ACTIVE
+country: CR
+provider:
+  name: Ministerio de Hacienda de Costa Rica
+  docsUrl: https://api.hacienda.go.cr/docs/
+  upstreamSpecRef: hacienda-public-api-2026
+  lastVerifiedAt: "2026-11-21T00:00:00Z"
+
+baseUrl: https://api.hacienda.go.cr
+auth:
+  type: public
+  credentialsRequired: false
+
+rateLimit:
+  scopeHost: api.hacienda.go.cr
+  officialPolicy:
+    burstRequestsPerSec: 20
+    burstWindowSec: 5
+    sustainedRequestsPerSec: 10
+    sustainedWindowSec: 120
+    penaltyOnViolation: "IP ban temporal de 10 minutos (HTTP 429)"
+  quimeraGuardrail:
+    burstRequestsPerSec: 15
+    sustainedRequestsPerSec: 8
+    maxRetriesOn5xx: 2
+    circuitBreakerCooldownSec: 60
+
+privacy:
+  containsPersonalData: false
+  logRedactionFields: []
+
+cache:
+  defaultTtlSec: 604800 # 7 días
+  allowStaleOnUpstreamError: true
+
+operations:
+  searchByText:
+    method: GET
+    path: /fe/cabys
+    idempotent: true
+    queryParams:
+      q:
+        type: string
+        required: true
+        minLength: 3
+        maxLength: 100
+      top:
+        type: integer
+        required: false
+        min: 1
+        max: 100
+    responses:
+      "200":
+        contentType: application/json
+        schema:
+          type: object
+          required: [total, cantidad, cabys]
+          properties:
+            total: { type: integer, minimum: 0 }
+            cantidad: { type: integer, minimum: 0 }
+            cabys:
+              type: array
+              items:
+                type: object
+                required: [codigo, descripcion, impuesto]
+                properties:
+                  codigo: { type: string, pattern: "^[0-9]{13}$" }
+                  descripcion: { type: string }
+                  impuesto: { type: number, minimum: 0, maximum: 100 }
+                  categorias:
+                    type: array
+                    items: { type: string }
+      "400": { mappedError: ERR_PASS_INVALID_INPUT }
+      "429": { mappedError: ERR_PASS_RATE_LIMITED }
+
+  lookupByCode:
+    method: GET
+    path: /fe/cabys
+    idempotent: true
+    queryParams:
+      codigo:
+        type: string
+        required: true
+        pattern: "^[0-9]{13}$"
+    responses:
+      "200":
+        contentType: application/json
+        schema:
+          type: array
+          items:
+            type: object
+            required: [codigo, descripcion, impuesto]
+            properties:
+              codigo: { type: string, pattern: "^[0-9]{13}$" }
+              descripcion: { type: string }
+              impuesto: { type: number }
+
+contractTests:
+  - id: CT-CABYS-01
+    operation: searchByText
+    params: { q: "refrigeracion", top: 5 }
+    fixture: fixtures/cabys-search-refrigeracion.json
+    expectStatus: 200
+  - id: CT-CABYS-02
+    operation: searchByText
+    params: { q: "ab" }
+    expectLocalValidationError: ERR_PASS_INVALID_INPUT

@@ -1,0 +1,30 @@
+{
+  "name": "@quimera/data-exodus",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@dojocoding/hacienda-sdk": "0.13.0",
+    "@quimera/core": "workspace:*",
+    "csv-parse": "^6.1.0",
+    "drizzle-orm": "^0.44.5",
+    "exceljs": "^4.4.0",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.4"
+  }
+}

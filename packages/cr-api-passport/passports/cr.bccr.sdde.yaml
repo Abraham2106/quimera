@@ -1,0 +1,75 @@
+passportId: cr.bccr.sdde
+passportVersion: 1.0.0
+status: ACTIVE
+country: CR
+executable: true
+provider:
+  name: Banco Central de Costa Rica — SDDE API
+  docsUrl: https://apim.bccr.fi.cr/SDDE/
+  upstreamSpecRef: bccr-sdde-rest-2026
+  lastVerifiedAt: "2026-11-21T00:00:00Z"
+  notes: "Servicio SOAP heredado descontinuado 30-jun-2026 — prohibido en QUIMERA."
+baseUrl: https://apim.bccr.fi.cr/SDDE/api/Bccr.Ge.SDDE.Publico.Indicadores.API
+auth:
+  type: bearer
+  credentialsRequired: true
+  envVar: BCCR_SDDE_TOKEN
+  headerName: Authorization
+  instructions: "Registre su suscripción SDDE y genere un token en Mi Perfil → Generar token."
+rateLimit:
+  scopeHost: apim.bccr.fi.cr
+  officialPolicy:
+    burstRequestsPerSec: 10
+    burstWindowSec: 5
+    sustainedRequestsPerSec: 5
+    sustainedWindowSec: 120
+    penaltyOnViolation: "Throttling por suscripción"
+  quimeraGuardrail:
+    burstRequestsPerSec: 15
+    sustainedRequestsPerSec: 8
+    maxRetriesOn5xx: 2
+    circuitBreakerCooldownSec: 60
+privacy:
+  containsPersonalData: false
+  logRedactionFields: [Authorization]
+cache:
+  defaultTtlSec: 3600
+  allowStaleOnUpstreamError: true
+operations:
+  getEconomicSeries:
+    method: GET
+    path: /indicadoresEconomicos/317/datos
+    idempotent: true
+    queryParams:
+      formato:
+        type: string
+        required: false
+    responses:
+      "200":
+        contentType: application/json
+        schema:
+          type: object
+          required: [codigo, nombre, series]
+          properties:
+            codigo: { type: integer }
+            nombre: { type: string }
+            series:
+              type: array
+              items:
+                type: object
+                required: [fecha, valor]
+                properties:
+                  fecha: { type: string }
+                  valor: { type: number }
+      "401":
+        mappedError: ERR_AUTH_MISSING_CREDENTIALS
+      "403":
+        mappedError: ERR_AUTH_MISSING_CREDENTIALS
+      "429":
+        mappedError: ERR_PASS_RATE_LIMITED
+contractTests:
+  - id: CT-BCCR-01
+    operation: getEconomicSeries
+    params: { formato: "json" }
+    fixture: bccr-series-200.json
+    expectStatus: 200

@@ -1,0 +1,11 @@
+node_modules
+*.tsbuildinfo
+dist/
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.pem
+coverage/
+.turbo

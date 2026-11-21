@@ -1,0 +1,27 @@
+{
+  "name": "@quimera/demo-pos",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests",
+    "factura-ci": "tsx src/run-factura-ci.ts"
+  },
+  "dependencies": {
+    "@dojocoding/hacienda-sdk": "0.13.0",
+    "@quimera/factura-ci": "workspace:*",
+    "@quimera/fiscal-outbox": "workspace:*",
+    "hono": "^4.13.19",
+    "postgres": "^3.4.7"
+  }
+}

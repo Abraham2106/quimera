@@ -1,0 +1,26 @@
+name: quimera
+version: 0.1.0
+kind: skill
+offline: true
+license: MIT
+description: >
+  QUIMERA — migración de datos fiscal, pasaportes API de Costa Rica y pruebas
+  deterministas para builders. Publicación declarativa para Dojo Marketplace;
+  no acopla el runtime a la API del marketplace.
+packages:
+  - "@quimera/core"
+  - "@quimera/data-exodus"
+  - "@quimera/cr-api-passport"
+  - "@quimera/fiscal-outbox"
+  - "@quimera/factura-ci"
+  - "@quimera/pipeline"
+optionalPackages:
+  - name: "@quimera/adapter-clairic"
+    required: false
+    description: Adaptador Clairic opcional; no forma parte del baseline MVP.
+baseline:
+  notes: >
+    El baseline del ecosistema corre con inferencia desactivada
+    (QUIMERA_AI_ENABLED=false). Sin secretos en este manifiesto.
+  env:
+    QUIMERA_AI_ENABLED: "false"

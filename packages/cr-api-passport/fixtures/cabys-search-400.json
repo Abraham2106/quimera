@@ -1,0 +1,6 @@
+{
+  "status": 400,
+  "body": {
+    "mensaje": "Parametro q invalido"
+  }
+}

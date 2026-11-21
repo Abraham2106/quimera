@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "body": {
+    "codigo": 317,
+    "nombre": "Tipo de cambio venta USD",
+    "series": [
+      {
+        "fecha": "2026-11-21",
+        "valor": 512.5
+      }
+    ]
+  }
+}

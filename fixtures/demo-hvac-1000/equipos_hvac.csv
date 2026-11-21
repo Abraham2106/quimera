@@ -1,0 +1,141 @@
+tag_equipo,identificacion_cliente,cliente,tipo,marca,modelo,serie,ubicacion,ultimo_servicio,refrigerante
+EQ-00001,9001000001,Taller Sintetico Conflicto A,Chiller,SintMarcaA,MOD-1000,SER-9000000,Planta baja,2025-04-25,R-410A
+EQ-00002,9001000002,Taller Sintetico Conflicto A,Mini-split,SintMarcaB,MOD-1001,SER-9000001,Azotea,2025-04-26,R-32
+EQ-00003,9001000003,Distribuidora Sintetica Conflicto B,Cuarto frío,SintMarcaC,MOD-1002,SER-9000002,Planta baja,2025-04-27,R-134a
+EQ-00004,9001000004,Distribuidora Sintetica Conflicto B,Torre enfriamiento,SintMarcaA,MOD-1003,SER-9000003,Azotea,2025-04-28,R-410A
+EQ-00005,9001000005,Refrigeración Sintetica Conflicto C,Chiller,SintMarcaB,MOD-1004,SER-9000004,Planta baja,2025-04-29,R-32
+EQ-00006,9001000006,Refrigeración Sintetica Conflicto C,Mini-split,SintMarcaC,MOD-1005,SER-9000005,Azotea,2025-04-30,R-134a
+EQ-00007,9001000007,Taller Sintetico 01,Cuarto frío,SintMarcaA,MOD-1006,SER-9000006,Planta baja,2025-05-01,R-410A
+EQ-00008,9001000007,Taller Sintetico 01 S.A.,Torre enfriamiento,SintMarcaB,MOD-1007,SER-9000007,Azotea,2025-05-02,R-32
+EQ-00009,9001000008,Taller Sintetico 02 S.A.,Chiller,SintMarcaC,MOD-1008,SER-9000008,Planta baja,2025-05-03,R-134a
+EQ-00010,9001000008,Taller Sintetico 02 — sucursal este,Mini-split,SintMarcaA,MOD-1009,SER-9000009,Azotea,2025-05-04,R-410A
+EQ-00011,9001000009,Taller Sintetico 03 — sucursal este,Cuarto frío,SintMarcaB,MOD-1010,SER-9000010,Planta baja,2025-05-05,R-32
+EQ-00012,9001000009,Taller Sintetico 03 (mantenimiento),Torre enfriamiento,SintMarcaC,MOD-1011,SER-9000011,Azotea,2025-05-06,R-134a
+EQ-00013,9001000010,Taller Sintetico 04 (mantenimiento),Chiller,SintMarcaA,MOD-1012,SER-9000012,Planta baja,2025-05-07,R-410A
+EQ-00014,9001000010,Taller Sintetico 04,Mini-split,SintMarcaB,MOD-1013,SER-9000013,Azotea,2025-05-08,R-32
+EQ-00015,9001000011,Taller Sintetico 05,Cuarto frío,SintMarcaC,MOD-1014,SER-9000014,Planta baja,2025-05-09,R-134a
+EQ-00016,9001000011,Taller Sintetico 05 S.A.,Torre enfriamiento,SintMarcaA,MOD-1015,SER-9000015,Azotea,2025-05-10,R-410A
+EQ-00017,9001000012,Taller Sintetico 06 S.A.,Chiller,SintMarcaB,MOD-1016,SER-9000016,Planta baja,2025-05-11,R-32
+EQ-00018,9001000012,Taller Sintetico 06 — sucursal este,Mini-split,SintMarcaC,MOD-1017,SER-9000017,Azotea,2025-05-12,R-134a
+EQ-00019,9001000013,Taller Sintetico 07 — sucursal este,Cuarto frío,SintMarcaA,MOD-1018,SER-9000018,Planta baja,2025-05-13,R-410A
+EQ-00020,9001000013,Taller Sintetico 07 (mantenimiento),Torre enfriamiento,SintMarcaB,MOD-1019,SER-9000019,Azotea,2025-05-14,R-32
+EQ-00021,9001000014,Taller Sintetico 08 (mantenimiento),Chiller,SintMarcaC,MOD-1020,SER-9000020,Planta baja,2025-05-15,R-134a
+EQ-00022,9001000014,Taller Sintetico 08,Mini-split,SintMarcaA,MOD-1021,SER-9000021,Azotea,2025-05-16,R-410A
+EQ-00023,9001000015,Taller Sintetico 09,Cuarto frío,SintMarcaB,MOD-1022,SER-9000022,Planta baja,2025-05-17,R-32
+EQ-00024,9001000015,Taller Sintetico 09 S.A.,Torre enfriamiento,SintMarcaC,MOD-1023,SER-9000023,Azotea,2025-05-18,R-134a
+EQ-00025,9001000016,Taller Sintetico 10 S.A.,Chiller,SintMarcaA,MOD-1024,SER-9000024,Planta baja,2025-05-19,R-410A
+EQ-00026,9001000016,Taller Sintetico 10 — sucursal este,Mini-split,SintMarcaB,MOD-1025,SER-9000025,Azotea,2025-05-20,R-32
+EQ-00027,9001000017,Taller Sintetico 11 — sucursal este,Cuarto frío,SintMarcaC,MOD-1026,SER-9000026,Planta baja,2025-05-21,R-134a
+EQ-00028,9001000017,Taller Sintetico 11 (mantenimiento),Torre enfriamiento,SintMarcaA,MOD-1027,SER-9000027,Azotea,2025-05-22,R-410A
+EQ-00029,9001000018,Taller Sintetico 12 (mantenimiento),Chiller,SintMarcaB,MOD-1028,SER-9000028,Planta baja,2025-05-23,R-32
+EQ-00030,9001000018,Taller Sintetico 12,Mini-split,SintMarcaC,MOD-1029,SER-9000029,Azotea,2025-05-24,R-134a
+EQ-00031,9001000019,Taller Sintetico 13,Cuarto frío,SintMarcaA,MOD-1030,SER-9000030,Planta baja,2025-05-25,R-410A
+EQ-00032,9001000019,Taller Sintetico 13 S.A.,Torre enfriamiento,SintMarcaB,MOD-1031,SER-9000031,Azotea,2025-05-26,R-32
+EQ-00033,9001000020,Taller Sintetico 14 S.A.,Chiller,SintMarcaC,MOD-1032,SER-9000032,Planta baja,2025-05-27,R-134a
+EQ-00034,9001000020,Taller Sintetico 14 — sucursal este,Mini-split,SintMarcaA,MOD-1033,SER-9000033,Azotea,2025-05-28,R-410A
+EQ-00035,9001000021,Taller Sintetico 15 — sucursal este,Cuarto frío,SintMarcaB,MOD-1034,SER-9000034,Planta baja,2025-05-29,R-32
+EQ-00036,9001000021,Taller Sintetico 15 (mantenimiento),Torre enfriamiento,SintMarcaC,MOD-1035,SER-9000035,Azotea,2025-05-30,R-134a
+EQ-00037,9001000022,Taller Sintetico 16 (mantenimiento),Chiller,SintMarcaA,MOD-1036,SER-9000036,Planta baja,2025-05-31,R-410A
+EQ-00038,9001000022,Taller Sintetico 16,Mini-split,SintMarcaB,MOD-1037,SER-9000037,Azotea,2025-06-01,R-32
+EQ-00039,9001000023,Taller Sintetico 17,Cuarto frío,SintMarcaC,MOD-1038,SER-9000038,Planta baja,2025-06-02,R-134a
+EQ-00040,9001000023,Taller Sintetico 17 S.A.,Torre enfriamiento,SintMarcaA,MOD-1039,SER-9000039,Azotea,2025-06-03,R-410A
+EQ-00041,9001000024,Taller Sintetico 18 S.A.,Chiller,SintMarcaB,MOD-1040,SER-9000040,Planta baja,2025-06-04,R-32
+EQ-00042,9001000024,Taller Sintetico 18 — sucursal este,Mini-split,SintMarcaC,MOD-1041,SER-9000041,Azotea,2025-06-05,R-134a
+EQ-00043,9001000025,Taller Sintetico 19 — sucursal este,Cuarto frío,SintMarcaA,MOD-1042,SER-9000042,Planta baja,2025-06-06,R-410A
+EQ-00044,9001000025,Taller Sintetico 19 (mantenimiento),Torre enfriamiento,SintMarcaB,MOD-1043,SER-9000043,Azotea,2025-06-07,R-32
+EQ-00045,9001000026,Taller Sintetico 20 (mantenimiento),Chiller,SintMarcaC,MOD-1044,SER-9000044,Planta baja,2025-06-08,R-134a
+EQ-00046,9001000026,Taller Sintetico 20,Mini-split,SintMarcaA,MOD-1045,SER-9000045,Azotea,2025-06-09,R-410A
+EQ-00047,9001000027,Taller Sintetico 21,Cuarto frío,SintMarcaB,MOD-1046,SER-9000046,Planta baja,2025-06-10,R-32
+EQ-00048,9001000027,Taller Sintetico 21 S.A.,Torre enfriamiento,SintMarcaC,MOD-1047,SER-9000047,Azotea,2025-06-11,R-134a
+EQ-00049,9001000028,Taller Sintetico 22 S.A.,Chiller,SintMarcaA,MOD-1048,SER-9000048,Planta baja,2025-06-12,R-410A
+EQ-00050,9001000028,Taller Sintetico 22 — sucursal este,Mini-split,SintMarcaB,MOD-1049,SER-9000049,Azotea,2025-06-13,R-32
+EQ-00051,9001000029,Taller Sintetico 23 — sucursal este,Cuarto frío,SintMarcaC,MOD-1050,SER-9000050,Planta baja,2025-06-14,R-134a
+EQ-00052,9001000029,Taller Sintetico 23 (mantenimiento),Torre enfriamiento,SintMarcaA,MOD-1051,SER-9000051,Azotea,2025-06-15,R-410A
+EQ-00053,9001000030,Taller Sintetico 24 (mantenimiento),Chiller,SintMarcaB,MOD-1052,SER-9000052,Planta baja,2025-06-16,R-32
+EQ-00054,9001000030,Taller Sintetico 24,Mini-split,SintMarcaC,MOD-1053,SER-9000053,Azotea,2025-06-17,R-134a
+EQ-00055,9001000031,Taller Sintetico 25,Cuarto frío,SintMarcaA,MOD-1054,SER-9000054,Planta baja,2025-06-18,R-410A
+EQ-00056,9001000031,Taller Sintetico 25 S.A.,Torre enfriamiento,SintMarcaB,MOD-1055,SER-9000055,Azotea,2025-06-19,R-32
+EQ-00057,9001000032,Taller Sintetico 26 S.A.,Chiller,SintMarcaC,MOD-1056,SER-9000056,Planta baja,2025-06-20,R-134a
+EQ-00058,9001000032,Taller Sintetico 26 — sucursal este,Mini-split,SintMarcaA,MOD-1057,SER-9000057,Azotea,2025-06-21,R-410A
+EQ-00059,9001000033,Taller Sintetico 27 — sucursal este,Cuarto frío,SintMarcaB,MOD-1058,SER-9000058,Planta baja,2025-06-22,R-32
+EQ-00060,9001000033,Taller Sintetico 27 (mantenimiento),Torre enfriamiento,SintMarcaC,MOD-1059,SER-9000059,Azotea,2025-06-23,R-134a
+EQ-00061,9001000034,Taller Sintetico 28 (mantenimiento),Chiller,SintMarcaA,MOD-1060,SER-9000060,Planta baja,2025-06-24,R-410A
+EQ-00062,9001000034,Taller Sintetico 28,Mini-split,SintMarcaB,MOD-1061,SER-9000061,Azotea,2025-06-25,R-32
+EQ-00063,9001000035,Taller Sintetico 29,Cuarto frío,SintMarcaC,MOD-1062,SER-9000062,Planta baja,2025-06-26,R-134a
+EQ-00064,9001000035,Taller Sintetico 29 S.A.,Torre enfriamiento,SintMarcaA,MOD-1063,SER-9000063,Azotea,2025-06-27,R-410A
+EQ-00065,9001000036,Taller Sintetico 30 S.A.,Chiller,SintMarcaB,MOD-1064,SER-9000064,Planta baja,2025-06-28,R-32
+EQ-00066,9001000036,Taller Sintetico 30 — sucursal este,Mini-split,SintMarcaC,MOD-1065,SER-9000065,Azotea,2025-06-29,R-134a
+EQ-00067,9001000037,Taller Sintetico 31 — sucursal este,Cuarto frío,SintMarcaA,MOD-1066,SER-9000066,Planta baja,2025-06-30,R-410A
+EQ-00068,9001000037,Taller Sintetico 31 (mantenimiento),Torre enfriamiento,SintMarcaB,MOD-1067,SER-9000067,Azotea,2025-07-01,R-32
+EQ-00069,9001000038,Taller Sintetico 32 (mantenimiento),Chiller,SintMarcaC,MOD-1068,SER-9000068,Planta baja,2025-07-02,R-134a
+EQ-00070,9001000038,Taller Sintetico 32,Mini-split,SintMarcaA,MOD-1069,SER-9000069,Azotea,2025-07-03,R-410A
+EQ-00071,9001000039,Taller Sintetico 33,Cuarto frío,SintMarcaB,MOD-1070,SER-9000070,Planta baja,2025-07-04,R-32
+EQ-00072,9001000039,Taller Sintetico 33 S.A.,Torre enfriamiento,SintMarcaC,MOD-1071,SER-9000071,Azotea,2025-07-05,R-134a
+EQ-00073,9001000040,Taller Sintetico 34 S.A.,Chiller,SintMarcaA,MOD-1072,SER-9000072,Planta baja,2025-07-06,R-410A
+EQ-00074,9001000040,Taller Sintetico 34 — sucursal este,Mini-split,SintMarcaB,MOD-1073,SER-9000073,Azotea,2025-07-07,R-32
+EQ-00075,9001000041,Taller Sintetico 35 — sucursal este,Cuarto frío,SintMarcaC,MOD-1074,SER-9000074,Planta baja,2025-07-08,R-134a
+EQ-00076,9001000041,Taller Sintetico 35 (mantenimiento),Torre enfriamiento,SintMarcaA,MOD-1075,SER-9000075,Azotea,2025-07-09,R-410A
+EQ-00077,9001000042,Taller Sintetico 36 (mantenimiento),Chiller,SintMarcaB,MOD-1076,SER-9000076,Planta baja,2025-07-10,R-32
+EQ-00078,9001000042,Taller Sintetico 36,Mini-split,SintMarcaC,MOD-1077,SER-9000077,Azotea,2025-07-11,R-134a
+EQ-00079,9001000043,Taller Sintetico 37,Cuarto frío,SintMarcaA,MOD-1078,SER-9000078,Planta baja,2025-07-12,R-410A
+EQ-00080,9001000043,Taller Sintetico 37 S.A.,Torre enfriamiento,SintMarcaB,MOD-1079,SER-9000079,Azotea,2025-07-13,R-32
+EQ-00081,9001000044,Taller Sintetico 38 S.A.,Chiller,SintMarcaC,MOD-1080,SER-9000080,Planta baja,2025-07-14,R-134a
+EQ-00082,9001000044,Taller Sintetico 38 — sucursal este,Mini-split,SintMarcaA,MOD-1081,SER-9000081,Azotea,2025-07-15,R-410A
+EQ-00083,9001000045,Taller Sintetico 39 — sucursal este,Cuarto frío,SintMarcaB,MOD-1082,SER-9000082,Planta baja,2025-07-16,R-32
+EQ-00084,9001000045,Taller Sintetico 39 (mantenimiento),Torre enfriamiento,SintMarcaC,MOD-1083,SER-9000083,Azotea,2025-07-17,R-134a
+EQ-00085,9001000046,Taller Sintetico 40 (mantenimiento),Chiller,SintMarcaA,MOD-1084,SER-9000084,Planta baja,2025-07-18,R-410A
+EQ-00086,9001000046,Taller Sintetico 40,Mini-split,SintMarcaB,MOD-1085,SER-9000085,Azotea,2025-07-19,R-32
+EQ-00087,9001000047,Empresa Sintetica HVAC 087,Cuarto frío,SintMarcaC,MOD-1086,SER-9000086,Planta baja,2025-07-20,R-134a
+EQ-00088,9001000048,Empresa Sintetica HVAC 088,Torre enfriamiento,SintMarcaA,MOD-1087,SER-9000087,Azotea,2025-07-21,R-410A
+EQ-00089,9001000049,Empresa Sintetica HVAC 089,Chiller,SintMarcaB,MOD-1088,SER-9000088,Planta baja,2025-07-22,R-32
+EQ-00090,9001000050,Empresa Sintetica HVAC 090,Mini-split,SintMarcaC,MOD-1089,SER-9000089,Azotea,2025-07-23,R-134a
+EQ-00091,9001000051,Empresa Sintetica HVAC 091,Cuarto frío,SintMarcaA,MOD-1090,SER-9000090,Planta baja,2025-07-24,R-410A
+EQ-00092,9001000052,Empresa Sintetica HVAC 092,Torre enfriamiento,SintMarcaB,MOD-1091,SER-9000091,Azotea,2025-07-25,R-32
+EQ-00093,9001000053,Empresa Sintetica HVAC 093,Chiller,SintMarcaC,MOD-1092,SER-9000092,Planta baja,2025-07-26,R-134a
+EQ-00094,9001000054,Empresa Sintetica HVAC 094,Mini-split,SintMarcaA,MOD-1093,SER-9000093,Azotea,2025-07-27,R-410A
+EQ-00095,9001000055,Empresa Sintetica HVAC 095,Cuarto frío,SintMarcaB,MOD-1094,SER-9000094,Planta baja,2025-07-28,R-32
+EQ-00096,9001000056,Empresa Sintetica HVAC 096,Torre enfriamiento,SintMarcaC,MOD-1095,SER-9000095,Azotea,2025-07-29,R-134a
+EQ-00097,9001000057,Empresa Sintetica HVAC 097,Chiller,SintMarcaA,MOD-1096,SER-9000096,Planta baja,2025-07-30,R-410A
+EQ-00098,9001000058,Empresa Sintetica HVAC 098,Mini-split,SintMarcaB,MOD-1097,SER-9000097,Azotea,2025-07-31,R-32
+EQ-00099,9001000059,Empresa Sintetica HVAC 099,Cuarto frío,SintMarcaC,MOD-1098,SER-9000098,Planta baja,2025-08-01,R-134a
+EQ-00100,9001000060,Empresa Sintetica HVAC 100,Torre enfriamiento,SintMarcaA,MOD-1099,SER-9000099,Azotea,2025-08-02,R-410A
+EQ-00101,9001000061,Empresa Sintetica HVAC 101,Chiller,SintMarcaB,MOD-1100,SER-9000100,Planta baja,2025-08-03,R-32
+EQ-00102,9001000062,Empresa Sintetica HVAC 102,Mini-split,SintMarcaC,MOD-1101,SER-9000101,Azotea,2025-08-04,R-134a
+EQ-00103,9001000063,Empresa Sintetica HVAC 103,Cuarto frío,SintMarcaA,MOD-1102,SER-9000102,Planta baja,2025-08-05,R-410A
+EQ-00104,9001000064,Empresa Sintetica HVAC 104,Torre enfriamiento,SintMarcaB,MOD-1103,SER-9000103,Azotea,2025-08-06,R-32
+EQ-00105,9001000065,Empresa Sintetica HVAC 105,Chiller,SintMarcaC,MOD-1104,SER-9000104,Planta baja,2025-08-07,R-134a
+EQ-00106,9001000066,Empresa Sintetica HVAC 106,Mini-split,SintMarcaA,MOD-1105,SER-9000105,Azotea,2025-08-08,R-410A
+EQ-00107,9001000067,Empresa Sintetica HVAC 107,Cuarto frío,SintMarcaB,MOD-1106,SER-9000106,Planta baja,2025-08-09,R-32
+EQ-00108,9001000068,Empresa Sintetica HVAC 108,Torre enfriamiento,SintMarcaC,MOD-1107,SER-9000107,Azotea,2025-08-10,R-134a
+EQ-00109,9001000069,Empresa Sintetica HVAC 109,Chiller,SintMarcaA,MOD-1108,SER-9000108,Planta baja,2025-08-11,R-410A
+EQ-00110,9001000070,Empresa Sintetica HVAC 110,Mini-split,SintMarcaB,MOD-1109,SER-9000109,Azotea,2025-08-12,R-32
+EQ-00111,9001000071,Empresa Sintetica HVAC 111,Cuarto frío,SintMarcaC,MOD-1110,SER-9000110,Planta baja,2025-08-13,R-134a
+EQ-00112,9001000072,Empresa Sintetica HVAC 112,Torre enfriamiento,SintMarcaA,MOD-1111,SER-9000111,Azotea,2025-08-14,R-410A
+EQ-00113,9001000073,Empresa Sintetica HVAC 113,Chiller,SintMarcaB,MOD-1112,SER-9000112,Planta baja,2025-08-15,R-32
+EQ-00114,9001000074,Empresa Sintetica HVAC 114,Mini-split,SintMarcaC,MOD-1113,SER-9000113,Azotea,2025-08-16,R-134a
+EQ-00115,9001000075,Empresa Sintetica HVAC 115,Cuarto frío,SintMarcaA,MOD-1114,SER-9000114,Planta baja,2025-08-17,R-410A
+EQ-00116,9001000076,Empresa Sintetica HVAC 116,Torre enfriamiento,SintMarcaB,MOD-1115,SER-9000115,Azotea,2025-08-18,R-32
+EQ-00117,9001000077,Empresa Sintetica HVAC 117,Chiller,SintMarcaC,MOD-1116,SER-9000116,Planta baja,2025-08-19,R-134a
+EQ-00118,9001000078,Empresa Sintetica HVAC 118,Mini-split,SintMarcaA,MOD-1117,SER-9000117,Azotea,2025-08-20,R-410A
+EQ-00119,9001000079,Empresa Sintetica HVAC 119,Cuarto frío,SintMarcaB,MOD-1118,SER-9000118,Planta baja,2025-08-21,R-32
+EQ-00120,9001000080,Empresa Sintetica HVAC 120,Torre enfriamiento,SintMarcaC,MOD-1119,SER-9000119,Azotea,2025-08-22,R-134a
+EQ-00121,9001000081,Empresa Sintetica HVAC 121,Chiller,SintMarcaA,MOD-1120,SER-9000120,Planta baja,2025-08-23,R-410A
+EQ-00122,9001000082,Empresa Sintetica HVAC 122,Mini-split,SintMarcaB,MOD-1121,SER-9000121,Azotea,2025-08-24,R-32
+EQ-00123,9001000083,Empresa Sintetica HVAC 123,Cuarto frío,SintMarcaC,MOD-1122,SER-9000122,Planta baja,2025-08-25,R-134a
+EQ-00124,9001000084,Empresa Sintetica HVAC 124,Torre enfriamiento,SintMarcaA,MOD-1123,SER-9000123,Azotea,2025-08-26,R-410A
+EQ-00125,9001000085,Empresa Sintetica HVAC 125,Chiller,SintMarcaB,MOD-1124,SER-9000124,Planta baja,2025-08-27,R-32
+EQ-00126,9001000086,Empresa Sintetica HVAC 126,Mini-split,SintMarcaC,MOD-1125,SER-9000125,Azotea,2025-08-28,R-134a
+EQ-00127,9001000087,Empresa Sintetica HVAC 127,Cuarto frío,SintMarcaA,MOD-1126,SER-9000126,Planta baja,2025-08-29,R-410A
+EQ-00128,9001000088,Empresa Sintetica HVAC 128,Torre enfriamiento,SintMarcaB,MOD-1127,SER-9000127,Azotea,2025-08-30,R-32
+EQ-00129,9001000089,Empresa Sintetica HVAC 129,Chiller,SintMarcaC,MOD-1128,SER-9000128,Planta baja,2025-08-31,R-134a
+EQ-00130,9001000090,Empresa Sintetica HVAC 130,Mini-split,SintMarcaA,MOD-1129,SER-9000129,Azotea,2025-09-01,R-410A
+EQ-00131,9001000091,Empresa Sintetica HVAC 131,Cuarto frío,SintMarcaB,MOD-1130,SER-9000130,Planta baja,2025-09-02,R-32
+EQ-00132,9001000092,Empresa Sintetica HVAC 132,Torre enfriamiento,SintMarcaC,MOD-1131,SER-9000131,Azotea,2025-09-03,R-134a
+EQ-00133,9001000093,Empresa Sintetica HVAC 133,Chiller,SintMarcaA,MOD-1132,SER-9000132,Planta baja,2025-09-04,R-410A
+EQ-00134,9001000094,Empresa Sintetica HVAC 134,Mini-split,SintMarcaB,MOD-1133,SER-9000133,Azotea,2025-09-05,R-32
+EQ-00135,9001000095,Empresa Sintetica HVAC 135,Cuarto frío,SintMarcaC,MOD-1134,SER-9000134,Planta baja,2025-09-06,R-134a
+EQ-00136,9001000096,Empresa Sintetica HVAC 136,Torre enfriamiento,SintMarcaA,MOD-1135,SER-9000135,Azotea,2025-09-07,R-410A
+EQ-00137,9001000097,Empresa Sintetica HVAC 137,Chiller,SintMarcaB,MOD-1136,SER-9000136,Planta baja,2025-09-08,R-32
+EQ-00138,9001000098,Empresa Sintetica HVAC 138,Mini-split,SintMarcaC,MOD-1137,SER-9000137,Azotea,2025-09-09,R-134a
+EQ-00139,9001000099,Empresa Sintetica HVAC 139,Cuarto frío,SintMarcaA,MOD-1138,SER-9000138,Planta baja,2025-09-10,R-410A
+EQ-00140,9001000100,Empresa Sintetica HVAC 140,Torre enfriamiento,SintMarcaB,MOD-1139,SER-9000139,Azotea,2025-09-11,R-32

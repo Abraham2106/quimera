@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "body": {
+    "total": 2,
+    "cantidad": 2,
+    "cabys": [
+      {
+        "codigo": "8415109010100",
+        "descripcion": "Equipo de refrigeracion comercial",
+        "impuesto": 13,
+        "categorias": ["maquinaria"]
+      },
+      {
+        "codigo": "8415109010200",
+        "descripcion": "Sistema de refrigeracion industrial",
+        "impuesto": 13,
+        "categorias": ["industrial"]
+      }
+    ]
+  }
+}

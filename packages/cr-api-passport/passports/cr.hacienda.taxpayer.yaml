@@ -1,0 +1,83 @@
+passportId: cr.hacienda.taxpayer
+passportVersion: 1.0.0
+status: ACTIVE
+country: CR
+executable: true
+provider:
+  name: Ministerio de Hacienda de Costa Rica
+  docsUrl: https://api.hacienda.go.cr/docs/
+  upstreamSpecRef: hacienda-public-api-2026
+  lastVerifiedAt: "2026-11-21T00:00:00Z"
+baseUrl: https://api.hacienda.go.cr
+auth:
+  type: public
+  credentialsRequired: false
+rateLimit:
+  scopeHost: api.hacienda.go.cr
+  officialPolicy:
+    burstRequestsPerSec: 20
+    burstWindowSec: 5
+    sustainedRequestsPerSec: 10
+    sustainedWindowSec: 120
+    penaltyOnViolation: "IP ban temporal de 10 minutos (HTTP 429)"
+  quimeraGuardrail:
+    burstRequestsPerSec: 15
+    sustainedRequestsPerSec: 8
+    maxRetriesOn5xx: 2
+    circuitBreakerCooldownSec: 60
+privacy:
+  containsPersonalData: true
+  logRedactionFields: [identificacion, nombre, actividades]
+  classification: moderate
+cache:
+  defaultTtlSec: 86400
+  allowStaleOnUpstreamError: false
+operations:
+  lookupByIdentification:
+    method: GET
+    path: /fe/ae
+    idempotent: true
+    queryParams:
+      identificacion:
+        type: string
+        required: true
+        pattern: "^[0-9]{9,12}$"
+    responses:
+      "200":
+        contentType: application/json
+        schema:
+          type: object
+          required: [nombre, tipoIdentificacion, regimen, actividades]
+          properties:
+            nombre: { type: string }
+            tipoIdentificacion: { type: string }
+            regimen:
+              type: object
+              required: [codigo, descripcion]
+              properties:
+                codigo: { type: string }
+                descripcion: { type: string }
+            actividades:
+              type: array
+              items:
+                type: object
+                required: [codigo, descripcion]
+                properties:
+                  codigo: { type: string }
+                  descripcion: { type: string }
+      "400":
+        mappedError: ERR_PASS_INVALID_INPUT
+      "404":
+        mappedError: ERR_PASS_NOT_FOUND
+      "429":
+        mappedError: ERR_PASS_RATE_LIMITED
+contractTests:
+  - id: CT-TAXPAYER-01
+    operation: lookupByIdentification
+    params: { identificacion: "3101123456" }
+    fixture: taxpayer-200.json
+    expectStatus: 200
+  - id: CT-TAXPAYER-02
+    operation: lookupByIdentification
+    params: { identificacion: "123" }
+    expectLocalValidationError: ERR_PASS_INVALID_INPUT

@@ -1,0 +1,281 @@
+numero_factura;fecha;identificacion_cliente;cliente;descripcion;monto_crc;moneda;cabys
+FV-2025-DUP-001;2025-02-14;9001000001;Taller Sintetico Conflicto A;Servicio HVAC duplicado sintético #1;50000.00;CRC;84111500
+FV-2025-DUP-001;2025-02-15;9001000001;Taller Sintetico Conflicto A;Copia sembrada factura FV-2025-DUP-001;50500.00;CRC;84111500
+FV-2025-DUP-002;2025-02-15;9001000002;Taller Sintetico Conflicto A;Servicio HVAC duplicado sintético #2;51337.00;CRC;84111501
+FV-2025-DUP-002;2025-02-16;9001000002;Taller Sintetico Conflicto A;Copia sembrada factura FV-2025-DUP-002;51337.00;CRC;84111501
+FV-2025-DUP-003;2025-02-16;9001000003;Distribuidora Sintetica Conflicto B;Servicio HVAC duplicado sintético #3;52674.00;CRC;84111502
+FV-2025-DUP-003;2025-02-17;9001000003;Distribuidora Sintetica Conflicto B;Copia sembrada factura FV-2025-DUP-003;52674.00;CRC;84111502
+FV-2025-DUP-004;2025-02-17;9001000004;Distribuidora Sintetica Conflicto B;Servicio HVAC duplicado sintético #4;54011.00;CRC;84111503
+FV-2025-DUP-004;2025-02-18;9001000004;Distribuidora Sintetica Conflicto B;Copia sembrada factura FV-2025-DUP-004;54511.00;CRC;84111503
+FV-2025-DUP-005;2025-02-18;9001000005;Refrigeración Sintetica Conflicto C;Servicio HVAC duplicado sintético #5;55348.00;CRC;84111504
+FV-2025-DUP-005;2025-02-19;9001000005;Refrigeración Sintetica Conflicto C;Copia sembrada factura FV-2025-DUP-005;55348.00;CRC;84111504
+FV-2025-DUP-006;2025-02-19;9001000006;Refrigeración Sintetica Conflicto C;Servicio HVAC duplicado sintético #6;56685.00;CRC;84111505
+FV-2025-DUP-006;2025-02-20;9001000006;Refrigeración Sintetica Conflicto C;Copia sembrada factura FV-2025-DUP-006;56685.00;CRC;84111505
+FV-2025-DUP-007;2025-02-20;9001000007;Taller Sintetico 01;Servicio HVAC duplicado sintético #7;58022.00;CRC;84111506
+FV-2025-DUP-007;2025-02-21;9001000007;Taller Sintetico 01;Copia sembrada factura FV-2025-DUP-007;58522.00;CRC;84111506
+FV-2025-DUP-008;2025-02-21;9001000007;Taller Sintetico 01 S.A.;Servicio HVAC duplicado sintético #8;59359.00;CRC;84111507
+FV-2025-DUP-008;2025-02-22;9001000007;Taller Sintetico 01 S.A.;Copia sembrada factura FV-2025-DUP-008;59359.00;CRC;84111507
+FV-2025-DUP-009;2025-02-22;9001000008;Taller Sintetico 02 S.A.;Servicio HVAC duplicado sintético #9;60696.00;CRC;84111508
+FV-2025-DUP-009;2025-02-23;9001000008;Taller Sintetico 02 S.A.;Copia sembrada factura FV-2025-DUP-009;60696.00;CRC;84111508
+FV-2025-DUP-010;2025-02-23;9001000008;Taller Sintetico 02 — sucursal este;Servicio HVAC duplicado sintético #10;62033.00;CRC;84111509
+FV-2025-DUP-010;2025-02-24;9001000008;Taller Sintetico 02 — sucursal este;Copia sembrada factura FV-2025-DUP-010;62533.00;CRC;84111509
+FV-2025-DUP-011;2025-02-24;9001000009;Taller Sintetico 03 — sucursal este;Servicio HVAC duplicado sintético #11;63370.00;CRC;84111510
+FV-2025-DUP-011;2025-02-25;9001000009;Taller Sintetico 03 — sucursal este;Copia sembrada factura FV-2025-DUP-011;63370.00;CRC;84111510
+FV-2025-DUP-012;2025-02-25;9001000009;Taller Sintetico 03 (mantenimiento);Servicio HVAC duplicado sintético #12;64707.00;CRC;84111511
+FV-2025-DUP-012;2025-02-26;9001000009;Taller Sintetico 03 (mantenimiento);Copia sembrada factura FV-2025-DUP-012;64707.00;CRC;84111511
+FV-2025-BAL-001;2025-06-01;9001000200;Cliente Saldo Irreconciliable Sintetico;Instalación equipo frío (sintético);120000.00;CRC;8411150000000
+FV-2025-BAL-002;2025-07-15;9001000200;Cliente Saldo Irreconciliable Sintetico;Mantenimiento preventivo (sintético);28450.50;CRC;8411150000010
+FV-2025-00027;2025-02-11;9001000126;Empresa Sintetica HVAC 166;Venta HVAC sintética línea 27;165830.74;CRC;84112027
+FV-2025-00028;2025-02-12;9001000090;Empresa Sintetica HVAC 130;Revisión de sistema con ñoño y acentuación — descripción sintética;417669.56;CRC;84112028
+FV-2025-00029;2025-02-13;9001000102;Empresa Sintetica HVAC 142;Venta HVAC sintética línea 29;120355.57;CRC;84112029
+FV-2025-00030;2025-02-14;9001000151;Empresa Sintetica HVAC 191;Venta HVAC sintética línea 30;172996.66;CRC;84112030
+FV-2025-00031;2025-02-15;9001000181;Empresa Sintetica HVAC 221;Venta HVAC sintética línea 31;222880.29;CRC;84112031
+FV-2025-00032;2025-02-16;9001000043;Taller Sintetico 37;Venta HVAC sintética línea 32;96466.26;CRC;84112032
+FV-2025-00033;2025-02-17;9001000193;Empresa Sintetica HVAC 233;Venta HVAC sintética línea 33;290227.06;CRC;84112033
+FV-2025-00034;2025-02-18;9001000033;Taller Sintetico 27 (mantenimiento);Venta HVAC sintética línea 34;355677.77;CRC;84112034
+FV-2025-00035;2025-02-19;9001000128;Empresa Sintetica HVAC 168;Revisión de sistema con ñoño y acentuación — descripción sintética;240369.40;CRC;84112035
+FV-2025-00036;2025-02-20;9001000036;Taller Sintetico 30 S.A.;Venta HVAC sintética línea 36;225370.05;CRC;84112036
+FV-2025-00037;2025-02-21;9001000110;Empresa Sintetica HVAC 150;Venta HVAC sintética línea 37;398866.78;CRC;84112037
+FV-2025-00038;2025-02-22;9001000050;Empresa Sintetica HVAC 090;Venta HVAC sintética línea 38;361762.31;CRC;84112038
+FV-2025-00039;2025-02-23;9001000153;Empresa Sintetica HVAC 193;Venta HVAC sintética línea 39;157549.73;CRC;84112039
+FV-2025-00040;2025-02-24;9001000012;Taller Sintetico 06 S.A.;Venta HVAC sintética línea 40;196138.13;CRC;84112040
+FV-2025-00041;2025-02-25;9001000088;Empresa Sintetica HVAC 128;Venta HVAC sintética línea 41;93173.47;CRC;84112041
+FV-2025-00042;2025-02-26;9001000024;Taller Sintetico 18 S.A.;Revisión de sistema con ñoño y acentuación — descripción sintética;313842.72;CRC;84112042
+FV-2025-00043;2025-02-27;9001000198;Empresa Sintetica HVAC 238;Venta HVAC sintética línea 43;368410.18;CRC;84112043
+FV-2025-00044;2025-02-28;9001000122;Empresa Sintetica HVAC 162;Venta HVAC sintética línea 44;237953.33;CRC;84112044
+FV-2025-00045;2025-03-01;9001000100;Empresa Sintetica HVAC 140;Venta HVAC sintética línea 45;220306.88;CRC;84112045
+FV-2025-00046;2025-03-02;9001000192;Empresa Sintetica HVAC 232;Venta HVAC sintética línea 46;100410.71;CRC;84112046
+FV-2025-00047;2025-03-03;9001000078;Empresa Sintetica HVAC 118;Venta HVAC sintética línea 47;106210.23;CRC;84112047
+FV-2025-00048;2025-03-04;9001000040;Taller Sintetico 34 — sucursal este;Venta HVAC sintética línea 48;289919.91;CRC;84112048
+FV-2025-00049;2025-03-05;9001000052;Empresa Sintetica HVAC 092;Revisión de sistema con ñoño y acentuación — descripción sintética;301151.68;CRC;84112049
+FV-2025-00050;2025-03-06;9001000029;Taller Sintetico 23 (mantenimiento);Venta HVAC sintética línea 50;106892.08;CRC;84112050
+FV-2025-00051;2025-03-07;9001000092;Empresa Sintetica HVAC 132;Venta HVAC sintética línea 51;385145.47;CRC;84112051
+FV-2025-00052;2025-03-08;9001000167;Empresa Sintetica HVAC 207;Venta HVAC sintética línea 52;205861.25;CRC;84112052
+FV-2025-00053;2025-03-09;9001000012;Taller Sintetico 06 S.A.;Venta HVAC sintética línea 53;87145.82;CRC;84112053
+FV-2025-00054;2025-03-10;9001000095;Empresa Sintetica HVAC 135;Venta HVAC sintética línea 54;348521.21;CRC;84112054
+FV-2025-00055;2025-03-11;9001000024;Taller Sintetico 18 S.A.;Venta HVAC sintética línea 55;122992.73;CRC;84112055
+FV-2025-00056;2025-03-12;9001000092;Empresa Sintetica HVAC 132;Revisión de sistema con ñoño y acentuación — descripción sintética;229845.51;CRC;84112056
+FV-2025-00057;2025-03-13;9001000165;Empresa Sintetica HVAC 205;Venta HVAC sintética línea 57;388543.04;CRC;84112057
+FV-2025-00058;2025-03-14;9001000110;Empresa Sintetica HVAC 150;Venta HVAC sintética línea 58;232241.07;CRC;84112058
+FV-2025-00059;2025-03-15;9001000169;Empresa Sintetica HVAC 209;Venta HVAC sintética línea 59;326693.81;CRC;84112059
+FV-2025-00060;2025-03-16;9001000134;Empresa Sintetica HVAC 174;Venta HVAC sintética línea 60;64028.41;CRC;84112060
+FV-2025-00061;2025-03-17;9001000192;Empresa Sintetica HVAC 232;Venta HVAC sintética línea 61;350112.52;CRC;84112061
+FV-2025-00062;2025-03-18;9001000139;Empresa Sintetica HVAC 179;Venta HVAC sintética línea 62;113059.61;CRC;84112062
+FV-2025-00063;2025-03-19;9001000073;Empresa Sintetica HVAC 113;Revisión de sistema con ñoño y acentuación — descripción sintética;36343.07;CRC;84112063
+FV-2025-00064;2025-03-20;9001000127;Empresa Sintetica HVAC 167;Venta HVAC sintética línea 64;131282.60;CRC;84112064
+FV-2025-00065;2025-03-21;9001000057;Empresa Sintetica HVAC 097;Venta HVAC sintética línea 65;311865.02;CRC;84112065
+FV-2025-00066;2025-03-22;9001000183;Empresa Sintetica HVAC 223;Venta HVAC sintética línea 66;362567.17;CRC;84112066
+FV-2025-00067;2025-03-23;9001000054;Empresa Sintetica HVAC 094;Venta HVAC sintética línea 67;237900.50;CRC;84112067
+FV-2025-00068;2025-03-24;9001000033;Taller Sintetico 27 — sucursal este;Venta HVAC sintética línea 68;119509.04;CRC;84112068
+FV-2025-00069;2025-03-25;9001000182;Empresa Sintetica HVAC 222;Venta HVAC sintética línea 69;119196.28;CRC;84112069
+FV-2025-00070;2025-03-26;9001000037;Taller Sintetico 31 — sucursal este;Revisión de sistema con ñoño y acentuación — descripción sintética;65436.25;CRC;84112070
+FV-2025-00071;2025-03-27;9001000144;Empresa Sintetica HVAC 184;Venta HVAC sintética línea 71;350476.62;CRC;84112071
+FV-2025-00072;2025-03-28;9001000142;Empresa Sintetica HVAC 182;Venta HVAC sintética línea 72;191977.29;CRC;84112072
+FV-2025-00073;2025-03-29;9001000040;Taller Sintetico 34 S.A.;Venta HVAC sintética línea 73;232963.95;CRC;84112073
+FV-2025-00074;2025-03-30;9001000141;Empresa Sintetica HVAC 181;Venta HVAC sintética línea 74;203135.34;CRC;84112074
+FV-2025-00075;2025-03-31;9001000082;Empresa Sintetica HVAC 122;Venta HVAC sintética línea 75;362600.37;CRC;84112075
+FV-2025-00076;2025-04-01;9001000010;Taller Sintetico 04;Venta HVAC sintética línea 76;67147.59;CRC;84112076
+FV-2025-00077;2025-04-02;9001000117;Empresa Sintetica HVAC 157;Revisión de sistema con ñoño y acentuación — descripción sintética;246626.36;CRC;84112077
+FV-2025-00078;2025-04-03;9001000139;Empresa Sintetica HVAC 179;Venta HVAC sintética línea 78;424931.30;CRC;84112078
+FV-2025-00079;2025-04-04;9001000008;Taller Sintetico 02 S.A.;Venta HVAC sintética línea 79;225003.63;CRC;84112079
+FV-2025-00080;2025-04-05;9001000039;Taller Sintetico 33 S.A.;Venta HVAC sintética línea 80;180146.95;CRC;84112080
+FV-2025-00081;2025-04-06;9001000137;Empresa Sintetica HVAC 177;Venta HVAC sintética línea 81;99066.22;CRC;84112081
+FV-2025-00082;2025-04-07;9001000017;Taller Sintetico 11 — sucursal este;Venta HVAC sintética línea 82;411203.06;CRC;84112082
+FV-2025-00083;2025-04-08;9001000070;Empresa Sintetica HVAC 110;Venta HVAC sintética línea 83;242054.73;CRC;84112083
+FV-2025-00084;2025-04-09;9001000171;Empresa Sintetica HVAC 211;Revisión de sistema con ñoño y acentuación — descripción sintética;360192.67;CRC;84112084
+FV-2025-00085;2025-04-10;9001000045;Taller Sintetico 39 — sucursal este;Venta HVAC sintética línea 85;386172.38;CRC;84112085
+FV-2025-00086;2025-04-11;9001000135;Empresa Sintetica HVAC 175;Venta HVAC sintética línea 86;415860.43;CRC;84112086
+FV-2025-00087;2025-04-12;9001000017;Taller Sintetico 11 — sucursal este;Venta HVAC sintética línea 87;329132.23;CRC;84112087
+FV-2025-00088;2025-04-13;9001000144;Empresa Sintetica HVAC 184;Venta HVAC sintética línea 88;192768.75;CRC;84112088
+FV-2025-00089;2025-04-14;9001000053;Empresa Sintetica HVAC 093;Venta HVAC sintética línea 89;215641.61;CRC;84112089
+FV-2025-00090;2025-04-15;9001000114;Empresa Sintetica HVAC 154;Venta HVAC sintética línea 90;328888.74;CRC;84112090
+FV-2025-00091;2025-04-16;9001000186;Empresa Sintetica HVAC 226;Revisión de sistema con ñoño y acentuación — descripción sintética;198500.81;CRC;84112091
+FV-2025-00092;2025-04-17;9001000132;Empresa Sintetica HVAC 172;Venta HVAC sintética línea 92;281167.27;CRC;84112092
+FV-2025-00093;2025-04-18;9001000138;Empresa Sintetica HVAC 178;Venta HVAC sintética línea 93;184508.28;CRC;84112093
+FV-2025-00094;2025-04-19;9001000174;Empresa Sintetica HVAC 214;Venta HVAC sintética línea 94;352597.85;CRC;84112094
+FV-2025-00095;2025-04-20;9001000109;Empresa Sintetica HVAC 149;Venta HVAC sintética línea 95;296092.64;CRC;84112095
+FV-2025-00096;2025-04-21;9001000054;Empresa Sintetica HVAC 094;Venta HVAC sintética línea 96;336416.05;CRC;84112096
+FV-2025-00097;2025-04-22;9001000200;Cliente Saldo Irreconciliable Sintetico;Venta HVAC sintética línea 97;384984.72;CRC;84112097
+FV-2025-00098;2025-04-23;9001000001;Taller Sintetico Conflicto A;Revisión de sistema con ñoño y acentuación — descripción sintética;296389.49;CRC;84112098
+FV-2025-00099;2025-04-24;9001000121;Empresa Sintetica HVAC 161;Venta HVAC sintética línea 99;336232.06;CRC;84112099
+FV-2025-00100;2025-04-25;9001000169;Empresa Sintetica HVAC 209;Venta HVAC sintética línea 100;284704.78;CRC;84112100
+FV-2025-00101;2025-04-26;9001000064;Empresa Sintetica HVAC 104;Venta HVAC sintética línea 101;190728.49;CRC;84112101
+FV-2025-00102;2025-04-27;9001000030;Taller Sintetico 24 (mantenimiento);Venta HVAC sintética línea 102;143535.51;CRC;84112102
+FV-2025-00103;2025-04-28;9001000016;Taller Sintetico 10 — sucursal este;Venta HVAC sintética línea 103;221174.34;CRC;84112103
+FV-2025-00104;2025-04-29;9001000168;Empresa Sintetica HVAC 208;Venta HVAC sintética línea 104;176904.06;CRC;84112104
+FV-2025-00105;2025-04-30;9001000105;Empresa Sintetica HVAC 145;Revisión de sistema con ñoño y acentuación — descripción sintética;147647.22;CRC;84112105
+FV-2025-00106;2025-05-01;9001000075;Empresa Sintetica HVAC 115;Venta HVAC sintética línea 106;204194.71;CRC;84112106
+FV-2025-00107;2025-05-02;9001000044;Taller Sintetico 38 S.A.;Venta HVAC sintética línea 107;46712.26;CRC;84112107
+FV-2025-00108;2025-05-03;9001000170;Empresa Sintetica HVAC 210;Venta HVAC sintética línea 108;229323.17;CRC;84112108
+FV-2025-00109;2025-05-04;9001000029;Taller Sintetico 23 — sucursal este;Venta HVAC sintética línea 109;411929.96;CRC;84112109
+FV-2025-00110;2025-05-05;9001000029;Taller Sintetico 23 — sucursal este;Venta HVAC sintética línea 110;232266.23;CRC;84112110
+FV-2025-00111;2025-05-06;9001000026;Taller Sintetico 20;Venta HVAC sintética línea 111;407337.89;CRC;84112111
+FV-2025-00112;2025-05-07;9001000036;Taller Sintetico 30 — sucursal este;Revisión de sistema con ñoño y acentuación — descripción sintética;37291.23;CRC;84112112
+FV-2025-00113;2025-05-08;9001000133;Empresa Sintetica HVAC 173;Venta HVAC sintética línea 113;55288.13;CRC;84112113
+FV-2025-00114;2025-05-09;9001000182;Empresa Sintetica HVAC 222;Venta HVAC sintética línea 114;100037.01;CRC;84112114
+FV-2025-00115;2025-05-10;9001000119;Empresa Sintetica HVAC 159;Venta HVAC sintética línea 115;340903.67;CRC;84112115
+FV-2025-00116;2025-05-11;9001000001;Taller Sintetico Conflicto A;Venta HVAC sintética línea 116;357056.82;CRC;84112116
+FV-2025-00117;2025-05-12;9001000055;Empresa Sintetica HVAC 095;Venta HVAC sintética línea 117;283604.81;CRC;84112117
+FV-2025-00118;2025-05-13;9001000132;Empresa Sintetica HVAC 172;Venta HVAC sintética línea 118;85143.76;CRC;84112118
+FV-2025-00119;2025-05-14;9001000129;Empresa Sintetica HVAC 169;Revisión de sistema con ñoño y acentuación — descripción sintética;37197.35;CRC;84112119
+FV-2025-00120;2025-05-15;9001000155;Empresa Sintetica HVAC 195;Venta HVAC sintética línea 120;365648.77;CRC;84112120
+FV-2025-00121;2025-05-16;9001000142;Empresa Sintetica HVAC 182;Venta HVAC sintética línea 121;186156.77;CRC;84112121
+FV-2025-00122;2025-05-17;9001000032;Taller Sintetico 26 — sucursal este;Venta HVAC sintética línea 122;357165.21;CRC;84112122
+FV-2025-00123;2025-05-18;9001000071;Empresa Sintetica HVAC 111;Venta HVAC sintética línea 123;272006.73;CRC;84112123
+FV-2025-00124;2025-05-19;9001000016;Taller Sintetico 10 — sucursal este;Venta HVAC sintética línea 124;101853.97;CRC;84112124
+FV-2025-00125;2025-05-20;9001000166;Empresa Sintetica HVAC 206;Venta HVAC sintética línea 125;63660.51;CRC;84112125
+FV-2025-00126;2025-05-21;9001000116;Empresa Sintetica HVAC 156;Revisión de sistema con ñoño y acentuación — descripción sintética;335314.51;CRC;84112126
+FV-2025-00127;2025-05-22;9001000026;Taller Sintetico 20 (mantenimiento);Venta HVAC sintética línea 127;197961.64;CRC;84112127
+FV-2025-00128;2025-05-23;9001000021;Taller Sintetico 15 (mantenimiento);Venta HVAC sintética línea 128;112273.14;CRC;84112128
+FV-2025-00129;2025-05-24;9001000143;Empresa Sintetica HVAC 183;Venta HVAC sintética línea 129;92220.93;CRC;84112129
+FV-2025-00130;2025-05-25;9001000040;Taller Sintetico 34 S.A.;Venta HVAC sintética línea 130;226338.06;CRC;84112130
+FV-2025-00131;2025-05-26;9001000051;Empresa Sintetica HVAC 091;Venta HVAC sintética línea 131;78778.25;CRC;84112131
+FV-2025-00132;2025-05-27;9001000092;Empresa Sintetica HVAC 132;Venta HVAC sintética línea 132;171329.40;CRC;84112132
+FV-2025-00133;2025-05-28;9001000141;Empresa Sintetica HVAC 181;Revisión de sistema con ñoño y acentuación — descripción sintética;94013.17;CRC;84112133
+FV-2025-00134;2025-05-29;9001000170;Empresa Sintetica HVAC 210;Venta HVAC sintética línea 134;305442.10;CRC;84112134
+FV-2025-00135;2025-05-30;9001000075;Empresa Sintetica HVAC 115;Venta HVAC sintética línea 135;211696.54;CRC;84112135
+FV-2025-00136;2025-05-31;9001000131;Empresa Sintetica HVAC 171;Venta HVAC sintética línea 136;364050.45;CRC;84112136
+FV-2025-00137;2025-06-01;9001000042;Taller Sintetico 36;Venta HVAC sintética línea 137;44571.40;CRC;84112137
+FV-2025-00138;2025-06-02;9001000003;Distribuidora Sintetica Conflicto B;Venta HVAC sintética línea 138;281769.26;CRC;84112138
+FV-2025-00139;2025-06-03;9001000026;Taller Sintetico 20 (mantenimiento);Venta HVAC sintética línea 139;49374.29;CRC;84112139
+FV-2025-00140;2025-06-04;9001000057;Empresa Sintetica HVAC 097;Revisión de sistema con ñoño y acentuación — descripción sintética;69639.78;CRC;84112140
+FV-2025-00141;2025-06-05;9001000040;Taller Sintetico 34 — sucursal este;Venta HVAC sintética línea 141;84944.73;CRC;84112141
+FV-2025-00142;2025-06-06;9001000090;Empresa Sintetica HVAC 130;Venta HVAC sintética línea 142;51513.23;CRC;84112142
+FV-2025-00143;2025-06-07;9001000015;Taller Sintetico 09;Venta HVAC sintética línea 143;397035.64;CRC;84112143
+FV-2025-00144;2025-06-08;9001000185;Empresa Sintetica HVAC 225;Venta HVAC sintética línea 144;373906.43;CRC;84112144
+FV-2025-00145;2025-06-09;9001000009;Taller Sintetico 03 — sucursal este;Venta HVAC sintética línea 145;345069.03;CRC;84112145
+FV-2025-00146;2025-06-10;9001000024;Taller Sintetico 18 S.A.;Venta HVAC sintética línea 146;284645.98;CRC;84112146
+FV-2025-00147;2025-06-11;9001000135;Empresa Sintetica HVAC 175;Revisión de sistema con ñoño y acentuación — descripción sintética;210413.91;CRC;84112147
+FV-2025-00148;2025-06-12;9001000053;Empresa Sintetica HVAC 093;Venta HVAC sintética línea 148;416492.13;CRC;84112148
+FV-2025-00149;2025-06-13;9001000114;Empresa Sintetica HVAC 154;Venta HVAC sintética línea 149;183498.68;CRC;84112149
+FV-2025-00150;2025-06-14;9001000038;Taller Sintetico 32;Venta HVAC sintética línea 150;195552.22;CRC;84112150
+FV-2025-00151;2025-06-15;9001000139;Empresa Sintetica HVAC 179;Venta HVAC sintética línea 151;423791.88;CRC;84112151
+FV-2025-00152;2025-06-16;9001000028;Taller Sintetico 22 S.A.;Venta HVAC sintética línea 152;369727.96;CRC;84112152
+FV-2025-00153;2025-06-17;9001000074;Empresa Sintetica HVAC 114;Venta HVAC sintética línea 153;275006.73;CRC;84112153
+FV-2025-00154;2025-06-18;9001000055;Empresa Sintetica HVAC 095;Revisión de sistema con ñoño y acentuación — descripción sintética;81527.91;CRC;84112154
+FV-2025-00155;2025-06-19;9001000015;Taller Sintetico 09 S.A.;Venta HVAC sintética línea 155;292564.62;CRC;84112155
+FV-2025-00156;2025-06-20;9001000044;Taller Sintetico 38 S.A.;Venta HVAC sintética línea 156;168070.92;CRC;84112156
+FV-2025-00157;2025-06-21;9001000158;Empresa Sintetica HVAC 198;Venta HVAC sintética línea 157;387891.36;CRC;84112157
+FV-2025-00158;2025-06-22;9001000038;Taller Sintetico 32 (mantenimiento);Venta HVAC sintética línea 158;84686.76;CRC;84112158
+FV-2025-00159;2025-06-23;9001000037;Taller Sintetico 31 (mantenimiento);Venta HVAC sintética línea 159;223272.46;CRC;84112159
+FV-2025-00160;2025-06-24;9001000012;Taller Sintetico 06 — sucursal este;Venta HVAC sintética línea 160;339094.93;CRC;84112160
+FV-2025-00161;2025-06-25;9001000141;Empresa Sintetica HVAC 181;Revisión de sistema con ñoño y acentuación — descripción sintética;203782.67;CRC;84112161
+FV-2025-00162;2025-06-26;9001000004;Distribuidora Sintetica Conflicto B;Venta HVAC sintética línea 162;160037.51;CRC;84112162
+FV-2025-00163;2025-06-27;9001000128;Empresa Sintetica HVAC 168;Venta HVAC sintética línea 163;273589.07;CRC;84112163
+FV-2025-00164;2025-06-28;9001000074;Empresa Sintetica HVAC 114;Venta HVAC sintética línea 164;232336.83;CRC;84112164
+FV-2025-00165;2025-06-29;9001000183;Empresa Sintetica HVAC 223;Venta HVAC sintética línea 165;405563.57;CRC;84112165
+FV-2025-00166;2025-06-30;9001000172;Empresa Sintetica HVAC 212;Venta HVAC sintética línea 166;197540.73;CRC;84112166
+FV-2025-00167;2025-07-01;9001000128;Empresa Sintetica HVAC 168;Venta HVAC sintética línea 167;85467.81;CRC;84112167
+FV-2025-00168;2025-07-02;9001000070;Empresa Sintetica HVAC 110;Revisión de sistema con ñoño y acentuación — descripción sintética;31668.91;CRC;84112168
+FV-2025-00169;2025-07-03;9001000016;Taller Sintetico 10 S.A.;Venta HVAC sintética línea 169;79266.97;CRC;84112169
+FV-2025-00170;2025-07-04;9001000020;Taller Sintetico 14 S.A.;Venta HVAC sintética línea 170;55327.61;CRC;84112170
+FV-2025-00171;2025-07-05;9001000076;Empresa Sintetica HVAC 116;Venta HVAC sintética línea 171;148752.00;CRC;84112171
+FV-2025-00172;2025-07-06;9001000085;Empresa Sintetica HVAC 125;Venta HVAC sintética línea 172;257433.15;CRC;84112172
+FV-2025-00173;2025-07-07;9001000022;Taller Sintetico 16;Venta HVAC sintética línea 173;280194.01;CRC;84112173
+FV-2025-00174;2025-07-08;9001000017;Taller Sintetico 11 (mantenimiento);Venta HVAC sintética línea 174;301302.46;CRC;84112174
+FV-2025-00175;2025-07-09;9001000183;Empresa Sintetica HVAC 223;Revisión de sistema con ñoño y acentuación — descripción sintética;256395.65;CRC;84112175
+FV-2025-00176;2025-07-10;9001000174;Empresa Sintetica HVAC 214;Venta HVAC sintética línea 176;268693.31;CRC;84112176
+FV-2025-00177;2025-07-11;9001000107;Empresa Sintetica HVAC 147;Venta HVAC sintética línea 177;338889.47;CRC;84112177
+FV-2025-00178;2025-07-12;9001000015;Taller Sintetico 09 S.A.;Venta HVAC sintética línea 178;78616.52;CRC;84112178
+FV-2025-00179;2025-07-13;9001000117;Empresa Sintetica HVAC 157;Venta HVAC sintética línea 179;391001.03;CRC;84112179
+FV-2025-00180;2025-07-14;9001000077;Empresa Sintetica HVAC 117;Venta HVAC sintética línea 180;307943.89;CRC;84112180
+FV-2025-00181;2025-07-15;9001000016;Taller Sintetico 10 S.A.;Venta HVAC sintética línea 181;53884.65;CRC;84112181
+FV-2025-00182;2025-07-16;9001000099;Empresa Sintetica HVAC 139;Revisión de sistema con ñoño y acentuación — descripción sintética;274256.63;CRC;84112182
+FV-2025-00183;2025-07-17;9001000046;Taller Sintetico 40;Venta HVAC sintética línea 183;63061.63;CRC;84112183
+FV-2025-00184;2025-07-18;9001000029;Taller Sintetico 23 (mantenimiento);Venta HVAC sintética línea 184;45387.68;CRC;84112184
+FV-2025-00185;2025-07-19;9001000009;Taller Sintetico 03 (mantenimiento);Venta HVAC sintética línea 185;211035.66;CRC;84112185
+FV-2025-00186;2025-07-20;9001000111;Empresa Sintetica HVAC 151;Venta HVAC sintética línea 186;40865.83;CRC;84112186
+FV-2025-00187;2025-07-21;9001000102;Empresa Sintetica HVAC 142;Venta HVAC sintética línea 187;175481.93;CRC;84112187
+FV-2025-00188;2025-07-22;9001000038;Taller Sintetico 32;Venta HVAC sintética línea 188;46319.58;CRC;84112188
+FV-2025-00189;2025-07-23;9001000018;Taller Sintetico 12;Revisión de sistema con ñoño y acentuación — descripción sintética;25590.56;CRC;84112189
+FV-2025-00190;2025-07-24;9001000023;Taller Sintetico 17 S.A.;Venta HVAC sintética línea 190;340838.68;CRC;84112190
+FV-2025-00191;2025-07-25;9001000069;Empresa Sintetica HVAC 109;Venta HVAC sintética línea 191;160307.35;CRC;84112191
+FV-2025-00192;2025-07-26;9001000038;Taller Sintetico 32 (mantenimiento);Venta HVAC sintética línea 192;301312.00;CRC;84112192
+FV-2025-00193;2025-07-27;9001000050;Empresa Sintetica HVAC 090;Venta HVAC sintética línea 193;315361.15;CRC;84112193
+FV-2025-00194;2025-07-28;9001000162;Empresa Sintetica HVAC 202;Venta HVAC sintética línea 194;369386.39;CRC;84112194
+FV-2025-00195;2025-07-29;9001000064;Empresa Sintetica HVAC 104;Venta HVAC sintética línea 195;35706.19;CRC;84112195
+FV-2025-00196;2025-07-30;9001000152;Empresa Sintetica HVAC 192;Revisión de sistema con ñoño y acentuación — descripción sintética;400557.57;CRC;84112196
+FV-2025-00197;2025-07-31;9001000089;Empresa Sintetica HVAC 129;Venta HVAC sintética línea 197;54325.66;CRC;84112197
+FV-2025-00198;2025-08-01;9001000090;Empresa Sintetica HVAC 130;Venta HVAC sintética línea 198;76981.70;CRC;84112198
+FV-2025-00199;2025-08-02;9001000160;Empresa Sintetica HVAC 200;Venta HVAC sintética línea 199;393664.71;CRC;84112199
+FV-2025-00200;2025-08-03;9001000053;Empresa Sintetica HVAC 093;Venta HVAC sintética línea 200;387759.62;CRC;84112200
+FV-2025-00201;2025-08-04;9001000157;Empresa Sintetica HVAC 197;Venta HVAC sintética línea 201;107521.51;CRC;84112201
+FV-2025-00202;2025-08-05;9001000027;Taller Sintetico 21;Venta HVAC sintética línea 202;284016.68;CRC;84112202
+FV-2025-00203;2025-08-06;9001000066;Empresa Sintetica HVAC 106;Revisión de sistema con ñoño y acentuación — descripción sintética;383169.61;CRC;84112203
+FV-2025-00204;2025-08-07;9001000028;Taller Sintetico 22 S.A.;Venta HVAC sintética línea 204;248951.66;CRC;84112204
+FV-2025-00205;2025-08-08;9001000074;Empresa Sintetica HVAC 114;Venta HVAC sintética línea 205;421324.57;CRC;84112205
+FV-2025-00206;2025-08-09;9001000161;Empresa Sintetica HVAC 201;Venta HVAC sintética línea 206;348561.18;CRC;84112206
+FV-2025-00207;2025-08-10;9001000195;Empresa Sintetica HVAC 235;Venta HVAC sintética línea 207;31236.27;CRC;84112207
+FV-2025-00208;2025-08-11;9001000052;Empresa Sintetica HVAC 092;Venta HVAC sintética línea 208;236953.84;CRC;84112208
+FV-2025-00209;2025-08-12;9001000029;Taller Sintetico 23 — sucursal este;Venta HVAC sintética línea 209;172536.90;CRC;84112209
+FV-2025-00210;2025-08-13;9001000063;Empresa Sintetica HVAC 103;Revisión de sistema con ñoño y acentuación — descripción sintética;295940.52;CRC;84112210
+FV-2025-00211;2025-08-14;9001000034;Taller Sintetico 28 (mantenimiento);Venta HVAC sintética línea 211;202549.21;CRC;84112211
+FV-2025-00212;2025-08-15;9001000035;Taller Sintetico 29 S.A.;Venta HVAC sintética línea 212;176658.98;CRC;84112212
+FV-2025-00213;2025-08-16;9001000031;Taller Sintetico 25;Venta HVAC sintética línea 213;91654.64;CRC;84112213
+FV-2025-00214;2025-08-17;9001000185;Empresa Sintetica HVAC 225;Venta HVAC sintética línea 214;194480.65;CRC;84112214
+FV-2025-00215;2025-08-18;9001000096;Empresa Sintetica HVAC 136;Venta HVAC sintética línea 215;266904.82;CRC;84112215
+FV-2025-00216;2025-08-19;9001000089;Empresa Sintetica HVAC 129;Venta HVAC sintética línea 216;277804.26;CRC;84112216
+FV-2025-00217;2025-08-20;9001000029;Taller Sintetico 23 (mantenimiento);Revisión de sistema con ñoño y acentuación — descripción sintética;54042.27;CRC;84112217
+FV-2025-00218;2025-08-21;9001000102;Empresa Sintetica HVAC 142;Venta HVAC sintética línea 218;252277.04;CRC;84112218
+FV-2025-00219;2025-08-22;9001000122;Empresa Sintetica HVAC 162;Venta HVAC sintética línea 219;330760.12;CRC;84112219
+FV-2025-00220;2025-08-23;9001000141;Empresa Sintetica HVAC 181;Venta HVAC sintética línea 220;102977.19;CRC;84112220
+FV-2025-00221;2025-08-24;9001000091;Empresa Sintetica HVAC 131;Venta HVAC sintética línea 221;377453.50;CRC;84112221
+FV-2025-00222;2025-08-25;9001000038;Taller Sintetico 32;Venta HVAC sintética línea 222;208693.67;CRC;84112222
+FV-2025-00223;2025-08-26;9001000113;Empresa Sintetica HVAC 153;Venta HVAC sintética línea 223;353813.75;CRC;84112223
+FV-2025-00224;2025-08-27;9001000108;Empresa Sintetica HVAC 148;Revisión de sistema con ñoño y acentuación — descripción sintética;208846.36;CRC;84112224
+FV-2025-00225;2025-08-28;9001000075;Empresa Sintetica HVAC 115;Venta HVAC sintética línea 225;236811.01;CRC;84112225
+FV-2025-00226;2025-08-29;9001000069;Empresa Sintetica HVAC 109;Venta HVAC sintética línea 226;28014.27;CRC;84112226
+FV-2025-00227;2025-08-30;9001000031;Taller Sintetico 25 S.A.;Venta HVAC sintética línea 227;148300.69;CRC;84112227
+FV-2025-00228;2025-08-31;9001000168;Empresa Sintetica HVAC 208;Venta HVAC sintética línea 228;214648.50;CRC;84112228
+FV-2025-00229;2025-09-01;9001000163;Empresa Sintetica HVAC 203;Venta HVAC sintética línea 229;279650.84;CRC;84112229
+FV-2025-00230;2025-09-02;9001000021;Taller Sintetico 15 — sucursal este;Venta HVAC sintética línea 230;405681.46;CRC;84112230
+FV-2025-00231;2025-09-03;9001000128;Empresa Sintetica HVAC 168;Revisión de sistema con ñoño y acentuación — descripción sintética;144891.63;CRC;84112231
+FV-2025-00232;2025-09-04;9001000013;Taller Sintetico 07 (mantenimiento);Venta HVAC sintética línea 232;354938.63;CRC;84112232
+FV-2025-00233;2025-09-05;9001000005;Refrigeración Sintetica Conflicto C;Venta HVAC sintética línea 233;207093.62;CRC;84112233
+FV-2025-00234;2025-09-06;9001000026;Taller Sintetico 20;Venta HVAC sintética línea 234;342760.64;CRC;84112234
+FV-2025-00235;2025-09-07;9001000178;Empresa Sintetica HVAC 218;Venta HVAC sintética línea 235;255282.47;CRC;84112235
+FV-2025-00236;2025-09-08;9001000014;Taller Sintetico 08;Venta HVAC sintética línea 236;171053.58;CRC;84112236
+FV-2025-00237;2025-09-09;9001000109;Empresa Sintetica HVAC 149;Venta HVAC sintética línea 237;207354.50;CRC;84112237
+FV-2025-00238;2025-09-10;9001000021;Taller Sintetico 15 (mantenimiento);Revisión de sistema con ñoño y acentuación — descripción sintética;94389.69;CRC;84112238
+FV-2025-00239;2025-09-11;9001000025;Taller Sintetico 19 (mantenimiento);Venta HVAC sintética línea 239;52777.23;CRC;84112239
+FV-2025-00240;2025-09-12;9001000014;Taller Sintetico 08 (mantenimiento);Venta HVAC sintética línea 240;388476.78;CRC;84112240
+FV-2025-00241;2025-09-13;9001000077;Empresa Sintetica HVAC 117;Venta HVAC sintética línea 241;130586.51;CRC;84112241
+FV-2025-00242;2025-09-14;9001000099;Empresa Sintetica HVAC 139;Venta HVAC sintética línea 242;92395.21;CRC;84112242
+FV-2025-00243;2025-09-15;9001000010;Taller Sintetico 04 (mantenimiento);Venta HVAC sintética línea 243;275744.10;CRC;84112243
+FV-2025-00244;2025-09-16;9001000120;Empresa Sintetica HVAC 160;Venta HVAC sintética línea 244;247433.74;CRC;84112244
+FV-2025-00245;2025-09-17;9001000010;Taller Sintetico 04 (mantenimiento);Revisión de sistema con ñoño y acentuación — descripción sintética;234563.88;CRC;84112245
+FV-2025-00246;2025-09-18;9001000190;Empresa Sintetica HVAC 230;Venta HVAC sintética línea 246;101318.27;CRC;84112246
+FV-2025-00247;2025-09-19;9001000119;Empresa Sintetica HVAC 159;Venta HVAC sintética línea 247;99305.88;CRC;84112247
+FV-2025-00248;2025-09-20;9001000055;Empresa Sintetica HVAC 095;Venta HVAC sintética línea 248;337671.83;CRC;84112248
+FV-2025-00249;2025-09-21;9001000145;Empresa Sintetica HVAC 185;Venta HVAC sintética línea 249;44033.85;CRC;84112249
+FV-2025-00250;2025-09-22;9001000017;Taller Sintetico 11 (mantenimiento);Venta HVAC sintética línea 250;342920.56;CRC;84112250
+FV-2025-00251;2025-09-23;9001000119;Empresa Sintetica HVAC 159;Venta HVAC sintética línea 251;263576.22;CRC;84112251
+FV-2025-00252;2025-09-24;9001000004;Distribuidora Sintetica Conflicto B;Revisión de sistema con ñoño y acentuación — descripción sintética;267165.96;CRC;84112252
+FV-2025-00253;2025-09-25;9001000017;Taller Sintetico 11 — sucursal este;Venta HVAC sintética línea 253;102039.08;CRC;84112253
+FV-2025-00254;2025-09-26;9001000027;Taller Sintetico 21;Venta HVAC sintética línea 254;117293.77;CRC;84112254
+FV-2025-00255;2025-09-27;9001000010;Taller Sintetico 04;Venta HVAC sintética línea 255;315610.65;CRC;84112255
+FV-2025-00256;2025-09-28;9001000116;Empresa Sintetica HVAC 156;Venta HVAC sintética línea 256;233079.98;CRC;84112256
+FV-2025-00257;2025-09-29;9001000186;Empresa Sintetica HVAC 226;Venta HVAC sintética línea 257;128493.04;CRC;84112257
+FV-2025-00258;2025-09-30;9001000012;Taller Sintetico 06 — sucursal este;Venta HVAC sintética línea 258;179058.26;CRC;84112258
+FV-2025-00259;2025-10-01;9001000023;Taller Sintetico 17;Revisión de sistema con ñoño y acentuación — descripción sintética;184574.01;CRC;84112259
+FV-2025-00260;2025-10-02;9001000151;Empresa Sintetica HVAC 191;Venta HVAC sintética línea 260;366369.40;CRC;84112260
+FV-2025-00261;2025-10-03;9001000044;Taller Sintetico 38 — sucursal este;Venta HVAC sintética línea 261;231828.76;CRC;84112261
+FV-2025-00262;2025-10-04;9001000184;Empresa Sintetica HVAC 224;Venta HVAC sintética línea 262;373474.46;CRC;84112262
+FV-2025-00263;2025-10-05;9001000079;Empresa Sintetica HVAC 119;Venta HVAC sintética línea 263;34844.23;CRC;84112263
+FV-2025-00264;2025-10-06;9001000185;Empresa Sintetica HVAC 225;Venta HVAC sintética línea 264;345989.26;CRC;84112264
+FV-2025-00265;2025-10-07;9001000124;Empresa Sintetica HVAC 164;Venta HVAC sintética línea 265;335265.11;CRC;84112265
+FV-2025-00266;2025-10-08;9001000181;Empresa Sintetica HVAC 221;Revisión de sistema con ñoño y acentuación — descripción sintética;142919.48;CRC;84112266
+FV-2025-00267;2025-10-09;9001000018;Taller Sintetico 12;Venta HVAC sintética línea 267;265817.33;CRC;84112267
+FV-2025-00268;2025-10-10;9001000047;Empresa Sintetica HVAC 087;Venta HVAC sintética línea 268;48725.50;CRC;84112268
+FV-2025-00269;2025-10-11;9001000147;Empresa Sintetica HVAC 187;Venta HVAC sintética línea 269;409417.51;CRC;84112269
+FV-2025-00270;2025-10-12;9001000108;Empresa Sintetica HVAC 148;Venta HVAC sintética línea 270;168119.86;CRC;84112270
+FV-2025-00271;2025-10-13;9001000053;Empresa Sintetica HVAC 093;Venta HVAC sintética línea 271;158697.67;CRC;84112271
+FV-2025-00272;2025-10-14;9001000157;Empresa Sintetica HVAC 197;Venta HVAC sintética línea 272;38734.25;CRC;84112272
+FV-2025-00273;2025-10-15;9001000037;Taller Sintetico 31 — sucursal este;Revisión de sistema con ñoño y acentuación — descripción sintética;80359.01;CRC;84112273
+FV-2025-00274;2025-10-16;9001000153;Empresa Sintetica HVAC 193;Venta HVAC sintética línea 274;338255.62;CRC;84112274
+FV-2025-00275;2025-10-17;9001000046;Taller Sintetico 40 (mantenimiento);Venta HVAC sintética línea 275;269298.94;CRC;84112275
+FV-2025-00276;2025-10-18;9001000192;Empresa Sintetica HVAC 232;Venta HVAC sintética línea 276;356093.62;CRC;84112276
+FV-2025-00277;2025-10-19;9001000081;Empresa Sintetica HVAC 121;Venta HVAC sintética línea 277;208167.79;CRC;84112277
+FV-2025-00278;2025-10-20;9001000091;Empresa Sintetica HVAC 131;Venta HVAC sintética línea 278;327064.88;CRC;84112278
+FV-2025-00279;2025-10-21;9001000022;Taller Sintetico 16 (mantenimiento);Venta HVAC sintética línea 279;271919.68;CRC;84112279
+FV-2025-00280;2025-10-22;9001000159;Empresa Sintetica HVAC 199;Revisión de sistema con ñoño y acentuación — descripción sintética;271040.48;CRC;84112280

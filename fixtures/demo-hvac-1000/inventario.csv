@@ -1,0 +1,131 @@
+sku,descripcion,unidad,existencia,costo_promedio_crc,ubicacion_bodega
+SKU-0001,Repuesto sintético 1 — filtro aspiración,UND,5,1500.00,BODEGA-1
+SKU-0002,Repuesto sintético 2,M,6,1502.50,BODEGA-2
+SKU-0003,Repuesto sintético 3,KG,7,1505.00,BODEGA-3
+SKU-0004,Repuesto sintético 4,UND,8,1507.50,BODEGA-1
+SKU-0005,Repuesto sintético 5 — filtro aspiración,M,9,1510.00,BODEGA-2
+SKU-0006,Repuesto sintético 6,KG,10,1512.50,BODEGA-3
+SKU-0007,Repuesto sintético 7,UND,11,1515.00,BODEGA-1
+SKU-0008,Repuesto sintético 8,M,12,1517.50,BODEGA-2
+SKU-0009,Repuesto sintético 9 — filtro aspiración,KG,13,1520.00,BODEGA-3
+SKU-0010,Repuesto sintético 10,UND,14,1522.50,BODEGA-1
+SKU-0011,Repuesto sintético 11,M,15,1525.00,BODEGA-2
+SKU-0012,Repuesto sintético 12,KG,16,1527.50,BODEGA-3
+SKU-0013,Repuesto sintético 13 — filtro aspiración,UND,17,1530.00,BODEGA-1
+SKU-0014,Repuesto sintético 14,M,18,1532.50,BODEGA-2
+SKU-0015,Repuesto sintético 15,KG,19,1535.00,BODEGA-3
+SKU-0016,Repuesto sintético 16,UND,20,1537.50,BODEGA-1
+SKU-0017,Repuesto sintético 17 — filtro aspiración,M,21,1540.00,BODEGA-2
+SKU-0018,Repuesto sintético 18,KG,22,1542.50,BODEGA-3
+SKU-0019,Repuesto sintético 19,UND,23,1545.00,BODEGA-1
+SKU-0020,Repuesto sintético 20,M,24,1547.50,BODEGA-2
+SKU-0021,Repuesto sintético 21 — filtro aspiración,KG,25,1550.00,BODEGA-3
+SKU-0022,Repuesto sintético 22,UND,26,1552.50,BODEGA-1
+SKU-0023,Repuesto sintético 23,M,27,1555.00,BODEGA-2
+SKU-0024,Repuesto sintético 24,KG,28,1557.50,BODEGA-3
+SKU-0025,Repuesto sintético 25 — filtro aspiración,UND,29,1560.00,BODEGA-1
+SKU-0026,Repuesto sintético 26,M,30,1562.50,BODEGA-2
+SKU-0027,Repuesto sintético 27,KG,31,1565.00,BODEGA-3
+SKU-0028,Repuesto sintético 28,UND,32,1567.50,BODEGA-1
+SKU-0029,Repuesto sintético 29 — filtro aspiración,M,33,1570.00,BODEGA-2
+SKU-0030,Repuesto sintético 30,KG,34,1572.50,BODEGA-3
+SKU-0031,Repuesto sintético 31,UND,35,1575.00,BODEGA-1
+SKU-0032,Repuesto sintético 32,M,36,1577.50,BODEGA-2
+SKU-0033,Repuesto sintético 33 — filtro aspiración,KG,37,1580.00,BODEGA-3
+SKU-0034,Repuesto sintético 34,UND,38,1582.50,BODEGA-1
+SKU-0035,Repuesto sintético 35,M,39,1585.00,BODEGA-2
+SKU-0036,Repuesto sintético 36,KG,40,1587.50,BODEGA-3
+SKU-0037,Repuesto sintético 37 — filtro aspiración,UND,41,1590.00,BODEGA-1
+SKU-0038,Repuesto sintético 38,M,42,1592.50,BODEGA-2
+SKU-0039,Repuesto sintético 39,KG,43,1595.00,BODEGA-3
+SKU-0040,Repuesto sintético 40,UND,44,1597.50,BODEGA-1
+SKU-0041,Repuesto sintético 41 — filtro aspiración,M,45,1600.00,BODEGA-2
+SKU-0042,Repuesto sintético 42,KG,46,1602.50,BODEGA-3
+SKU-0043,Repuesto sintético 43,UND,47,1605.00,BODEGA-1
+SKU-0044,Repuesto sintético 44,M,48,1607.50,BODEGA-2
+SKU-0045,Repuesto sintético 45 — filtro aspiración,KG,49,1610.00,BODEGA-3
+SKU-0046,Repuesto sintético 46,UND,50,1612.50,BODEGA-1
+SKU-0047,Repuesto sintético 47,M,51,1615.00,BODEGA-2
+SKU-0048,Repuesto sintético 48,KG,52,1617.50,BODEGA-3
+SKU-0049,Repuesto sintético 49 — filtro aspiración,UND,53,1620.00,BODEGA-1
+SKU-0050,Repuesto sintético 50,M,54,1622.50,BODEGA-2
+SKU-0051,Repuesto sintético 51,KG,5,1625.00,BODEGA-3
+SKU-0052,Repuesto sintético 52,UND,6,1627.50,BODEGA-1
+SKU-0053,Repuesto sintético 53 — filtro aspiración,M,7,1630.00,BODEGA-2
+SKU-0054,Repuesto sintético 54,KG,8,1632.50,BODEGA-3
+SKU-0055,Repuesto sintético 55,UND,9,1635.00,BODEGA-1
+SKU-0056,Repuesto sintético 56,M,10,1637.50,BODEGA-2
+SKU-0057,Repuesto sintético 57 — filtro aspiración,KG,11,1640.00,BODEGA-3
+SKU-0058,Repuesto sintético 58,UND,12,1642.50,BODEGA-1
+SKU-0059,Repuesto sintético 59,M,13,1645.00,BODEGA-2
+SKU-0060,Repuesto sintético 60,KG,14,1647.50,BODEGA-3
+SKU-0061,Repuesto sintético 61 — filtro aspiración,UND,15,1650.00,BODEGA-1
+SKU-0062,Repuesto sintético 62,M,16,1652.50,BODEGA-2
+SKU-0063,Repuesto sintético 63,KG,17,1655.00,BODEGA-3
+SKU-0064,Repuesto sintético 64,UND,18,1657.50,BODEGA-1
+SKU-0065,Repuesto sintético 65 — filtro aspiración,M,19,1660.00,BODEGA-2
+SKU-0066,Repuesto sintético 66,KG,20,1662.50,BODEGA-3
+SKU-0067,Repuesto sintético 67,UND,21,1665.00,BODEGA-1
+SKU-0068,Repuesto sintético 68,M,22,1667.50,BODEGA-2
+SKU-0069,Repuesto sintético 69 — filtro aspiración,KG,23,1670.00,BODEGA-3
+SKU-0070,Repuesto sintético 70,UND,24,1672.50,BODEGA-1
+SKU-0071,Repuesto sintético 71,M,25,1675.00,BODEGA-2
+SKU-0072,Repuesto sintético 72,KG,26,1677.50,BODEGA-3
+SKU-0073,Repuesto sintético 73 — filtro aspiración,UND,27,1680.00,BODEGA-1
+SKU-0074,Repuesto sintético 74,M,28,1682.50,BODEGA-2
+SKU-0075,Repuesto sintético 75,KG,29,1685.00,BODEGA-3
+SKU-0076,Repuesto sintético 76,UND,30,1687.50,BODEGA-1
+SKU-0077,Repuesto sintético 77 — filtro aspiración,M,31,1690.00,BODEGA-2
+SKU-0078,Repuesto sintético 78,KG,32,1692.50,BODEGA-3
+SKU-0079,Repuesto sintético 79,UND,33,1695.00,BODEGA-1
+SKU-0080,Repuesto sintético 80,M,34,1697.50,BODEGA-2
+SKU-0081,Repuesto sintético 81 — filtro aspiración,KG,35,1700.00,BODEGA-3
+SKU-0082,Repuesto sintético 82,UND,36,1702.50,BODEGA-1
+SKU-0083,Repuesto sintético 83,M,37,1705.00,BODEGA-2
+SKU-0084,Repuesto sintético 84,KG,38,1707.50,BODEGA-3
+SKU-0085,Repuesto sintético 85 — filtro aspiración,UND,39,1710.00,BODEGA-1
+SKU-0086,Repuesto sintético 86,M,40,1712.50,BODEGA-2
+SKU-0087,Repuesto sintético 87,KG,41,1715.00,BODEGA-3
+SKU-0088,Repuesto sintético 88,UND,42,1717.50,BODEGA-1
+SKU-0089,Repuesto sintético 89 — filtro aspiración,M,43,1720.00,BODEGA-2
+SKU-0090,Repuesto sintético 90,KG,44,1722.50,BODEGA-3
+SKU-0091,Repuesto sintético 91,UND,45,1725.00,BODEGA-1
+SKU-0092,Repuesto sintético 92,M,46,1727.50,BODEGA-2
+SKU-0093,Repuesto sintético 93 — filtro aspiración,KG,47,1730.00,BODEGA-3
+SKU-0094,Repuesto sintético 94,UND,48,1732.50,BODEGA-1
+SKU-0095,Repuesto sintético 95,M,49,1735.00,BODEGA-2
+SKU-0096,Repuesto sintético 96,KG,50,1737.50,BODEGA-3
+SKU-0097,Repuesto sintético 97 — filtro aspiración,UND,51,1740.00,BODEGA-1
+SKU-0098,Repuesto sintético 98,M,52,1742.50,BODEGA-2
+SKU-0099,Repuesto sintético 99,KG,53,1745.00,BODEGA-3
+SKU-0100,Repuesto sintético 100,UND,54,1747.50,BODEGA-1
+SKU-0101,Repuesto sintético 101 — filtro aspiración,M,5,1750.00,BODEGA-2
+SKU-0102,Repuesto sintético 102,KG,6,1752.50,BODEGA-3
+SKU-0103,Repuesto sintético 103,UND,7,1755.00,BODEGA-1
+SKU-0104,Repuesto sintético 104,M,8,1757.50,BODEGA-2
+SKU-0105,Repuesto sintético 105 — filtro aspiración,KG,9,1760.00,BODEGA-3
+SKU-0106,Repuesto sintético 106,UND,10,1762.50,BODEGA-1
+SKU-0107,Repuesto sintético 107,M,11,1765.00,BODEGA-2
+SKU-0108,Repuesto sintético 108,KG,12,1767.50,BODEGA-3
+SKU-0109,Repuesto sintético 109 — filtro aspiración,UND,13,1770.00,BODEGA-1
+SKU-0110,Repuesto sintético 110,M,14,1772.50,BODEGA-2
+SKU-0111,Repuesto sintético 111,KG,15,1775.00,BODEGA-3
+SKU-0112,Repuesto sintético 112,UND,16,1777.50,BODEGA-1
+SKU-0113,Repuesto sintético 113 — filtro aspiración,M,17,1780.00,BODEGA-2
+SKU-0114,Repuesto sintético 114,KG,18,1782.50,BODEGA-3
+SKU-0115,Repuesto sintético 115,UND,19,1785.00,BODEGA-1
+SKU-0116,Repuesto sintético 116,M,20,1787.50,BODEGA-2
+SKU-0117,Repuesto sintético 117 — filtro aspiración,KG,21,1790.00,BODEGA-3
+SKU-0118,Repuesto sintético 118,UND,22,1792.50,BODEGA-1
+SKU-0119,Repuesto sintético 119,M,23,1795.00,BODEGA-2
+SKU-0120,Repuesto sintético 120,KG,24,1797.50,BODEGA-3
+SKU-0121,Repuesto sintético 121 — filtro aspiración,UND,25,1800.00,BODEGA-1
+SKU-0122,Repuesto sintético 122,M,26,1802.50,BODEGA-2
+SKU-0123,Repuesto sintético 123,KG,27,1805.00,BODEGA-3
+SKU-0124,Repuesto sintético 124,UND,28,1807.50,BODEGA-1
+SKU-0125,Repuesto sintético 125 — filtro aspiración,M,29,1810.00,BODEGA-2
+SKU-0126,Repuesto sintético 126,KG,30,1812.50,BODEGA-3
+SKU-0127,Repuesto sintético 127,UND,31,1815.00,BODEGA-1
+SKU-0128,Repuesto sintético 128,M,32,1817.50,BODEGA-2
+SKU-0129,Repuesto sintético 129 — filtro aspiración,KG,33,1820.00,BODEGA-3
+SKU-0130,Repuesto sintético 130,UND,34,1822.50,BODEGA-1

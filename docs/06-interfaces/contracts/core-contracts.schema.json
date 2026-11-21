@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quimera.dev/schemas/core-contracts/1.0.0/schema.json",
+  "title": "QUIMERA Core Contracts v1.0.0",
+  "description": "Contratos canónicos de intercambio para evidencia, conflictos, decisiones de reconciliación y errores.",
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "Sha256Hex": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "EvidenceArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "tenantId",
+        "sha256",
+        "artifactKind",
+        "originalName",
+        "mimeType",
+        "byteSize",
+        "storageUri",
+        "ingestedAt"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "tenantId": { "$ref": "#/$defs/Uuid" },
+        "sha256": { "$ref": "#/$defs/Sha256Hex" },
+        "artifactKind": {
+          "type": "string",
+          "enum": [
+            "source_file",
+            "fe_xml_unsigned",
+            "fe_xml_signed",
+            "hacienda_response",
+            "work_order_photo",
+            "approval_proof",
+            "reconciliation_report"
+          ]
+        },
+        "originalName": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "mimeType": { "type": "string", "minLength": 3, "maxLength": 128 },
+        "byteSize": { "type": "integer", "minimum": 0 },
+        "storageUri": { "type": "string", "pattern": "^(cas|s3|r2)://" },
+        "ingestedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "tenantId",
+        "conflictCode",
+        "severity",
+        "status",
+        "candidateEntityIds",
+        "evidenceRefs",
+        "summary",
+        "detectedAt"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "tenantId": { "$ref": "#/$defs/Uuid" },
+        "batchId": { "$ref": "#/$defs/Uuid" },
+        "conflictCode": {
+          "type": "string",
+          "enum": [
+            "EXACT_DUPLICATE",
+            "PROBABLE_DUPLICATE",
+            "CONFLICTING_IDENTITY",
+            "MONETARY_MISMATCH",
+            "MISSING_REQUIRED_DATA",
+            "ORPHAN_RECORD",
+            "INVALID_REFERENCE",
+            "TEMPORAL_ANOMALY",
+            "UNIT_OR_CURRENCY_MISMATCH",
+            "UNRECONCILABLE_BALANCE",
+            "AI_LOW_CONFIDENCE"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["BLOCKING", "WARNING", "INFO"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["OPEN", "RESOLVED", "DEFERRED", "UNRECONCILABLE"]
+        },
+        "candidateEntityIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Uuid" }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["artifactId", "sourceLocator"],
+            "properties": {
+              "artifactId": { "$ref": "#/$defs/Uuid" },
+              "sourceLocator": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "detectedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "ResolutionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "tenantId",
+        "conflictId",
+        "action",
+        "actorType",
+        "actorId",
+        "rationale",
+        "payload",
+        "decidedAt"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "tenantId": { "$ref": "#/$defs/Uuid" },
+        "conflictId": { "$ref": "#/$defs/Uuid" },
+        "action": {
+          "type": "string",
+          "enum": [
+            "MERGE",
+            "KEEP_SEPARATE",
+            "OVERRIDE_FIELD",
+            "REJECT_RECORD",
+            "MARK_UNRECONCILABLE",
+            "DEFER"
+          ]
+        },
+        "actorType": { "type": "string", "enum": ["RULE", "HUMAN"] },
+        "actorId": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "rationale": { "type": "string", "minLength": 3, "maxLength": 2000 },
+        "payload": { "type": "object" },
+        "supersedesDecisionId": { "$ref": "#/$defs/Uuid" },
+        "decidedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "QuimeraError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "category", "message", "retryable", "correlationId"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^ERR_[A-Z0-9_]+$" },
+        "category": {
+          "type": "string",
+          "enum": [
+            "VALIDATION",
+            "CONTRACT",
+            "CONFLICT",
+            "EXTERNAL_API",
+            "SECURITY",
+            "STORAGE",
+            "FISCAL",
+            "INTERNAL"
+          ]
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "retryable": { "type": "boolean" },
+        "requiresHumanReview": { "type": "boolean" },
+        "details": { "type": "object" },
+        "correlationId": { "$ref": "#/$defs/Uuid" }
+      }
+    }
+  }
+}
