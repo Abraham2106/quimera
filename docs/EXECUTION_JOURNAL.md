@@ -19,3 +19,9 @@
 - ESLint: se quitaron imports sin uso y los scripts `.mjs` declaran `process` y `console`.
 - `pnpm audit --audit-level=high` exit 1: `tinypool` vía Vitest y `drizzle-orm` &lt; 0.45.2. Sin override para no mover dependencias ya verdes.
 - Sigue abierto: UI OficiOS, detección de anomalías leyendo las 1.000 filas de disco, y exit codes del CLI de Factura CI contra un proceso `demo-pos`.
+
+## 2026-11-21 — Oleada de cierre (tres subagentes `composer-2.5`)
+
+- [Detect real HVAC fixtures](bc-303a4f27-d6b8-5e80-a586-10f1e4ad7d2d): `loadDemoHvac1000` sobre `fixtures/demo-hvac-1000`, conteos 40/12/7/3/1, migración bloqueada y procedencia. Write scope: `packages/data-exodus`.
+- [Factura CI demo-pos exits](bc-210ec4db-5da1-59b3-9231-589bdf9a712a): CLI `demo-pos` con exit 1 (buggy, FC-017 y FC-031) y exit 0 (outbox, 25/25). Write scope: `apps/demo-pos`.
+- [OficiOS minimal Spanish UI](bc-f5800cc1-88c3-5dbd-a1b9-fcc35a20dc5e): React + Vite + Tailwind en `apps/oficios/web`. Write scope: UI de OficiOS y su `package.json`.
