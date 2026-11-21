@@ -14,7 +14,8 @@
     "build": "tsc -b",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint src",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "factura-ci": "tsx src/run-factura-ci.ts"
   },
   "dependencies": {
     "@dojocoding/hacienda-sdk": "0.13.0",

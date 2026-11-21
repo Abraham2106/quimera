@@ -38,3 +38,8 @@ export {
   type SourceImporterPort,
   type SourceImportSummary,
 } from "./importers/index.js";
+export {
+  loadDemoHvac1000,
+  resolveDemoHvacFixtureRoot,
+  type LoadDemoHvac1000Result,
+} from "./demo/index.js";

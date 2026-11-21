@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@quimera/core": "workspace:*",
+    "@quimera/data-exodus": "workspace:*",
     "postgres": "^3.4.7",
     "yaml": "^2.8.1"
   }

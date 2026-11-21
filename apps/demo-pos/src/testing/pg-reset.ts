@@ -2,12 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  applyFobMigration,
-  createPostgresClient,
-  dropFobObjects,
-} from "@quimera/fiscal-outbox";
-import type { Sql } from "postgres";
+import { applyFobMigration, dropFobObjects } from "@quimera/fiscal-outbox";
+import postgres, { type Sql } from "postgres";
 
 import { TENANT_SLUG_TO_UUID } from "../tenant-config.js";
 
@@ -45,7 +41,11 @@ export async function resetDemoPosDatabase(
 ): Promise<Sql> {
   const previous = process.env.DATABASE_URL;
   process.env.DATABASE_URL = connectionString;
-  const client = createPostgresClient(connectionString);
+  const client = postgres(connectionString, {
+    max: 20,
+    prepare: false,
+    onnotice: () => {},
+  });
   await dropFobObjects(client);
   await dropQumObjects(client);
 

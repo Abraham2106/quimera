@@ -49,10 +49,28 @@ run("pnpm", [
   "exec",
   "vitest",
   "run",
-  "tests/migrate/demo-hvac-migrate.integration.test.ts",
+  "tests/demo-hvac/load-fixture.test.ts",
+  "tests/demo-hvac/migrate-from-files.integration.test.ts",
+  "--fileParallelism=false",
 ]);
-run("pnpm", ["--filter", "@quimera/pipeline", "exec", "vitest", "run", "src/t-pipe.test.ts"]);
-run("pnpm", ["--filter", "@quimera/demo-pos", "exec", "vitest", "run"]);
+run("pnpm", [
+  "--filter",
+  "@quimera/pipeline",
+  "exec",
+  "vitest",
+  "run",
+  "src/t-pipe.test.ts",
+  "src/t-pipe-hvac-gate.test.ts",
+  "--fileParallelism=false",
+]);
+run("pnpm", [
+  "--filter",
+  "@quimera/demo-pos",
+  "exec",
+  "vitest",
+  "run",
+  "--fileParallelism=false",
+]);
 run("pnpm", [
   "--filter",
   "@quimera/oficios",

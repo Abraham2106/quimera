@@ -13,6 +13,9 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:web": "tsc --noEmit -p web/tsconfig.json",
+    "dev:web": "vite --config vite.config.ts",
+    "build:web": "vite build --config vite.config.ts",
     "lint": "eslint src",
     "test": "vitest run"
   },
@@ -22,9 +25,18 @@
     "@quimera/data-exodus": "workspace:*",
     "@quimera/fiscal-outbox": "workspace:*",
     "hono": "^4.13.19",
-    "postgres": "^3.4.7"
+    "postgres": "^3.4.7",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.3",
+    "vite": "^6.3.5",
     "vitest": "^3.2.4"
   }
 }

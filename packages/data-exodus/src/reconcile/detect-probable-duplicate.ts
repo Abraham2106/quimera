@@ -43,6 +43,43 @@ function isProbableDuplicatePair(a: ClientNorm, b: ClientNorm): boolean {
   return true;
 }
 
+function groupProbableByTaxId(normed: ClientNorm[]): DetectedConflict[] {
+  const byTax = new Map<string, ClientNorm[]>();
+  for (const c of normed) {
+    if (!c.taxId) {
+      continue;
+    }
+    const digits = c.taxId.replace(/\D/g, "");
+    if (digits.length === 0) {
+      continue;
+    }
+    const list = byTax.get(digits) ?? [];
+    list.push(c);
+    byTax.set(digits, list);
+  }
+
+  const conflicts: DetectedConflict[] = [];
+  for (const group of byTax.values()) {
+    if (group.length < 2) {
+      continue;
+    }
+    const legalNames = new Set(group.map((g) => g.legalName.trim()).filter((n) => n.length > 0));
+    if (legalNames.size < 2) {
+      continue;
+    }
+    const ids = group.map((g) => g.id).sort();
+    conflicts.push({
+      conflictCode: "PROBABLE_DUPLICATE",
+      severity: "BLOCKING",
+      autoResolved: false,
+      candidateRecordIds: ids,
+      summary: "Clientes con la misma identificación y razones sociales normalizadas distintas.",
+      fingerprint: conflictFingerprint("PROBABLE_DUPLICATE", ids),
+    });
+  }
+  return conflicts;
+}
+
 export function detectProbableDuplicates(clients: NormalizedClient[]): DetectedConflict[] {
   if (clients.length < 2) {
     return [];
@@ -53,13 +90,19 @@ export function detectProbableDuplicates(clients: NormalizedClient[]): DetectedC
     normName: normalizeLegalName(c.legalName),
   }));
 
-  const conflicts: DetectedConflict[] = [];
+  const conflicts: DetectedConflict[] = [...groupProbableByTaxId(normed)];
   const clustered = new Set<string>();
+  for (const c of conflicts) {
+    clustered.add(c.candidateRecordIds.join("|"));
+  }
 
   for (let i = 0; i < normed.length; i += 1) {
     for (let j = i + 1; j < normed.length; j += 1) {
       const a = normed[i]!;
       const b = normed[j]!;
+      if (sameTaxId(a.taxId, b.taxId) && a.taxId && b.taxId) {
+        continue;
+      }
       if (!isProbableDuplicatePair(a, b)) {
         continue;
       }
