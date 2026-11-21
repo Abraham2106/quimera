@@ -22,6 +22,7 @@ import {
 } from "./middleware/request-context.js";
 import { requireMutationRole } from "./middleware/rbac.js";
 import { handleBillingWebhook, createBillingUsageRoute } from "./routes/billing.js";
+import { createFiscalCredentialsRoutes } from "./routes/fiscal-credentials.js";
 import { listAuditLogs } from "./services/audit-log.js";
 import { errorResponse } from "./errors.js";
 
@@ -108,6 +109,7 @@ export function createApp(options: CreateAppOptions = {}): Hono<OficiosAppEnv> {
   app.route("/api/v1/customers", createCustomersRoutes());
   app.route("/api/v1/catalog", createCatalogRoutes());
   app.get("/api/v1/billing/usage", createBillingUsageRoute());
+  app.route("/api/v1/fiscal/credentials", createFiscalCredentialsRoutes());
   app.get("/api/v1/audit", async (c) => {
     if (c.get("role") !== "ADMIN" && c.get("role") !== "AUDITOR_READONLY") {
       const { status, body } = errorResponse(403, "ERR_FORBIDDEN", "SECURITY", "La bitácora no está disponible para este rol.");

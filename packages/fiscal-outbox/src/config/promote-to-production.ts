@@ -1,8 +1,6 @@
-import type { Sql } from "postgres";
-
 import { assertCanPromoteToProduction } from "../vault/certificate-policy.js";
 import type { FiscalEnvironment } from "../store/types.js";
-import { withFobTenantTransaction } from "../db/connection.js";
+import { type FobSql, withFobTenantTransaction } from "../db/connection.js";
 
 /** `staging` en el esquema actual equivale al sandbox de Hacienda (QG-07). */
 export function isSandboxEnvironment(environment: FiscalEnvironment): boolean {
@@ -21,7 +19,7 @@ export type PromoteToProductionResult =
   | { readonly ok: false; readonly reason: string };
 
 export async function evaluatePromoteToProduction(
-  client: Sql,
+  client: FobSql,
   input: PromoteToProductionInput,
 ): Promise<PromoteToProductionResult> {
   const sandboxAccepted = await withFobTenantTransaction(client, input.tenantId, async (tx) => {

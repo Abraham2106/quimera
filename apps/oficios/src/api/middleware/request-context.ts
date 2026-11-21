@@ -2,9 +2,10 @@ import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 
 import {
+  buildJwtVerifyOptions,
+  jwtVerificationConfigured,
   parseAuthorizationBearer,
-  resolveJwtVerificationSecret,
-  verifyBearerJwt,
+  verifyBearerJwtAsync,
 } from "../auth/jwt.js";
 import { testHeadersAuthAllowed } from "../auth/mode.js";
 import {
@@ -91,11 +92,10 @@ export function createRequestContextMiddleware(
       return;
     }
 
-    const secret = resolveJwtVerificationSecret();
-    if (!secret) {
+    if (!jwtVerificationConfigured()) {
       return unauthorized(
         c,
-        "Autenticación JWT no configurada (falta OFICIOS_JWT_SECRET).",
+        "Autenticación JWT no configurada (falta OFICIOS_JWT_SECRET u OFICIOS_JWKS_URL).",
       );
     }
 
@@ -114,11 +114,7 @@ export function createRequestContextMiddleware(
       );
     }
 
-    const verified = verifyBearerJwt(bearer, {
-      secret,
-      issuer: process.env.OFICIOS_JWT_ISSUER?.trim() || undefined,
-      audience: process.env.OFICIOS_JWT_AUDIENCE?.trim() || undefined,
-    });
+    const verified = await verifyBearerJwtAsync(bearer, buildJwtVerifyOptions());
 
     if (!verified) {
       return unauthorized(c, "Token inválido, expirado o con firma alterada.");

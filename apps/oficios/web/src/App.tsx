@@ -23,6 +23,7 @@ import { OrgOnboardingPanel } from "./components/OrgOnboardingPanel.js";
 import { TeamManagementPanel } from "./components/TeamManagementPanel.js";
 import { ApprovalBlock } from "./components/ApprovalBlock.js";
 import { CabysRepuestosSearch } from "./components/CabysRepuestosSearch.js";
+import { DiagnosisAttachmentUpload } from "./components/DiagnosisAttachmentUpload.js";
 import { ProvenanceDisclosure } from "./components/ProvenanceDisclosure.js";
 import { loadDevApiConfig } from "./config.js";
 import { enqueueMutation, flushMutationQueue, openOfflineDatabase } from "./offline/mutation-queue.js";
@@ -104,6 +105,9 @@ export function App() {
 
   useEffect(() => {
     const syncQueued = () => {
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        return;
+      }
       void (async () => {
         const db = await openOfflineDatabase(indexedDB);
         await flushMutationQueue(db, async (item) =>
@@ -117,7 +121,21 @@ export function App() {
       })();
     };
     window.addEventListener("online", syncQueued);
-    return () => window.removeEventListener("online", syncQueued);
+    let lastOnline = typeof navigator !== "undefined" && navigator.onLine;
+    const pollOnline = window.setInterval(() => {
+      const online = typeof navigator !== "undefined" && navigator.onLine;
+      if (online && !lastOnline) {
+        syncQueued();
+      }
+      lastOnline = online;
+    }, 400);
+    if (lastOnline) {
+      syncQueued();
+    }
+    return () => {
+      window.removeEventListener("online", syncQueued);
+      window.clearInterval(pollOnline);
+    };
   }, [config]);
 
   useEffect(() => {
@@ -417,6 +435,7 @@ export function App() {
                 Guardar diagnóstico
               </button>
             </form>
+            <DiagnosisAttachmentUpload config={config} workOrderId={workOrder.id} />
             <form
               className="mt-3 grid gap-2 text-sm sm:grid-cols-3"
               onSubmit={(event) => {

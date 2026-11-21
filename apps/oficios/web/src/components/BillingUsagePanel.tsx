@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import type { DevApiConfig } from "../config.js";
+import { appendDevAuthHeaders } from "../dev-auth-headers.js";
 
 export function BillingUsagePanel({ config }: { config: DevApiConfig }) {
   const [summary, setSummary] = useState<string | null>(null);
@@ -15,6 +16,7 @@ export function BillingUsagePanel({ config }: { config: DevApiConfig }) {
           void (async () => {
             const headers: Record<string, string> = {};
             if (config.accessToken.trim()) headers.authorization = `Bearer ${config.accessToken.trim()}`;
+            appendDevAuthHeaders(config, headers);
             const response = await fetch(`${config.apiBase}/api/v1/billing/usage`, { headers });
             const json = (await response.json()) as {
               billing?: { planCode: string; status: string; usage: { seats: number }; limits: { maxSeats: number } } | null;

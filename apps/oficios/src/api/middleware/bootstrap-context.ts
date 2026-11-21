@@ -53,7 +53,7 @@ export function createBootstrapContextMiddleware(
       return;
     }
 
-    const verified = resolveBootstrapBearer(c.req.header("authorization"));
+    const verified = await resolveBootstrapBearer(c.req.header("authorization"));
     if (!verified) {
       return unauthorized(c, "Token Bearer válido con claim sub obligatorio.");
     }

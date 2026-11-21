@@ -3,6 +3,12 @@ import type { Sql } from "postgres";
 
 import { withOfiTenantTransaction } from "../../db/connection.js";
 import { billingWebhookSecret, verifyWebhookHmac } from "../billing/hmac.js";
+import {
+  isWebhookReplay,
+  isWebhookTimestampFresh,
+  parseWebhookTimestamp,
+  recordWebhookDelivery,
+} from "../billing/webhook-replay.js";
 import { ERR_UNAUTHORIZED, errorResponse } from "../errors.js";
 import type { OficiosAppEnv } from "../middleware/request-context.js";
 import { applyBillingWebhook, loadBillingUsage } from "../services/billing.js";
@@ -21,10 +27,24 @@ export async function handleBillingWebhook(
 ): Promise<Response> {
   const raw = new Uint8Array(await c.req.arrayBuffer());
   const secret = billingWebhookSecret();
-  if (!sql || !secret || !verifyWebhookHmac(raw, c.req.header("x-quimera-signature"), secret)) {
+  const signature = c.req.header("x-quimera-signature");
+  const timestamp = parseWebhookTimestamp(c.req.header("x-quimera-timestamp"));
+
+  if (!sql || !secret || timestamp === null || !isWebhookTimestampFresh(timestamp)) {
     const { status, body } = errorResponse(401, ERR_UNAUTHORIZED, "SECURITY", "Firma HMAC inválida.");
     return c.json(body, status);
   }
+
+  if (!verifyWebhookHmac(raw, signature, secret, timestamp)) {
+    const { status, body } = errorResponse(401, ERR_UNAUTHORIZED, "SECURITY", "Firma HMAC inválida.");
+    return c.json(body, status);
+  }
+
+  if (signature && isWebhookReplay(timestamp, signature)) {
+    const { status, body } = errorResponse(401, ERR_UNAUTHORIZED, "SECURITY", "Replay de webhook rechazado.");
+    return c.json(body, status);
+  }
+
   let parsed: WebhookBody;
   try {
     parsed = JSON.parse(Buffer.from(raw).toString("utf8")) as WebhookBody;
@@ -46,6 +66,9 @@ export async function handleBillingWebhook(
         status: parsed.status!,
       }),
     );
+    if (signature) {
+      recordWebhookDelivery(timestamp, signature);
+    }
     return c.json({ ok: true, duplicate: result.duplicate, status: result.status });
   } catch {
     const { status, body } = errorResponse(401, ERR_UNAUTHORIZED, "SECURITY", "No se aplicó el evento de cobro.");

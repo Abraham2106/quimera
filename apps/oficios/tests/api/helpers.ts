@@ -56,6 +56,8 @@ async function dropOfiObjects(client: Sql): Promise<void> {
 
 async function dropFobObjects(client: Sql): Promise<void> {
   for (const table of [
+    "fob_fiscal_credentials",
+    "fob_fiscal_issuer_config",
     "fob_fiscal_documents",
     "fob_fiscal_intents",
     "fob_fiscal_sequences",
@@ -92,6 +94,7 @@ export async function resetApiSchema(client: Sql): Promise<void> {
   await client.unsafe(await readSql("packages/data-exodus/drizzle/0001_init_qum.sql"));
   await client.unsafe(await readSql("packages/data-exodus/drizzle/0002_evidence_append_only.sql"));
   await client.unsafe(await readSql("packages/fiscal-outbox/drizzle/0001_init_fob.sql"));
+  await client.unsafe(await readSql("packages/fiscal-outbox/drizzle/0003_fob_fiscal_credentials.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0001_init_ofi.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0002_diagnosis_materials.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0003_ofi_rls.sql"));

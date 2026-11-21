@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
-export type FiscalSecretKind = "p12" | "pin" | "idp_password";
+export type FiscalSecretKind = "p12" | "pin" | "idp_password" | "idp_username";
 
 export type SealedSecret = {
   readonly tenantId: string;
