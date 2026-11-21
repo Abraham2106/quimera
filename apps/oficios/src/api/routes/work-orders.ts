@@ -14,9 +14,19 @@ import { closeWorkOrderWithFiscalIntent } from "../services/fiscal-close.js";
 import {
   applyWorkOrderTransition,
   createWorkOrderReceived,
+  loadWorkOrderForTenant,
   registerCustomerApproval,
   serializeWorkOrder,
 } from "../services/work-order-store.js";
+import {
+  listDiagnoses,
+  listMaterials,
+  listWorkOrders,
+  loadWorkOrderContext,
+  saveDiagnosis,
+  saveMaterial,
+  taxRateToBps,
+} from "../services/workshop.js";
 import type { OficiosAppEnv } from "../middleware/request-context.js";
 
 function isWorkOrderStatus(value: string): value is WorkOrderStatus {
@@ -39,6 +49,139 @@ function rejectBodyTenantMismatch(
 
 export function createWorkOrdersRoutes() {
   const app = new Hono<OficiosAppEnv>();
+
+  app.get("/", async (c) => {
+    const rows = await listWorkOrders(c.get("sql"), c.get("tenantId"));
+    return c.json({ ok: true, workOrders: rows.map(serializeWorkOrder) });
+  });
+
+  app.get("/:id", async (c) => {
+    const workOrderId = c.req.param("id");
+    const row = await loadWorkOrderForTenant(c.get("sql"), c.get("tenantId"), workOrderId);
+    if (!row) {
+      const { status, body } = errorResponse(
+        404,
+        ERR_NOT_FOUND,
+        "VALIDATION",
+        "Orden de trabajo no encontrada.",
+      );
+      return c.json(body, status);
+    }
+    const context = await loadWorkOrderContext(c.get("sql"), c.get("tenantId"), workOrderId);
+    const diagnoses = await listDiagnoses(c.get("sql"), c.get("tenantId"), workOrderId);
+    const materials = await listMaterials(c.get("sql"), c.get("tenantId"), workOrderId);
+    return c.json({
+      ok: true,
+      workOrder: {
+        ...serializeWorkOrder(row),
+        customerLegalName: context?.customerLegalName ?? null,
+        equipmentSerial: context?.equipmentSerial ?? null,
+        diagnoses,
+        materials,
+      },
+    });
+  });
+
+  app.post("/:id/diagnosis", async (c) => {
+    const workOrderId = c.req.param("id");
+    const body = await c.req.json<{
+      notes?: string;
+      measurements?: Record<string, unknown>;
+      attachments?: Array<{ filename?: string; sha256?: string; contentBase64?: string }>;
+    }>();
+    const row = await loadWorkOrderForTenant(c.get("sql"), c.get("tenantId"), workOrderId);
+    if (!row) {
+      const { status, body: errBody } = errorResponse(
+        404,
+        ERR_NOT_FOUND,
+        "VALIDATION",
+        "Orden de trabajo no encontrada.",
+      );
+      return c.json(errBody, status);
+    }
+    if (!body.notes || body.notes.trim().length === 0) {
+      const { status, body: errBody } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        "notes es obligatorio.",
+      );
+      return c.json(errBody, status);
+    }
+    try {
+      const diagnosis = await saveDiagnosis(c.get("sql"), c.get("tenantId"), workOrderId, {
+        notes: body.notes.trim(),
+        measurements: body.measurements ?? {},
+        attachments: (body.attachments ?? []).map((attachment) => ({
+          filename: attachment.filename ?? "adjunto.bin",
+          sha256: attachment.sha256 ?? "",
+          contentBase64: attachment.contentBase64 ?? "",
+        })),
+      });
+      return c.json({ ok: true, diagnosis }, 201);
+    } catch (err) {
+      if (err instanceof Error && err.message === "ERR_ATTACHMENT_SHA256") {
+        const { status, body: errBody } = errorResponse(
+          400,
+          ERR_VALIDATION,
+          "VALIDATION",
+          "El SHA-256 del adjunto no coincide con el contenido.",
+        );
+        return c.json(errBody, status);
+      }
+      throw err;
+    }
+  });
+
+  app.post("/:id/materials", async (c) => {
+    const workOrderId = c.req.param("id");
+    const body = await c.req.json<{
+      cabysCode?: string;
+      quantity?: string;
+      unitPriceMinor?: number;
+      taxRate?: string;
+    }>();
+    const row = await loadWorkOrderForTenant(c.get("sql"), c.get("tenantId"), workOrderId);
+    if (!row) {
+      const { status, body: errBody } = errorResponse(
+        404,
+        ERR_NOT_FOUND,
+        "VALIDATION",
+        "Orden de trabajo no encontrada.",
+      );
+      return c.json(errBody, status);
+    }
+    const taxRateBps = body.taxRate ? taxRateToBps(body.taxRate) : null;
+    if (!body.cabysCode || !body.quantity || typeof body.unitPriceMinor !== "number" || taxRateBps === null) {
+      const { status, body: errBody } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        "cabysCode, quantity, unitPriceMinor y taxRate son obligatorios.",
+      );
+      return c.json(errBody, status);
+    }
+    try {
+      const material = await saveMaterial(c.get("sql"), c.get("tenantId"), workOrderId, {
+        cabysCode: body.cabysCode,
+        quantity: body.quantity,
+        unitPriceMinor: body.unitPriceMinor,
+        taxRateBps,
+      });
+      return c.json({ ok: true, material }, 201);
+    } catch (err) {
+      if (err instanceof Error && err.message.startsWith("ERR_")) {
+        const { status, body: errBody } = errorResponse(
+          400,
+          ERR_VALIDATION,
+          "VALIDATION",
+          "Material inválido: código CAByS, cantidad, precio entero o IVA.",
+        );
+        return c.json(errBody, status);
+      }
+      throw err;
+    }
+  });
 
   app.post("/", async (c) => {
     const body = await c.req.json<{

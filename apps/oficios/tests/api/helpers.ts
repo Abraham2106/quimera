@@ -22,6 +22,9 @@ async function readSql(relativePath: string): Promise<string> {
 
 async function dropOfiObjects(client: Sql): Promise<void> {
   for (const table of [
+    "ofi_materials",
+    "ofi_diagnosis_attachments",
+    "ofi_diagnoses",
     "ofi_work_order_events",
     "ofi_work_orders",
     "ofi_equipment",
@@ -68,6 +71,7 @@ export async function resetApiSchema(client: Sql): Promise<void> {
   await client.unsafe(await readSql("packages/data-exodus/drizzle/0001_init_qum.sql"));
   await client.unsafe(await readSql("packages/fiscal-outbox/drizzle/0001_init_fob.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0001_init_ofi.sql"));
+  await client.unsafe(await readSql("apps/oficios/drizzle/0002_diagnosis_materials.sql"));
   await client`
     INSERT INTO qum_tenants (id, slug, display_name)
     VALUES (${TENANT_ID}::uuid, 'ofi-api-test', 'Ofi API Test')

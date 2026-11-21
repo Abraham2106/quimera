@@ -2,12 +2,19 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
   ApiRequestError,
+  closeWorkOrder,
+  createWorkOrder,
   fetchCustomerProvenance,
+  fetchCustomers,
+  fetchEquipment,
   fetchWorkOrder,
   formatOrdenFolio,
   registerCustomerApproval,
+  saveDiagnosis,
+  saveMaterial,
   transitionWorkOrder,
 } from "./api/client.js";
+import type { CustomerListItem } from "./api/types.js";
 import type { ProvenanceEntry, SerializedWorkOrder } from "./api/types.js";
 import { ApprovalBlock } from "./components/ApprovalBlock.js";
 import { CabysRepuestosSearch } from "./components/CabysRepuestosSearch.js";
@@ -31,6 +38,15 @@ export function App() {
   const [provenanceEntries, setProvenanceEntries] = useState<
     readonly ProvenanceEntry[] | null
   >(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState("");
+  const [equipment, setEquipment] = useState<readonly { id: string; serialNumber: string | null }[]>([]);
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState("");
+  const [customers, setCustomers] = useState<readonly CustomerListItem[]>([]);
+  const [customersError, setCustomersError] = useState<string | null>(null);
+  const [diagnosisNotes, setDiagnosisNotes] = useState("Presión de succión fuera de rango");
+  const [cabysCode, setCabysCode] = useState("8415109010100");
+  const [quantity, setQuantity] = useState("1");
+  const [unitPriceMinor, setUnitPriceMinor] = useState("150000");
 
   const loadOrder = useCallback(
     async (id: string) => {
@@ -80,7 +96,35 @@ export function App() {
     }
   }, [config.workOrderId, loadOrder]);
 
-  async function tryTransition(targetStatus: "IN_PROGRESS" | "CLOSED") {
+  useEffect(() => {
+    void fetchCustomers(config)
+      .then((rows) => {
+        setCustomers(rows);
+        setCustomersError(null);
+      })
+      .catch((err: unknown) => {
+        setCustomersError(err instanceof Error ? err.message : "No se pudieron cargar los clientes.");
+      });
+  }, [config]);
+
+  useEffect(() => {
+    if (!selectedCustomerId) {
+      setEquipment([]);
+      setSelectedEquipmentId("");
+      return;
+    }
+    void fetchEquipment(config, selectedCustomerId)
+      .then((rows) => {
+        setEquipment(rows);
+        setSelectedEquipmentId(rows[0]?.id ?? "");
+      })
+      .catch((err: unknown) => {
+        setEquipment([]);
+        setActionError(err instanceof Error ? err.message : "No se pudo cargar el equipo.");
+      });
+  }, [config, selectedCustomerId]);
+
+  async function tryTransition(targetStatus: string) {
     if (!workOrder) {
       return;
     }
@@ -88,13 +132,13 @@ export function App() {
     setActionError(null);
     setApprovalRequired(false);
     try {
-      const updated = await transitionWorkOrder(
+      await transitionWorkOrder(
         config,
         workOrder.id,
         targetStatus,
         workOrder.version,
       );
-      setWorkOrder(updated);
+      await loadOrder(workOrder.id);
     } catch (err) {
       if (
         err instanceof ApiRequestError &&
@@ -121,9 +165,9 @@ export function App() {
     setBusy(true);
     setActionError(null);
     try {
-      const updated = await registerCustomerApproval(config, workOrder.id);
-      setWorkOrder(updated);
+      await registerCustomerApproval(config, workOrder.id);
       setApprovalRequired(false);
+      await loadOrder(workOrder.id);
     } catch (err) {
       setActionError(
         err instanceof Error
@@ -169,6 +213,71 @@ export function App() {
         </button>
       </form>
 
+      <form
+        className="mb-4 grid gap-2 text-sm sm:grid-cols-2"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void (async () => {
+            setBusy(true);
+            setActionError(null);
+            try {
+              const created = await createWorkOrder(config, selectedCustomerId, selectedEquipmentId);
+              setWorkOrderIdInput(created.id);
+              await loadOrder(created.id);
+            } catch (err) {
+              setActionError(err instanceof Error ? err.message : "No se pudo recibir la orden.");
+            } finally {
+              setBusy(false);
+            }
+          })();
+        }}
+      >
+        <label className="flex flex-col">
+          <span className="mb-1 text-slate-600">Cliente migrado</span>
+          <select
+            className="rounded border border-slate-300 px-3 py-2"
+            value={selectedCustomerId}
+            onChange={(event) => setSelectedCustomerId(event.target.value)}
+          >
+            <option value="">Seleccione un cliente</option>
+            {customers.map((customer) => (
+              <option key={customer.id} value={customer.id}>
+                {customer.legalName}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col">
+          <span className="mb-1 text-slate-600">Equipo</span>
+          <select
+            className="rounded border border-slate-300 px-3 py-2"
+            value={selectedEquipmentId}
+            onChange={(event) => setSelectedEquipmentId(event.target.value)}
+          >
+            {equipment.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.serialNumber ?? item.id}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="submit"
+          className="w-fit rounded bg-sky-800 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          disabled={busy || !selectedCustomerId || !selectedEquipmentId}
+        >
+          Recibir orden
+        </button>
+      </form>
+
+      {customersError ? (
+        <p className="mb-2 text-sm text-amber-800">{customersError}</p>
+      ) : (
+        <p className="mb-4 text-sm text-slate-600">
+          Clientes en base de datos: {customers.length === 0 ? "ninguno cargado todavía" : customers.map((customer) => customer.legalName).join(", ")}
+        </p>
+      )}
+
       {loadError ? (
         <p className="mb-4 text-sm text-amber-800">{loadError}</p>
       ) : null}
@@ -202,13 +311,13 @@ export function App() {
               <div>
                 <dt className="text-slate-500">Cliente</dt>
                 <dd className="font-medium text-slate-900">
-                  {config.displayLabels.cliente}
+                  {workOrder.customerLegalName ?? workOrder.customerId}
                 </dd>
               </div>
               <div>
                 <dt className="text-slate-500">Equipo</dt>
                 <dd className="font-medium text-slate-900">
-                  {config.displayLabels.equipo}
+                  {workOrder.equipmentSerial ?? workOrder.equipmentId}
                 </dd>
               </div>
               <div>
@@ -231,20 +340,98 @@ export function App() {
                 <dt className="text-slate-500">Factura</dt>
                 <dd className="font-medium text-slate-900">
                   {workOrder.fiscalIntentId
-                    ? "Comprobante fiscal en preparación"
+                    ? `Intención fiscal ${workOrder.fiscalIntentId}`
                     : "Pendiente al cierre"}
                 </dd>
               </div>
             </dl>
 
+            <form
+              className="mt-4 grid gap-2 text-sm"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void (async () => {
+                  setBusy(true);
+                  setActionError(null);
+                  try {
+                    await saveDiagnosis(config, workOrder.id, diagnosisNotes, { succionPsi: 68 });
+                    if (workOrder.status === "RECEIVED") {
+                      await transitionWorkOrder(config, workOrder.id, "DIAGNOSED", workOrder.version);
+                    }
+                    await loadOrder(workOrder.id);
+                  } catch (err) {
+                    setActionError(err instanceof Error ? err.message : "No se pudo guardar el diagnóstico.");
+                  } finally {
+                    setBusy(false);
+                  }
+                })();
+              }}
+            >
+              <label className="flex flex-col">
+                <span className="text-slate-600">Diagnóstico</span>
+                <input className="rounded border border-slate-300 px-3 py-2" value={diagnosisNotes} onChange={(e) => setDiagnosisNotes(e.target.value)} />
+              </label>
+              <button type="submit" className="w-fit rounded border border-slate-300 px-3 py-2" disabled={busy}>
+                Guardar diagnóstico
+              </button>
+            </form>
+            <form
+              className="mt-3 grid gap-2 text-sm sm:grid-cols-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void (async () => {
+                  setBusy(true);
+                  setActionError(null);
+                  try {
+                    await saveMaterial(config, workOrder.id, {
+                      cabysCode,
+                      quantity,
+                      unitPriceMinor: Number(unitPriceMinor),
+                      taxRate: "0.13",
+                    });
+                    await loadOrder(workOrder.id);
+                  } catch (err) {
+                    setActionError(err instanceof Error ? err.message : "No se pudo guardar el material.");
+                  } finally {
+                    setBusy(false);
+                  }
+                })();
+              }}
+            >
+              <label className="flex flex-col">
+                <span className="text-slate-600">CAByS</span>
+                <input className="rounded border border-slate-300 px-3 py-2" value={cabysCode} onChange={(e) => setCabysCode(e.target.value)} />
+              </label>
+              <label className="flex flex-col">
+                <span className="text-slate-600">Cantidad</span>
+                <input className="rounded border border-slate-300 px-3 py-2" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+              </label>
+              <label className="flex flex-col">
+                <span className="text-slate-600">Precio (céntimos)</span>
+                <input className="rounded border border-slate-300 px-3 py-2" value={unitPriceMinor} onChange={(e) => setUnitPriceMinor(e.target.value)} />
+              </label>
+              <button type="submit" className="w-fit rounded border border-slate-300 px-3 py-2" disabled={busy}>
+                Agregar material con IVA 13%
+              </button>
+            </form>
+            {workOrder.materials && workOrder.materials.length > 0 ? (
+              <ul className="mt-2 list-disc pl-5 text-sm text-slate-700">
+                {workOrder.materials.map((material) => (
+                  <li key={`${material.cabysCode}-${material.unitPriceMinor}`}>
+                    CAByS {material.cabysCode} · cantidad {material.quantity} · {material.unitPriceMinor} céntimos · IVA {material.taxRateBps} bps
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
                 className="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50"
-                disabled={busy || workOrder.status !== "QUOTED"}
-                onClick={() => void tryTransition("IN_PROGRESS")}
+                disabled={busy || workOrder.status !== "DIAGNOSED"}
+                onClick={() => void tryTransition("QUOTED")}
               >
-                Iniciar intervención
+                Generar presupuesto
               </button>
               <button
                 type="button"
@@ -253,6 +440,47 @@ export function App() {
                 onClick={() => void tryTransition("CLOSED")}
               >
                 Cerrar orden
+              </button>
+              <button
+                type="button"
+                className="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50"
+                disabled={busy || workOrder.status !== "APPROVED"}
+                onClick={() => void tryTransition("IN_PROGRESS")}
+              >
+                Iniciar intervención
+              </button>
+              <button
+                type="button"
+                className="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50"
+                disabled={busy || workOrder.status !== "IN_PROGRESS"}
+                onClick={() => void tryTransition("VERIFIED")}
+              >
+                Verificar trabajo
+              </button>
+              <button
+                type="button"
+                className="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50"
+                disabled={busy || workOrder.status !== "VERIFIED"}
+                onClick={() => {
+                  void (async () => {
+                    setBusy(true);
+                    setActionError(null);
+                    try {
+                      await closeWorkOrder(config, workOrder.id, workOrder.version);
+                      await loadOrder(workOrder.id);
+                    } catch (err) {
+                      if (err instanceof ApiRequestError && err.status === 409 && err.code === ERR_WORK_ORDER_APPROVAL_REQUIRED) {
+                        setApprovalRequired(true);
+                      } else {
+                        setActionError(err instanceof Error ? err.message : "No se pudo cerrar la orden.");
+                      }
+                    } finally {
+                      setBusy(false);
+                    }
+                  })();
+                }}
+              >
+                Cerrar y encolar comprobante
               </button>
             </div>
           </section>

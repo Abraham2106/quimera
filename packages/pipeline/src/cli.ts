@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
 
@@ -25,6 +26,7 @@ import type {
   RunContext,
   StepRegistry,
 } from "./types.js";
+import { createExodusOficiosRegistry } from "./demo-registry.js";
 import { PIPELINE_EXIT_ERROR, PIPELINE_EXIT_SUCCESS } from "./types.js";
 
 const HELP = `Usage: quimera-pipeline <command> [options]
@@ -52,9 +54,36 @@ async function loadManifest(path: string): Promise<PipelineDefinition> {
   return parsePipelineManifest(raw, path);
 }
 
+const TENANT_UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+async function resolveTenantId(sql: ReturnType<typeof createPipelineSql>, tenant: string): Promise<string> {
+  if (TENANT_UUID.test(tenant)) {
+    const slug = `tenant-${tenant.slice(0, 8)}`;
+    await sql`
+      INSERT INTO qum_tenants (id, slug, display_name)
+      VALUES (${tenant}::uuid, ${slug}, ${slug})
+      ON CONFLICT (id) DO NOTHING
+    `;
+    return tenant;
+  }
+  const existing = await sql<{ id: string }[]>`
+    SELECT id::text AS id FROM qum_tenants WHERE slug = ${tenant} LIMIT 1
+  `;
+  if (existing[0]) {
+    return existing[0].id;
+  }
+  const id = randomUUID();
+  await sql`
+    INSERT INTO qum_tenants (id, slug, display_name)
+    VALUES (${id}::uuid, ${tenant}, ${tenant})
+  `;
+  return id;
+}
+
 async function loadRegistry(path: string | undefined): Promise<StepRegistry> {
   if (!path) {
-    return {};
+    return createExodusOficiosRegistry();
   }
   const raw = await readFile(path, "utf8");
   const parsed = JSON.parse(raw) as StepRegistry;
@@ -88,18 +117,21 @@ export async function runCli(argv: string[]): Promise<number> {
 
   try {
     if (command === "validate") {
-      const { values } = parseArgs({
+      const { values, positionals } = parseArgs({
         args: rest,
+        allowPositionals: true,
         options: {
           manifest: { type: "string" },
           registry: { type: "string" },
+          json: { type: "boolean", default: false },
         },
       });
-      if (!values.manifest) {
+      const manifestPath = values.manifest ?? positionals[0];
+      if (!manifestPath) {
         printErr("validate requires --manifest");
         return PIPELINE_EXIT_ERROR;
       }
-      const definition = await loadManifest(values.manifest);
+      const definition = await loadManifest(manifestPath);
       const registry = await loadRegistry(values.registry);
       const result = validatePipelineDefinition(definition, registry);
       if (json) {
@@ -113,24 +145,28 @@ export async function runCli(argv: string[]): Promise<number> {
     }
 
     if (command === "run") {
-      const { values } = parseArgs({
+      const { values, positionals } = parseArgs({
         args: rest,
+        allowPositionals: true,
         options: {
           manifest: { type: "string" },
           tenant: { type: "string" },
           registry: { type: "string" },
+          json: { type: "boolean", default: false },
         },
       });
-      if (!values.manifest || !values.tenant) {
+      const manifestPath = values.manifest ?? positionals[0];
+      if (!manifestPath || !values.tenant) {
         printErr("run requires --manifest and --tenant");
         return PIPELINE_EXIT_ERROR;
       }
-      const definition = await loadManifest(values.manifest);
+      const definition = await loadManifest(manifestPath);
       const registry = await loadRegistry(values.registry);
+      const tenantId = await resolveTenantId(sql, values.tenant);
       const outcome = await runPipeline(sql, {
         definition,
         registry,
-        context: minimalContext(values.tenant),
+        context: minimalContext(tenantId),
       });
       if (json) printJson(outcome);
       else printErr(`run ${outcome.runId} → ${outcome.status} (exit ${outcome.exitCode})`);
@@ -145,6 +181,7 @@ export async function runCli(argv: string[]): Promise<number> {
           manifest: { type: "string" },
           tenant: { type: "string" },
           registry: { type: "string" },
+          json: { type: "boolean", default: false },
         },
       });
       if (!values.run || !values.manifest || !values.tenant) {
@@ -153,11 +190,12 @@ export async function runCli(argv: string[]): Promise<number> {
       }
       const definition = await loadManifest(values.manifest);
       const registry = await loadRegistry(values.registry);
+      const tenantId = await resolveTenantId(sql, values.tenant);
       const outcome = await resumePipeline(sql, {
         runId: values.run,
         definition,
         registry,
-        context: minimalContext(values.tenant),
+        context: minimalContext(tenantId),
       });
       if (json) printJson(outcome);
       else printErr(`resume ${outcome.runId} → ${outcome.status} (exit ${outcome.exitCode})`);

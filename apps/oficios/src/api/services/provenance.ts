@@ -12,6 +12,8 @@ export type ProvenancePayload =
           transformationId: string;
           ruleVersion: string;
           artifactId: string;
+          artifactName: string | null;
+          sourceLocator: string | null;
           createdAt: string;
         }[];
       };
@@ -46,21 +48,29 @@ export async function loadCustomerProvenance(
       transformation_id: string;
       rule_version: string;
       artifact_id: string;
+      artifact_name: string | null;
+      source_locator: string | null;
       created_at: Date;
     }[]
   >`
     SELECT
-      id,
-      field_path,
-      origin_kind,
-      transformation_id,
-      rule_version,
-      artifact_id,
-      created_at
-    FROM qum_provenance_entries
-    WHERE tenant_id = ${tenantId}::uuid
-      AND entity_id = ${customer.provenance_entity_id}::uuid
-    ORDER BY created_at ASC
+      e.id,
+      e.field_path,
+      e.origin_kind,
+      e.transformation_id,
+      e.rule_version,
+      e.artifact_id,
+      a.original_name AS artifact_name,
+      COALESCE(r.source_locator, e.metadata_json->>'sourceLocator') AS source_locator,
+      e.created_at
+    FROM qum_provenance_entries e
+    LEFT JOIN qum_artifacts a
+      ON a.id = e.artifact_id AND a.tenant_id = e.tenant_id
+    LEFT JOIN qum_raw_records r
+      ON r.id = e.raw_record_id AND r.tenant_id = e.tenant_id
+    WHERE e.tenant_id = ${tenantId}::uuid
+      AND e.entity_id = ${customer.provenance_entity_id}::uuid
+    ORDER BY e.created_at ASC
   `;
 
   return {
@@ -73,6 +83,8 @@ export async function loadCustomerProvenance(
         transformationId: e.transformation_id,
         ruleVersion: e.rule_version,
         artifactId: e.artifact_id,
+        artifactName: e.artifact_name,
+        sourceLocator: e.source_locator,
         createdAt: e.created_at.toISOString(),
       })),
     },

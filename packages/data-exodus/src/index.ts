@@ -27,6 +27,23 @@ export {
   type MigrateVerifiedOptions,
   type ReconciliationReport,
 } from "./migrate/index.js";
+export {
+  artifactSha256,
+  ResumeArtifactHashError,
+  runResumableBatch,
+  type ResumableBatchResult,
+  type ResumableCheckpoint,
+} from "./migrate/resumable-batch.js";
+export {
+  loadDemoHvacTabularSources,
+  OFICIOS_V1_TARGET,
+  profileTables,
+  proposeMapping,
+  renderMappingYaml,
+  type MappingProposal,
+  type SchemaProfile,
+  type TabularSource,
+} from "./profile/index.js";
 export { trace, type TraceResult } from "./profile/index.js";
 export {
   CsvSourceImporter,
@@ -42,6 +59,9 @@ export {
 } from "./importers/index.js";
 export {
   loadDemoHvac1000,
+  persistDemoHvacToOficios,
+  persistDemoHvacToOficiosFromEnv,
   resolveDemoHvacFixtureRoot,
   type LoadDemoHvac1000Result,
+  type PersistDemoHvacResult,
 } from "./demo/index.js";

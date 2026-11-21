@@ -1,0 +1,30 @@
+pipelineId: exodus-to-oficios
+pipelineVersion: 1.0.0
+contractVersion: 1.0.0
+steps:
+  - id: ingest
+    uses: exodus.ingest
+    contractVersion: "^1.0.0"
+    idempotent: true
+    config:
+      inputDir: ./fixtures/demo-hvac-1000
+  - id: reconcile
+    uses: exodus.reconcile
+    contractVersion: "^1.0.0"
+    dependsOn: [ingest]
+    idempotent: true
+  - id: human_conflict_gate
+    uses: pipeline.human_review
+    contractVersion: "^1.0.0"
+    dependsOn: [reconcile]
+    idempotent: true
+    config:
+      decisionsFile: ./decisions-demo.yaml
+      blockOnSeverity: BLOCKING
+  - id: migrate
+    uses: exodus.migrate
+    contractVersion: "^1.0.0"
+    dependsOn: [human_conflict_gate]
+    idempotent: true
+    config:
+      targetSchema: oficios-v1@1.0.0

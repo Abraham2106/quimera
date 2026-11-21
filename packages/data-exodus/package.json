@@ -20,7 +20,7 @@
     "@dojocoding/hacienda-sdk": "0.13.0",
     "@quimera/core": "workspace:*",
     "csv-parse": "^6.1.0",
-    "drizzle-orm": "^0.44.5",
+    "drizzle-orm": "0.45.2",
     "exceljs": "^4.4.0",
     "postgres": "^3.4.7"
   },

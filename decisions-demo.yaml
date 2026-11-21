@@ -1,0 +1,16 @@
+status: DRAFT
+actor: operador-demo@example.test
+rationale: Resoluciones humanas de demostración para demo-hvac-1000. Cambie status a APPLIED antes de reanudar el pipeline.
+decisions:
+  - code: PROBABLE_DUPLICATE
+    action: KEEP_SEPARATE
+    rationale: Los 40 grupos con nombre similar permanecen separados hasta revisión del taller.
+  - code: CONFLICTING_IDENTITY
+    action: KEEP_SEPARATE
+    rationale: Las 3 cédulas contradictorias no se fusionan.
+  - code: INVALID_REFERENCE
+    action: REJECT_RECORD
+    rationale: Los 7 pagos mal atribuidos quedan fuera de la carga.
+  - code: UNRECONCILABLE_BALANCE
+    action: MARK_UNRECONCILABLE
+    rationale: El saldo imposible se marca y no se ajusta en silencio.
