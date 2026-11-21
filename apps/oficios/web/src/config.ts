@@ -3,6 +3,8 @@ export const DEFAULT_TENANT_ID = "22222222-2222-7222-8222-222222222222";
 
 export type DevApiConfig = {
   readonly apiBase: string;
+  /** JWT Bearer para la API (producción y dev con auth real). */
+  readonly accessToken: string;
   readonly tenantId: string;
   readonly testRole: "ADMIN" | "OPERATOR" | "AUDITOR_READONLY";
   readonly actorId: string;
@@ -23,6 +25,7 @@ function readSearchParam(key: string): string {
 export function loadDevApiConfig(): DevApiConfig {
   const fromEnv = import.meta.env as {
     readonly VITE_API_BASE?: string;
+    readonly VITE_ACCESS_TOKEN?: string;
     readonly VITE_TENANT_ID?: string;
     readonly VITE_TEST_ROLE?: string;
     readonly VITE_ACTOR_ID?: string;
@@ -37,6 +40,7 @@ export function loadDevApiConfig(): DevApiConfig {
 
   return {
     apiBase: fromEnv.VITE_API_BASE ?? "",
+    accessToken: fromEnv.VITE_ACCESS_TOKEN ?? "",
     tenantId: fromEnv.VITE_TENANT_ID ?? DEFAULT_TENANT_ID,
     testRole,
     actorId: fromEnv.VITE_ACTOR_ID ?? "web-dev-operator",

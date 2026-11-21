@@ -11,6 +11,7 @@ import {
 import type { WorkOrderStatus } from "../domain/work-order-status.js";
 import { getAllowedTransitions } from "../domain/work-order-fsm.js";
 
+export const ERR_UNAUTHORIZED = "ERR_UNAUTHORIZED" as const;
 export const ERR_FORBIDDEN = "ERR_FORBIDDEN" as const;
 export const ERR_NOT_FOUND = "ERR_NOT_FOUND" as const;
 export const ERR_VALIDATION = "ERR_VALIDATION" as const;
