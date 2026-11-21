@@ -22,7 +22,6 @@ import {
   retryProbeStep,
   testRunContext,
   testSql,
-  TEST_TENANT,
 } from "./test-helpers.js";
 
 describe.sequential("T-PIPE — motor DAG @quimera/pipeline", () => {

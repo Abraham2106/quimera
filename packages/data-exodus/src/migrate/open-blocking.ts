@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import type { Sql } from "postgres";
 
-import { createDb, withTenantTransaction } from "../db/connection.js";
+import { withTenantTransaction } from "../db/connection.js";
 import { qumConflicts } from "../db/schema/index.js";
 
 export async function listOpenBlockingConflictIds(

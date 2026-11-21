@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 
 import type { Sql } from "postgres";
 
-import { HVAC_REFRIGERATION_V1_CONTRACT_ID } from "../../domain/hvac-refrigeration-v1.js";
 import { transitionWorkOrder } from "../../domain/work-order-fsm.js";
 import type { WorkOrderStatus } from "../../domain/work-order-status.js";
 import { fsmFailureToResponse } from "../errors.js";

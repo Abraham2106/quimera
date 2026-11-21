@@ -91,7 +91,8 @@ export function buildMinimalFe44Xml(): {
     calculateLineItemTotals({ ...item, numeroLinea: index + 1 }),
   );
   const summary = calculateInvoiceSummary(items);
-  const { lineItems: _lineItems, medioPago, ...data } = SYNTHETIC_ORDER;
+  const { lineItems, medioPago, ...data } = SYNTHETIC_ORDER;
+  void lineItems;
   const invoice = {
     ...data,
     clave: buildClave({

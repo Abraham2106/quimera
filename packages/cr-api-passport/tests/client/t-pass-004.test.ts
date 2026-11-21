@@ -33,7 +33,7 @@ describe("T-PASS-004 — rate limit y circuit breaker", () => {
   it("HTTP 429 abre circuit breaker respetando Retry-After", async () => {
     const passport = await getPassportById("cr.hacienda.cabys");
     expect(passport).toBeDefined();
-    let now = 1_000_000_000_000;
+    const now = 1_000_000_000_000;
     const clock = () => now;
 
     const client = new PassportClient({
