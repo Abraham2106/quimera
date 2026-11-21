@@ -6,7 +6,6 @@ import { createPostgresClient } from "../../src/db/connection.js";
 import {
   ensureEvidenceAppendOnlyMigration,
   isInsufficientPrivilegeError,
-  withEvidenceTablesUnlocked,
 } from "./evidence-append-only-helpers.js";
 
 describe("QR-SEC-005 — tablas de evidencia append-only en PostgreSQL", () => {

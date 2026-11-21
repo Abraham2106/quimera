@@ -14,4 +14,4 @@
 
 - [x] Añadir pantallas de onboarding inicial y gestión de equipo/roles en `apps/oficios/web/`.
 - [x] Agregar pruebas de integración (provisioning atómico, invitación expirada/reusada, protección último admin, aislamiento cross-tenant) y ejecutar `pnpm spec:validate`.
-- [ ] Ejecutar `pnpm verify` completo en verde.
+- [x] Ejecutar `pnpm verify` completo en verde.

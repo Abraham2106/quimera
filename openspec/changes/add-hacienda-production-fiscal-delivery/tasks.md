@@ -13,4 +13,4 @@
 ## Pruebas y verificación
 
 - [ ] Probar el transporte completo contra el simulador loopback de `@quimera/factura-ci` (25/25) y agregar prueba opt-in `test:hacienda-sandbox` deshabilitada por defecto en `pnpm verify`.
-- [ ] Ejecutar `pnpm verify`, `pnpm test:security` y `pnpm spec:validate` en verde.
+- [x] Ejecutar `pnpm verify`, `pnpm test:security` y `pnpm spec:validate` en verde.

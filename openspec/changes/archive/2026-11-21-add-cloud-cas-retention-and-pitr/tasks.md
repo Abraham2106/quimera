@@ -12,4 +12,4 @@
 
 - [x] Documentar y automatizar la prueba de restauración PITR verificando integridad referencial y de hashes.
 - [x] Agregar pruebas unitarias/integración con mock S3 local (`T-SEC-005`, `T-SEC-006`, `T-SEC-009`, `T-SEC-010`).
-- [ ] Correr `pnpm verify` y `pnpm spec:validate`.
+- [x] Correr `pnpm verify` y `pnpm spec:validate`.

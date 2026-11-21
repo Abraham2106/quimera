@@ -110,7 +110,7 @@ try {
     const dir = await mkdtemp(path.join(tmpdir(), "quimera-pitr-"));
     const dumpPath = path.join(dir, "restore.sql");
     await writeFile(dumpPath, transformed, "utf8");
-    const source = new URL(databaseUrl);
+    const source = new globalThis.URL(databaseUrl);
     execFileSync(
       "psql",
       [
