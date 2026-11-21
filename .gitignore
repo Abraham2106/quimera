@@ -9,3 +9,4 @@ dist/
 *.pem
 coverage/
 .turbo
+test-results/
