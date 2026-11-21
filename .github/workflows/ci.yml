@@ -18,13 +18,13 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: quimera
-          POSTGRES_PASSWORD: quimera
-          POSTGRES_DB: quimera
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U quimera -d quimera"
+          --health-cmd "pg_isready -U postgres -d postgres"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -40,6 +40,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Create application role
+        env:
+          CI_POSTGRES_ADMIN_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+        run: node scripts/ci-prepare-role.mjs
 
       - name: Typecheck
         run: pnpm typecheck
