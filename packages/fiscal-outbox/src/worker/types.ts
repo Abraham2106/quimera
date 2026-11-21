@@ -16,6 +16,7 @@ export type HaciendaTransportPayload = {
 export type TransportCallResult = {
   httpStatus?: number;
   response?: HaciendaTransportPayload;
+  responseXml?: string;
   error?: Error | null;
 };
 
@@ -33,6 +34,8 @@ export type ProcessOnceOptions = {
   readonly transport: FiscalOutboxTransport;
   readonly leaseSeconds?: number;
   readonly now?: () => Date;
+  /** Firma el XML (XAdES-EPES) antes de persistirlo y de hacer POST. */
+  readonly signXml?: (xml: string) => Promise<string>;
 };
 
 export type ClaimedFiscalDocument = FiscalDocumentRow & {

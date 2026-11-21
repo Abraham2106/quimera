@@ -1,3 +1,5 @@
+import { createHash, randomUUID } from "node:crypto";
+
 import {
   classifySendResult,
   evaluateDeadline,
@@ -128,6 +130,7 @@ async function reconcileByClave(
   );
   const state = claim.delivery_state as FobDeliveryState;
   const nextState = await applySendResult(client, claim, state, classified);
+  await persistTerminalResponse(client, claim, nextState, result.responseXml);
 
   const terminal = nextState === "ACEPTADO" || nextState === "RECHAZADO";
   const nextPollAt = terminal
@@ -143,6 +146,74 @@ async function reconcileByClave(
       ? markPostDispatchedExtras()
       : undefined,
   );
+}
+
+async function readSignedArtifactId(
+  client: Sql,
+  claim: ClaimedFiscalDocument,
+): Promise<string | null> {
+  const rows = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
+    tx<{ signed_xml_artifact_id: string | null }[]>`
+      SELECT signed_xml_artifact_id
+      FROM fob_fiscal_documents
+      WHERE id = ${claim.id}::uuid
+    `,
+  );
+  return rows[0]?.signed_xml_artifact_id ?? claim.signed_xml_artifact_id;
+}
+
+async function persistXmlArtifact(
+  client: Sql,
+  tenantId: string,
+  kind: "fe_xml_signed" | "hacienda_response",
+  name: string,
+  xml: string,
+): Promise<string> {
+  const artifactId = randomUUID();
+  const sha256 = createHash("sha256").update(xml).digest("hex");
+  await withFobTenantTransaction(client, tenantId, async (tx) => {
+    await tx`
+      INSERT INTO qum_artifacts (
+        id, tenant_id, sha256, artifact_kind, original_name, mime_type, byte_size, storage_uri
+      )
+      VALUES (
+        ${artifactId}::uuid,
+        ${tenantId}::uuid,
+        ${sha256},
+        ${kind},
+        ${name},
+        'application/xml',
+        ${Buffer.byteLength(xml, "utf8")},
+        ${`cas://fiscal-outbox/${sha256}`}
+      )
+    `;
+  });
+  return artifactId;
+}
+
+async function persistTerminalResponse(
+  client: Sql,
+  claim: ClaimedFiscalDocument,
+  state: FobDeliveryState,
+  responseXml: string | undefined,
+): Promise<void> {
+  if (!responseXml || (state !== "ACEPTADO" && state !== "RECHAZADO")) {
+    return;
+  }
+  const artifactId = await persistXmlArtifact(
+    client,
+    claim.tenant_id,
+    "hacienda_response",
+    `respuesta-${claim.clave}.xml`,
+    responseXml,
+  );
+  await withFobTenantTransaction(client, claim.tenant_id, async (tx) => {
+    await tx`
+      UPDATE fob_fiscal_documents
+      SET response_artifact_id = ${artifactId}::uuid
+      WHERE id = ${claim.id}::uuid
+    `;
+  });
 }
 
 async function dispatchPost(
@@ -166,14 +237,25 @@ async function dispatchPost(
     await store.transition(claim.clave, "FIRMADO", "PENDIENTE", "worker: pre-POST");
   }
 
-  const signedArtifactId = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
-    tx<{ signed_xml_artifact_id: string | null }[]>`
-      SELECT signed_xml_artifact_id
-      FROM fob_fiscal_documents
-      WHERE id = ${claim.id}::uuid
-    `,
-  );
-  signedXmlMustExistBeforePost(signedArtifactId[0]?.signed_xml_artifact_id ?? claim.signed_xml_artifact_id);
+  let signedArtifactId = await readSignedArtifactId(client, claim);
+  if (!signedArtifactId && options.signXml) {
+    const signedXml = await options.signXml(doc.xml);
+    signedArtifactId = await persistXmlArtifact(
+      client,
+      claim.tenant_id,
+      "fe_xml_signed",
+      `signed-${claim.clave}.xml`,
+      signedXml,
+    );
+    await withFobTenantTransaction(client, claim.tenant_id, async (tx) => {
+      await tx`
+        UPDATE fob_fiscal_documents
+        SET signed_xml_artifact_id = ${signedArtifactId}::uuid
+        WHERE id = ${claim.id}::uuid
+      `;
+    });
+  }
+  signedXmlMustExistBeforePost(signedArtifactId);
 
   const result = await options.transport.postDocument({
     clave: claim.clave,
@@ -211,13 +293,14 @@ async function dispatchPost(
   const current = refreshed[0] ?? claim;
   const fromState = current.delivery_state as FobDeliveryState;
 
-  await applySendResult(
+  const nextState = await applySendResult(
     client,
     current,
     fromState,
     classified,
     classified.type === "ambiguous" ? markPostDispatchedExtras() : undefined,
   );
+  await persistTerminalResponse(client, current, nextState, result.responseXml);
 
   const clock = options.now?.() ?? new Date();
   const nextPollAt =
