@@ -4,8 +4,12 @@ import { fileURLToPath } from "node:url";
 
 import type { Sql } from "postgres";
 
-import { applyFobMigration, dropFobObjects } from "../../src/db/migrate.js";
-import { createPostgresClient } from "../../src/db/connection.js";
+import {
+  applyFobMigration,
+  applyFobRlsMigration,
+  dropFobObjects,
+} from "../../src/db/migrate.js";
+import { createPostgresClient, withFobTenantTransaction } from "../../src/db/connection.js";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const dataExodusRoot = path.resolve(packageRoot, "../data-exodus");
@@ -14,6 +18,10 @@ export const TENANT_A = "11111111-1111-7111-8111-111111111111";
 
 export async function readFobMigrationSql(): Promise<string> {
   return readFile(path.join(packageRoot, "drizzle/0001_init_fob.sql"), "utf8");
+}
+
+export async function readFobRlsMigrationSql(): Promise<string> {
+  return readFile(path.join(packageRoot, "drizzle/0002_fob_rls.sql"), "utf8");
 }
 
 export async function readQumMigrationSql(): Promise<string> {
@@ -52,22 +60,30 @@ export async function resetFobSchema(): Promise<Sql> {
   await client.unsafe(qumSql);
   const fobSql = await readFobMigrationSql();
   await applyFobMigration(client, fobSql);
+  const rlsSql = await readFobRlsMigrationSql();
+  await applyFobRlsMigration(client, rlsSql);
   return client;
 }
 
-export async function seedTenant(client: Sql, tenantId = TENANT_A): Promise<void> {
+export async function seedTenant(
+  client: Sql,
+  tenantId = TENANT_A,
+  slug = `tenant-${tenantId.slice(0, 8)}`,
+): Promise<void> {
   await client`
     INSERT INTO qum_tenants (id, slug, display_name)
-    VALUES (${tenantId}::uuid, 'tenant-test', 'Tenant Test')
+    VALUES (${tenantId}::uuid, ${slug}, ${`Tenant ${slug}`})
     ON CONFLICT (id) DO NOTHING
   `;
 }
 
 export async function countIntents(client: Sql, tenantId: string): Promise<number> {
-  const rows = await client<{ count: string }[]>`
-    SELECT count(*)::text AS count
-    FROM fob_fiscal_intents
-    WHERE tenant_id = ${tenantId}::uuid
-  `;
+  const rows = await withFobTenantTransaction(client, tenantId, async (tx) =>
+    tx<{ count: string }[]>`
+      SELECT count(*)::text AS count
+      FROM fob_fiscal_intents
+      WHERE tenant_id = ${tenantId}::uuid
+    `,
+  );
   return Number(rows[0]?.count ?? "0");
 }

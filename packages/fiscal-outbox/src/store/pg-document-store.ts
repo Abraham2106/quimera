@@ -8,6 +8,7 @@ import {
 } from "@dojocoding/hacienda-sdk";
 import type { Sql } from "postgres";
 
+import { withFobTenantTransaction } from "../db/connection.js";
 import {
   consecutivoFromClave,
   deliveryJsonEnvelope,
@@ -35,7 +36,7 @@ export class PgDocumentStore implements DocumentStore {
     const envelope = deliveryJsonEnvelope(snapshot, doc.lastError);
     const docType = this.scope.docType ?? consecutivo.slice(8, 10);
 
-    await this.client.begin(async (tx) => {
+    await withFobTenantTransaction(this.client, this.scope.tenantId, async (tx) => {
       const existing = await tx<FiscalDocumentRow[]>`
         SELECT id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts, last_error_json, updated_at
         FROM fob_fiscal_documents
@@ -124,24 +125,28 @@ export class PgDocumentStore implements DocumentStore {
   }
 
   async get(clave: string): Promise<StoredDocument | null> {
-    const rows = await this.client<FiscalDocumentRow[]>`
-      SELECT id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts, last_error_json, updated_at
-      FROM fob_fiscal_documents
-      WHERE tenant_id = ${this.scope.tenantId}::uuid
-        AND clave = ${clave}
-    `;
+    const rows = await withFobTenantTransaction(this.client, this.scope.tenantId, async (tx) =>
+      tx<FiscalDocumentRow[]>`
+        SELECT id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts, last_error_json, updated_at
+        FROM fob_fiscal_documents
+        WHERE tenant_id = ${this.scope.tenantId}::uuid
+          AND clave = ${clave}
+      `,
+    );
     const row = rows[0];
     return row ? rowToStoredDocument(row) : null;
   }
 
   async listPending(): Promise<StoredDocument[]> {
-    const rows = await this.client<FiscalDocumentRow[]>`
-      SELECT id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts, last_error_json, updated_at
-      FROM fob_fiscal_documents
-      WHERE tenant_id = ${this.scope.tenantId}::uuid
-        AND delivery_state NOT IN ('ACEPTADO', 'RECHAZADO', 'VENCIDO')
-      ORDER BY updated_at ASC
-    `;
+    const rows = await withFobTenantTransaction(this.client, this.scope.tenantId, async (tx) =>
+      tx<FiscalDocumentRow[]>`
+        SELECT id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts, last_error_json, updated_at
+        FROM fob_fiscal_documents
+        WHERE tenant_id = ${this.scope.tenantId}::uuid
+          AND delivery_state NOT IN ('ACEPTADO', 'RECHAZADO', 'VENCIDO')
+        ORDER BY updated_at ASC
+      `,
+    );
     return rows.map((row) => rowToStoredDocument(row));
   }
 
@@ -155,7 +160,7 @@ export class PgDocumentStore implements DocumentStore {
       throw new Error("Delivery transition conflict");
     }
 
-    await this.client.begin(async (tx) => {
+    await withFobTenantTransaction(this.client, this.scope.tenantId, async (tx) => {
       const rows = await tx<FiscalDocumentRow[]>`
         SELECT id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts, last_error_json, updated_at
         FROM fob_fiscal_documents
@@ -198,7 +203,7 @@ export class PgDocumentStore implements DocumentStore {
       throw new Error("Only delivery attempts and diagnostics can be patched");
     }
 
-    await this.client.begin(async (tx) => {
+    await withFobTenantTransaction(this.client, this.scope.tenantId, async (tx) => {
       const rows = await tx<FiscalDocumentRow[]>`
         SELECT id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts, last_error_json, updated_at
         FROM fob_fiscal_documents
@@ -232,12 +237,14 @@ export class PgDocumentStore implements DocumentStore {
   }
 
   async getState(clave: string): Promise<DeliveryState | null> {
-    const rows = await this.client<{ delivery_state: DeliveryState }[]>`
-      SELECT delivery_state
-      FROM fob_fiscal_documents
-      WHERE tenant_id = ${this.scope.tenantId}::uuid
-        AND clave = ${clave}
-    `;
+    const rows = await withFobTenantTransaction(this.client, this.scope.tenantId, async (tx) =>
+      tx<{ delivery_state: DeliveryState }[]>`
+        SELECT delivery_state
+        FROM fob_fiscal_documents
+        WHERE tenant_id = ${this.scope.tenantId}::uuid
+          AND clave = ${clave}
+      `,
+    );
     return rows[0]?.delivery_state ?? null;
   }
 }

@@ -23,6 +23,16 @@ async function readSql(relativePath: string): Promise<string> {
   return readFile(path.join(repoRoot, relativePath), "utf8");
 }
 
+async function dropSaasObjects(client: Sql): Promise<void> {
+  for (const table of [
+    "saas_invitations",
+    "saas_memberships",
+    "saas_organizations",
+  ]) {
+    await client.unsafe(`DROP TABLE IF EXISTS ${table} CASCADE`);
+  }
+}
+
 async function dropOfiObjects(client: Sql): Promise<void> {
   for (const table of [
     "ofi_materials",
@@ -68,14 +78,17 @@ async function dropQumObjects(client: Sql): Promise<void> {
 }
 
 export async function resetApiSchema(client: Sql): Promise<void> {
+  await dropSaasObjects(client);
   await dropOfiObjects(client);
   await dropFobObjects(client);
   await dropQumObjects(client);
   await client.unsafe(await readSql("packages/data-exodus/drizzle/0001_init_qum.sql"));
+  await client.unsafe(await readSql("packages/data-exodus/drizzle/0002_evidence_append_only.sql"));
   await client.unsafe(await readSql("packages/fiscal-outbox/drizzle/0001_init_fob.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0001_init_ofi.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0002_diagnosis_materials.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0003_ofi_rls.sql"));
+  await client.unsafe(await readSql("apps/oficios/drizzle/0004_saas_b2b_onboarding.sql"));
   await client`
     INSERT INTO qum_tenants (id, slug, display_name)
     VALUES (${TENANT_ID}::uuid, 'ofi-api-test', 'Ofi API Test')

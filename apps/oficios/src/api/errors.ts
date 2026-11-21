@@ -16,6 +16,10 @@ export const ERR_FORBIDDEN = "ERR_FORBIDDEN" as const;
 export const ERR_NOT_FOUND = "ERR_NOT_FOUND" as const;
 export const ERR_VALIDATION = "ERR_VALIDATION" as const;
 export const ERR_TENANT_MISMATCH = "ERR_TENANT_MISMATCH" as const;
+export const ERR_INVITATION_GONE = "ERR_INVITATION_GONE" as const;
+export const ERR_INVITATION_CONFLICT = "ERR_INVITATION_CONFLICT" as const;
+export const ERR_LAST_ADMIN = "ERR_LAST_ADMIN" as const;
+export const ERR_ORG_SUSPENDED = "ERR_ORG_SUSPENDED" as const;
 
 export type ApiErrorBody = {
   readonly ok: false;

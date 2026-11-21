@@ -1,5 +1,6 @@
 import type { Sql } from "postgres";
 
+import { withFobTenantTransaction } from "../db/connection.js";
 import type { ClaimedFiscalDocument, ProcessOnceOptions } from "./types.js";
 
 export function isPostDispatched(
@@ -10,18 +11,19 @@ export function isPostDispatched(
 
 export async function claimNextDocument(
   client: Sql,
-  options: Pick<ProcessOnceOptions, "workerId" | "leaseSeconds" | "now">,
+  options: Pick<ProcessOnceOptions, "workerId" | "tenantId" | "leaseSeconds" | "now">,
 ): Promise<ClaimedFiscalDocument | null> {
   const leaseSeconds = options.leaseSeconds ?? 60;
   const now = options.now?.() ?? new Date();
   const leaseExpiresAt = new Date(now.getTime() + leaseSeconds * 1000);
 
-  const rows = await client.begin(async (tx) => {
-    return tx<ClaimedFiscalDocument[]>`
+  const rows = await withFobTenantTransaction(client, options.tenantId, async (tx) =>
+    tx<ClaimedFiscalDocument[]>`
       WITH picked AS (
         SELECT d.id
         FROM fob_fiscal_documents AS d
-        WHERE d.delivery_state IN (
+        WHERE d.tenant_id = ${options.tenantId}::uuid
+          AND d.delivery_state IN (
             'FIRMADO',
             'PENDIENTE',
             'ENVIADO',
@@ -57,10 +59,11 @@ export async function claimNextDocument(
         d.lease_owner,
         d.lease_expires_at,
         d.next_poll_at,
+        d.signed_xml_artifact_id,
         (SELECT i.issuer_id FROM fob_fiscal_intents AS i WHERE i.id = d.intent_id) AS issuer_id,
         (SELECT i.environment FROM fob_fiscal_intents AS i WHERE i.id = d.intent_id) AS environment
-    `;
-  });
+    `,
+  );
 
   const row = rows[0];
   if (!row) {
@@ -71,11 +74,14 @@ export async function claimNextDocument(
 
 export async function releaseDocumentLease(
   client: Sql,
+  tenantId: string,
   documentId: string,
 ): Promise<void> {
-  await client`
-    UPDATE fob_fiscal_documents
-    SET lease_owner = NULL, lease_expires_at = NULL
-    WHERE id = ${documentId}::uuid
-  `;
+  await withFobTenantTransaction(client, tenantId, async (tx) => {
+    await tx`
+      UPDATE fob_fiscal_documents
+      SET lease_owner = NULL, lease_expires_at = NULL
+      WHERE id = ${documentId}::uuid
+    `;
+  });
 }

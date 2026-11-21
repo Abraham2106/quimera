@@ -13,3 +13,4 @@ export * from "./errors.js";
 export * from "./operations.js";
 export * from "./schema-version.js";
 export * from "./pipeline.js";
+export * from "./saas-tenant.js";

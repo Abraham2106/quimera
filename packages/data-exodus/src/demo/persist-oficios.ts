@@ -81,20 +81,20 @@ export async function persistDemoHvacToOficios(
       throw new Error("ERR_SCHEMA_VERSION_MISSING");
     }
 
-    const seenArtifacts = new Set<string>();
+    const artifactIdByProvenance = new Map<string, string>();
     for (const row of loaded.dataset.clients) {
       for (const entry of row.provenance) {
-        if (seenArtifacts.has(entry.artifactId)) continue;
-        seenArtifacts.add(entry.artifactId);
+        if (artifactIdByProvenance.has(entry.artifactId)) continue;
         const originalName = entry.sourceLocator.split("#")[0] || "origen";
-        await tx`
+        const digest = sha256Hex(entry.artifactId);
+        const insertedArtifact = await tx<{ id: string }[]>`
           INSERT INTO qum_artifacts (
             id, tenant_id, sha256, artifact_kind, original_name, mime_type, byte_size, storage_uri
           )
           VALUES (
             ${entry.artifactId}::uuid,
             ${tenantId}::uuid,
-            ${sha256Hex(entry.artifactId)},
+            ${digest},
             'source_file',
             ${originalName},
             'application/octet-stream',
@@ -102,7 +102,24 @@ export async function persistDemoHvacToOficios(
             ${`cas://demo-hvac-1000/${originalName}`}
           )
           ON CONFLICT (tenant_id, sha256, artifact_kind) DO NOTHING
+          RETURNING id::text AS id
         `;
+        const resolved =
+          insertedArtifact[0]?.id ??
+          (
+            await tx<{ id: string }[]>`
+              SELECT id::text AS id
+              FROM qum_artifacts
+              WHERE tenant_id = ${tenantId}::uuid
+                AND sha256 = ${digest}
+                AND artifact_kind = 'source_file'
+              LIMIT 1
+            `
+          )[0]?.id;
+        if (!resolved) {
+          throw new Error("ERR_ARTIFACT_RESOLVE_FAILED");
+        }
+        artifactIdByProvenance.set(entry.artifactId, resolved);
       }
 
       const entityId = uuidFromKey(`demo-hvac-customer:${tenantId}:${row.id}`);
@@ -125,6 +142,8 @@ export async function persistDemoHvacToOficios(
       if (inserted.length === 0) continue;
 
       for (const entry of row.provenance) {
+        const artifactId = artifactIdByProvenance.get(entry.artifactId);
+        if (!artifactId) continue;
         await tx`
           INSERT INTO qum_provenance_entries (
             id, tenant_id, entity_id, field_path, artifact_id, schema_version_id,
@@ -135,7 +154,7 @@ export async function persistDemoHvacToOficios(
             ${tenantId}::uuid,
             ${entityId}::uuid,
             'legal_name',
-            ${entry.artifactId}::uuid,
+            ${artifactId}::uuid,
             ${schemaVersionId}::uuid,
             'DIRECT_PARSE',
             'demo-hvac-1000.load',

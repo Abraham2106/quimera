@@ -30,8 +30,9 @@
     "db:migrate": "node scripts/db-migrate.mjs",
     "quimera": "node scripts/quimera.mjs",
     "oficios:serve": "pnpm exec tsx apps/oficios/src/server.ts",
-    "test:security": "DATABASE_URL=${DATABASE_URL:-postgres://quimera:quimera@127.0.0.1:5432/quimera} vitest run --fileParallelism=false packages/data-exodus/tests/storage/fs-artifact-store.test.ts packages/data-exodus/tests/importers/fe-xml.test.ts packages/factura-ci/src/t-sec-012-loopback-only.test.ts packages/data-exodus/tests/db/postgres-qum.integration.test.ts apps/oficios/tests/db/t-sec-ofi-rls.test.ts",
+    "test:security": "DATABASE_URL=${DATABASE_URL:-postgres://quimera:quimera@127.0.0.1:5432/quimera} vitest run --fileParallelism=false packages/data-exodus/tests/storage/fs-artifact-store.test.ts packages/data-exodus/tests/importers/fe-xml.test.ts packages/factura-ci/src/t-sec-012-loopback-only.test.ts packages/data-exodus/tests/db/postgres-qum.integration.test.ts apps/oficios/tests/db/t-sec-ofi-rls.test.ts apps/oficios/tests/db/t-saas-rls.test.ts",
     "spec:validate": "OPENSPEC_TELEMETRY=0 openspec validate --all --strict",
+    "test:hacienda-sandbox": "node scripts/hacienda-sandbox.mjs",
     "verify": "node scripts/verify.mjs"
   },
   "devDependencies": {

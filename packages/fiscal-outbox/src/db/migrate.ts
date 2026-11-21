@@ -3,6 +3,7 @@ import type { Sql } from "postgres";
 import { FiscalOutboxDbError } from "./errors.js";
 
 export const INIT_FOB_MIGRATION_SQL_PATH = "drizzle/0001_init_fob.sql";
+export const FOB_RLS_MIGRATION_SQL_PATH = "drizzle/0002_fob_rls.sql";
 
 export async function applyFobMigration(client: Sql, sql: string): Promise<void> {
   try {
@@ -11,6 +12,18 @@ export async function applyFobMigration(client: Sql, sql: string): Promise<void>
     throw new FiscalOutboxDbError(
       "ERR_DB_MIGRATION",
       "Failed applying 0001_init_fob.sql",
+      { cause },
+    );
+  }
+}
+
+export async function applyFobRlsMigration(client: Sql, sql: string): Promise<void> {
+  try {
+    await client.unsafe(sql);
+  } catch (cause) {
+    throw new FiscalOutboxDbError(
+      "ERR_DB_MIGRATION",
+      "Failed applying 0002_fob_rls.sql",
       { cause },
     );
   }
