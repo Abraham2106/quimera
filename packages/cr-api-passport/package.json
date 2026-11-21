@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.22.0",
-    "@quimera/core": "workspace:*"
+    "@quimera/core": "workspace:*",
+    "yaml": "^2.8.1"
   }
 }
