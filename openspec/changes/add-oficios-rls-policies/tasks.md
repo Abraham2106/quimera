@@ -11,4 +11,4 @@
 ## Pruebas y verificación
 
 - [x] Añadir prueba de regresión cross-tenant en `apps/oficios/tests/` y registrarla en el script `pnpm test:security`.
-- [x] Ejecutar `pnpm verify` y `pnpm spec:validate` en verde.
+- [ ] Ejecutar `pnpm verify` y `pnpm spec:validate` en verde.
