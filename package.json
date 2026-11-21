@@ -31,12 +31,14 @@
     "quimera": "node scripts/quimera.mjs",
     "oficios:serve": "pnpm exec tsx apps/oficios/src/server.ts",
     "test:security": "DATABASE_URL=${DATABASE_URL:-postgres://quimera:quimera@127.0.0.1:5432/quimera} vitest run --fileParallelism=false packages/data-exodus/tests/storage/fs-artifact-store.test.ts packages/data-exodus/tests/importers/fe-xml.test.ts packages/factura-ci/src/t-sec-012-loopback-only.test.ts packages/data-exodus/tests/db/postgres-qum.integration.test.ts",
+    "spec:validate": "OPENSPEC_TELEMETRY=0 openspec validate --all --strict",
     "verify": "node scripts/verify.mjs"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/node": "^22.19.1",
     "@changesets/cli": "^2.29.8",
+    "@eslint/js": "^9.39.1",
+    "@fission-ai/openspec": "^2.1.1",
+    "@types/node": "^22.19.1",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
     "drizzle-kit": "^0.31.4",

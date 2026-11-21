@@ -46,6 +46,9 @@ jobs:
           CI_POSTGRES_ADMIN_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
         run: node scripts/ci-prepare-role.mjs
 
+      - name: OpenSpec validate
+        run: pnpm spec:validate
+
       - name: Typecheck
         run: pnpm typecheck
 

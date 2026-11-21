@@ -1,0 +1,24 @@
+schema: spec-driven
+
+context: |
+  QUIMERA es un monorepo TypeScript ESM local-first (Node.js 22+, pnpm 10.33.4,
+  PostgreSQL 16 con rol de aplicación NOSUPERUSER NOBYPASSRLS).
+  Invariantes obligatorias:
+  - Ningún paquete @quimera/* del núcleo puede importar @quimera/oficios ni @quimera/adapter-clairic (verificado por pnpm test:isolation).
+  - El baseline corre 100% offline y determinista (QUIMERA_AI_ENABLED=false, QUIMERA_PASSPORT_MODE=fixture).
+  - @quimera/factura-ci opera únicamente en loopback (ERR_SEC_LOOPBACK_ONLY) y nunca constituye certificación ni aceptación del Ministerio de Hacienda.
+  - La CLI con --json escribe únicamente JSON en stdout; los logs estructurados van a stderr.
+  - Los contratos y propuestas se redactan en español conservando las palabras normativas SHALL/MUST/SHALL NOT en la primera línea física de cada requirement.
+
+rules:
+  proposal:
+    - Incluir secciones claras de por qué, qué cambia, impacto y fuera de alcance.
+    - Explicitar los paquetes y contratos públicos afectados.
+  specs:
+    - Describir únicamente comportamiento observable (entradas, salidas, códigos de error e invariantes), sin acoplarse a nombres de archivos o clases internas.
+    - Conservar el primer párrafo de cada Requirement en una sola línea física con SHALL, MUST o SHALL NOT.
+    - Distinguir explícitamente las garantías verificadas en local de la aceptación fiscal real ante Hacienda.
+  design:
+    - Documentar impacto en migraciones SQL (qum_*, fob_*, ofi_*), políticas RLS y aislamiento de paquetes (pnpm test:isolation).
+  tasks:
+    - Incluir siempre tareas de pruebas de regresión conductual y validación completa con pnpm verify y pnpm spec:validate.
