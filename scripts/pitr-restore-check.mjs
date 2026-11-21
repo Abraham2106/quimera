@@ -86,7 +86,17 @@ function runPgDump() {
 function sanitizePgDump(dump) {
   return dump
     .split("\n")
-    .filter((line) => line.length > 0 && !line.startsWith("\\"))
+    .filter((line) => {
+      const trimmed = line.trim();
+      if (trimmed.length === 0 || trimmed.startsWith("\\")) {
+        return false;
+      }
+      // pg_dump 17+ emits this; the CI server is PostgreSQL 16.
+      if (/transaction_timeout/i.test(trimmed)) {
+        return false;
+      }
+      return true;
+    })
     .join("\n");
 }
 
