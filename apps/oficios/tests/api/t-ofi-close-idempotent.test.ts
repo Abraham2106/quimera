@@ -3,6 +3,7 @@ import type { Sql } from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../../src/api/app.js";
+import { withOfiTenantTransaction } from "../../src/db/connection.js";
 import { HVAC_REFRIGERATION_V1_CONTRACT_ID } from "../../src/domain/hvac-refrigeration-v1.js";
 import {
   TENANT_ID,
@@ -26,28 +27,30 @@ describe("T-OFI — close encola como máximo 1 fiscal intent", () => {
 
     const { customerId, equipmentId } = await seedCustomerEquipment(client);
     workOrderId = randomUUID();
-    await client`
-      INSERT INTO ofi_work_orders (
-        id,
-        tenant_id,
-        customer_id,
-        equipment_id,
-        trade_contract_id,
-        status,
-        customer_authorized,
-        version
-      )
-      VALUES (
-        ${workOrderId}::uuid,
-        ${TENANT_ID}::uuid,
-        ${customerId}::uuid,
-        ${equipmentId}::uuid,
-        ${HVAC_REFRIGERATION_V1_CONTRACT_ID},
-        'VERIFIED',
-        true,
-        6
-      )
-    `;
+    await withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+      await tx`
+        INSERT INTO ofi_work_orders (
+          id,
+          tenant_id,
+          customer_id,
+          equipment_id,
+          trade_contract_id,
+          status,
+          customer_authorized,
+          version
+        )
+        VALUES (
+          ${workOrderId}::uuid,
+          ${TENANT_ID}::uuid,
+          ${customerId}::uuid,
+          ${equipmentId}::uuid,
+          ${HVAC_REFRIGERATION_V1_CONTRACT_ID},
+          'VERIFIED',
+          true,
+          6
+        )
+      `;
+    });
   });
 
   afterAll(async () => {

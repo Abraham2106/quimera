@@ -12,6 +12,7 @@ const migrations = [
   "packages/fiscal-outbox/drizzle/0001_init_fob.sql",
   "apps/oficios/drizzle/0001_init_ofi.sql",
   "apps/oficios/drizzle/0002_diagnosis_materials.sql",
+  "apps/oficios/drizzle/0003_ofi_rls.sql",
 ];
 
 const databaseUrl =

@@ -6,7 +6,10 @@ import { fileURLToPath } from "node:url";
 import type { Sql } from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { createOficiosPostgresClient } from "../../src/db/connection.js";
+import {
+  createOficiosPostgresClient,
+  withOfiTenantTransaction,
+} from "../../src/db/connection.js";
 import { HVAC_REFRIGERATION_V1_CONTRACT_ID } from "../../src/domain/hvac-refrigeration-v1.js";
 import { ERR_WORK_ORDER_APPROVAL_REQUIRED } from "../../src/domain/work-order-errors.js";
 import { transitionWorkOrder } from "../../src/domain/work-order-fsm.js";
@@ -79,6 +82,7 @@ async function resetSchema(client: Sql): Promise<void> {
   );
   await client.unsafe(await readSql("apps/oficios/drizzle/0001_init_ofi.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0002_diagnosis_materials.sql"));
+  await client.unsafe(await readSql("apps/oficios/drizzle/0003_ofi_rls.sql"));
 }
 
 describe("T-OFI-002 — integración PostgreSQL ofi_*", () => {
@@ -116,53 +120,60 @@ describe("T-OFI-002 — integración PostgreSQL ofi_*", () => {
     const equipmentId = randomUUID();
     const workOrderId = randomUUID();
 
-    await client`
-      INSERT INTO ofi_customers (id, tenant_id, legal_name)
-      VALUES (${customerId}::uuid, ${TENANT_ID}::uuid, 'Cliente Prueba')
-    `;
-    await client`
-      INSERT INTO ofi_equipment (id, tenant_id, customer_id, trade_contract_id)
-      VALUES (
-        ${equipmentId}::uuid,
-        ${TENANT_ID}::uuid,
-        ${customerId}::uuid,
-        ${HVAC_REFRIGERATION_V1_CONTRACT_ID}
-      )
-    `;
-    await client`
-      INSERT INTO ofi_work_orders (
-        id,
-        tenant_id,
-        customer_id,
-        equipment_id,
-        trade_contract_id,
-        status,
-        customer_authorized,
-        version
-      )
-      VALUES (
-        ${workOrderId}::uuid,
-        ${TENANT_ID}::uuid,
-        ${customerId}::uuid,
-        ${equipmentId}::uuid,
-        ${HVAC_REFRIGERATION_V1_CONTRACT_ID},
-        'QUOTED',
-        false,
-        1
-      )
-    `;
+    await withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+      await tx`
+        INSERT INTO ofi_customers (id, tenant_id, legal_name)
+        VALUES (${customerId}::uuid, ${TENANT_ID}::uuid, 'Cliente Prueba')
+      `;
+      await tx`
+        INSERT INTO ofi_equipment (id, tenant_id, customer_id, trade_contract_id)
+        VALUES (
+          ${equipmentId}::uuid,
+          ${TENANT_ID}::uuid,
+          ${customerId}::uuid,
+          ${HVAC_REFRIGERATION_V1_CONTRACT_ID}
+        )
+      `;
+      await tx`
+        INSERT INTO ofi_work_orders (
+          id,
+          tenant_id,
+          customer_id,
+          equipment_id,
+          trade_contract_id,
+          status,
+          customer_authorized,
+          version
+        )
+        VALUES (
+          ${workOrderId}::uuid,
+          ${TENANT_ID}::uuid,
+          ${customerId}::uuid,
+          ${equipmentId}::uuid,
+          ${HVAC_REFRIGERATION_V1_CONTRACT_ID},
+          'QUOTED',
+          false,
+          1
+        )
+      `;
+    });
 
-    const rows = await client<
-      {
-        status: string;
-        customer_authorized: boolean;
-        version: string;
-      }[]
-    >`
-      SELECT status, customer_authorized, version::text
-      FROM ofi_work_orders
-      WHERE id = ${workOrderId}::uuid
-    `;
+    const rows = await withOfiTenantTransaction(
+      client,
+      TENANT_ID,
+      async (tx) =>
+        tx<
+          {
+            status: string;
+            customer_authorized: boolean;
+            version: string;
+          }[]
+        >`
+          SELECT status, customer_authorized, version::text
+          FROM ofi_work_orders
+          WHERE id = ${workOrderId}::uuid
+        `,
+    );
     const row = rows[0];
     expect(row?.status).toBe("QUOTED");
 
@@ -179,9 +190,14 @@ describe("T-OFI-002 — integración PostgreSQL ofi_*", () => {
       code: ERR_WORK_ORDER_APPROVAL_REQUIRED,
     });
 
-    const after = await client<{ status: string }[]>`
-      SELECT status FROM ofi_work_orders WHERE id = ${workOrderId}::uuid
-    `;
+    const after = await withOfiTenantTransaction(
+      client,
+      TENANT_ID,
+      async (tx) =>
+        tx<{ status: string }[]>`
+          SELECT status FROM ofi_work_orders WHERE id = ${workOrderId}::uuid
+        `,
+    );
     expect(after[0]?.status).toBe("QUOTED");
   });
 });

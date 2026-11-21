@@ -1,4 +1,4 @@
-import type { Sql } from "postgres";
+import type { OficiosSql } from "../db/connection.js";
 
 export const OFICIOS_ROLES = ["ADMIN", "OPERATOR", "AUDITOR_READONLY"] as const;
 
@@ -15,5 +15,5 @@ export type OficiosRequestContext = {
   readonly tenantId: string;
   readonly role: OficiosRole;
   readonly actorId: string;
-  readonly sql: Sql;
+  readonly sql: OficiosSql;
 };

@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import type { Sql } from "postgres";
 
-import { createOficiosPostgresClient } from "../../src/db/connection.js";
+import {
+  createOficiosPostgresClient,
+  withOfiTenantTransaction,
+} from "../../src/db/connection.js";
 import { HVAC_REFRIGERATION_V1_CONTRACT_ID } from "../../src/domain/hvac-refrigeration-v1.js";
 import type { OficiosRole } from "../../src/api/context.js";
 
@@ -72,6 +75,7 @@ export async function resetApiSchema(client: Sql): Promise<void> {
   await client.unsafe(await readSql("packages/fiscal-outbox/drizzle/0001_init_fob.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0001_init_ofi.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0002_diagnosis_materials.sql"));
+  await client.unsafe(await readSql("apps/oficios/drizzle/0003_ofi_rls.sql"));
   await client`
     INSERT INTO qum_tenants (id, slug, display_name)
     VALUES (${TENANT_ID}::uuid, 'ofi-api-test', 'Ofi API Test')
@@ -93,19 +97,21 @@ export async function seedCustomerEquipment(
 ): Promise<{ customerId: string; equipmentId: string }> {
   const customerId = randomUUID();
   const equipmentId = randomUUID();
-  await client`
-    INSERT INTO ofi_customers (id, tenant_id, legal_name)
-    VALUES (${customerId}::uuid, ${TENANT_ID}::uuid, 'Cliente API')
-  `;
-  await client`
-    INSERT INTO ofi_equipment (id, tenant_id, customer_id, trade_contract_id)
-    VALUES (
-      ${equipmentId}::uuid,
-      ${TENANT_ID}::uuid,
-      ${customerId}::uuid,
-      ${HVAC_REFRIGERATION_V1_CONTRACT_ID}
-    )
-  `;
+  await withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+    await tx`
+      INSERT INTO ofi_customers (id, tenant_id, legal_name)
+      VALUES (${customerId}::uuid, ${TENANT_ID}::uuid, 'Cliente API')
+    `;
+    await tx`
+      INSERT INTO ofi_equipment (id, tenant_id, customer_id, trade_contract_id)
+      VALUES (
+        ${equipmentId}::uuid,
+        ${TENANT_ID}::uuid,
+        ${customerId}::uuid,
+        ${HVAC_REFRIGERATION_V1_CONTRACT_ID}
+      )
+    `;
+  });
   return { customerId, equipmentId };
 }
 

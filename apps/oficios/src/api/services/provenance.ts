@@ -1,4 +1,4 @@
-import type { Sql } from "postgres";
+import type { OficiosSql } from "../../db/connection.js";
 
 export type ProvenancePayload =
   | { provenance: null }
@@ -20,7 +20,7 @@ export type ProvenancePayload =
     };
 
 export async function loadCustomerProvenance(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   customerId: string,
 ): Promise<ProvenancePayload | "not_found"> {

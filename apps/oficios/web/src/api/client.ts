@@ -28,12 +28,23 @@ export class ApiRequestError extends Error {
   }
 }
 
+export class ApiSessionExpiredError extends ApiRequestError {
+  constructor(body?: ApiErrorResponse) {
+    super(
+      "La sesión expiró. Vuelva a autenticarse.",
+      401,
+      body?.error?.code,
+      body,
+    );
+    this.name = "ApiSessionExpiredError";
+  }
+}
+
 function headers(config: DevApiConfig, json = false): HeadersInit {
-  const h: Record<string, string> = {
-    "x-tenant-id": config.tenantId,
-    "x-test-role": config.testRole,
-    "x-actor-id": config.actorId,
-  };
+  const h: Record<string, string> = {};
+  if (config.accessToken.trim().length > 0) {
+    h.authorization = `Bearer ${config.accessToken.trim()}`;
+  }
   if (json) {
     h["content-type"] = "application/json";
   }
@@ -46,6 +57,9 @@ async function parseError(res: Response): Promise<ApiRequestError> {
     body = (await res.json()) as ApiErrorResponse;
   } catch {
     body = undefined;
+  }
+  if (res.status === 401) {
+    return new ApiSessionExpiredError(body);
   }
   const message =
     body?.error?.message ??

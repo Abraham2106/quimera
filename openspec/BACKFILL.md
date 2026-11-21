@@ -22,7 +22,7 @@ Cada capacidad se redactó contrastando directamente el código fuente y las pru
 
 Para evitar falsas afirmaciones de cumplimiento, los siguientes requisitos documentados en `docs/` para producción **no** se incluyeron como comportamiento vigente y se abrieron como propuestas activas en `openspec/changes/` (o permanecen pendientes):
 
-1. Políticas `ENABLE` / `FORCE ROW LEVEL SECURITY` sobre las tablas `ofi_*` de `OficiOS` (abierto en `openspec/changes/add-oficios-rls-policies/`).
-2. Autenticación real OIDC/JWT/MFA en reemplazo de las cabeceras de prueba `x-tenant-id`, `x-test-role` y `x-actor-id` en `OficiOS` (abierto en `openspec/changes/replace-oficios-test-headers-auth/`).
+1. Políticas `ENABLE` / `FORCE ROW LEVEL SECURITY` sobre las tablas `ofi_*` de `OficiOS`. Archivado en `openspec/changes/archive/2026-11-21-add-oficios-rls-policies/` y sincronizado en `openspec/specs/oficios-workshop-flow/spec.md`.
+2. Autenticación Bearer JWT en reemplazo de las cabeceras de prueba `x-tenant-id`, `x-test-role` y `x-actor-id` fuera del modo de prueba en loopback. Archivado en `openspec/changes/archive/2026-11-21-replace-oficios-test-headers-auth/` y sincronizado en `openspec/specs/oficios-auth-rbac/spec.md`. MFA de producción sigue pendiente.
 3. Emisión fiscal real contra staging/producción de Hacienda con certificados `.p12` y KMS (`QG-07`).
 4. Proveedor real con GPU / Workers AI para `@quimera/adapter-clairic`.

@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 
-import type { Sql } from "postgres";
+import type { OficiosSql } from "../../db/connection.js";
 
 import type { WorkOrderRow } from "./work-order-store.js";
 
@@ -39,7 +39,7 @@ export function taxRateToBps(value: string): number | null {
 }
 
 export async function saveDiagnosis(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
   input: {
@@ -67,33 +67,32 @@ export async function saveDiagnosis(
     });
   }
 
-  await sql.begin(async (tx) => {
-    await tx`
-      INSERT INTO ofi_diagnoses (id, tenant_id, work_order_id, notes, measurements_json)
+  await sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`;
+  await sql`
+    INSERT INTO ofi_diagnoses (id, tenant_id, work_order_id, notes, measurements_json)
+    VALUES (
+      ${diagnosisId}::uuid,
+      ${tenantId}::uuid,
+      ${workOrderId}::uuid,
+      ${input.notes},
+      ${sql.json(JSON.parse(JSON.stringify(input.measurements)) as never)}
+    )
+  `;
+  for (const attachment of storedAttachments) {
+    await sql`
+      INSERT INTO ofi_diagnosis_attachments (
+        id, tenant_id, diagnosis_id, filename, sha256, byte_length
+      )
       VALUES (
-        ${diagnosisId}::uuid,
+        ${attachment.id}::uuid,
         ${tenantId}::uuid,
-        ${workOrderId}::uuid,
-        ${input.notes},
-        ${tx.json(JSON.parse(JSON.stringify(input.measurements)) as never)}
+        ${diagnosisId}::uuid,
+        ${attachment.filename},
+        ${attachment.sha256},
+        ${attachment.byteLength}
       )
     `;
-    for (const attachment of storedAttachments) {
-      await tx`
-        INSERT INTO ofi_diagnosis_attachments (
-          id, tenant_id, diagnosis_id, filename, sha256, byte_length
-        )
-        VALUES (
-          ${attachment.id}::uuid,
-          ${tenantId}::uuid,
-          ${diagnosisId}::uuid,
-          ${attachment.filename},
-          ${attachment.sha256},
-          ${attachment.byteLength}
-        )
-      `;
-    }
-  });
+  }
 
   return {
     id: diagnosisId,
@@ -104,7 +103,7 @@ export async function saveDiagnosis(
 }
 
 export async function saveMaterial(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
   input: {
@@ -148,7 +147,7 @@ export async function saveMaterial(
 }
 
 export async function listDiagnoses(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
 ): Promise<DiagnosisRecord[]> {
@@ -186,7 +185,7 @@ export async function listDiagnoses(
 }
 
 export async function listMaterials(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
 ): Promise<MaterialRecord[]> {
@@ -213,7 +212,7 @@ export async function listMaterials(
   }));
 }
 
-export async function listWorkOrders(sql: Sql, tenantId: string): Promise<WorkOrderRow[]> {
+export async function listWorkOrders(sql: OficiosSql, tenantId: string): Promise<WorkOrderRow[]> {
   return sql<WorkOrderRow[]>`
     SELECT
       id,
@@ -245,7 +244,7 @@ export type EquipmentListItem = {
 };
 
 export async function listEquipment(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   customerId: string,
 ): Promise<EquipmentListItem[] | "not_found"> {
@@ -269,7 +268,7 @@ export async function listEquipment(
   }));
 }
 
-export async function listCustomers(sql: Sql, tenantId: string): Promise<CustomerListItem[]> {
+export async function listCustomers(sql: OficiosSql, tenantId: string): Promise<CustomerListItem[]> {
   const rows = await sql<
     {
       id: string;
@@ -292,7 +291,7 @@ export async function listCustomers(sql: Sql, tenantId: string): Promise<Custome
 }
 
 export async function loadWorkOrderContext(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
 ): Promise<{

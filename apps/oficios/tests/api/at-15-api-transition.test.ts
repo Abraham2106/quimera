@@ -3,6 +3,7 @@ import type { Sql } from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../../src/api/app.js";
+import { withOfiTenantTransaction } from "../../src/db/connection.js";
 import { ERR_WORK_ORDER_APPROVAL_REQUIRED } from "../../src/domain/work-order-errors.js";
 import { HVAC_REFRIGERATION_V1_CONTRACT_ID } from "../../src/domain/hvac-refrigeration-v1.js";
 import {
@@ -27,28 +28,30 @@ describe("AT-15 — API bloquea transición sin aprobación", () => {
 
     const { customerId, equipmentId } = await seedCustomerEquipment(client);
     workOrderId = randomUUID();
-    await client`
-      INSERT INTO ofi_work_orders (
-        id,
-        tenant_id,
-        customer_id,
-        equipment_id,
-        trade_contract_id,
-        status,
-        customer_authorized,
-        version
-      )
-      VALUES (
-        ${workOrderId}::uuid,
-        ${TENANT_ID}::uuid,
-        ${customerId}::uuid,
-        ${equipmentId}::uuid,
-        ${HVAC_REFRIGERATION_V1_CONTRACT_ID},
-        'QUOTED',
-        false,
-        2
-      )
-    `;
+    await withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+      await tx`
+        INSERT INTO ofi_work_orders (
+          id,
+          tenant_id,
+          customer_id,
+          equipment_id,
+          trade_contract_id,
+          status,
+          customer_authorized,
+          version
+        )
+        VALUES (
+          ${workOrderId}::uuid,
+          ${TENANT_ID}::uuid,
+          ${customerId}::uuid,
+          ${equipmentId}::uuid,
+          ${HVAC_REFRIGERATION_V1_CONTRACT_ID},
+          'QUOTED',
+          false,
+          2
+        )
+      `;
+    });
   });
 
   afterAll(async () => {
@@ -81,9 +84,11 @@ describe("AT-15 — API bloquea transición sin aprobación", () => {
     };
     expect(json.error.code).toBe(ERR_WORK_ORDER_APPROVAL_REQUIRED);
 
-    const rows = await client<{ status: string }[]>`
-      SELECT status FROM ofi_work_orders WHERE id = ${workOrderId}::uuid
-    `;
+    const rows = await withOfiTenantTransaction(client, TENANT_ID, async (tx) =>
+      tx<{ status: string }[]>`
+        SELECT status FROM ofi_work_orders WHERE id = ${workOrderId}::uuid
+      `,
+    );
     expect(rows[0]?.status).toBe("QUOTED");
 
     const intents = await client<{ count: string }[]>`

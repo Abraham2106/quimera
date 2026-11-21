@@ -3,8 +3,10 @@ import type { Sql } from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../../src/api/app.js";
+import { withOfiTenantTransaction } from "../../src/db/connection.js";
 import { startOficiosServer } from "../../src/server.js";
 import {
+  TENANT_ID,
   apiTestHeaders,
   seedCustomerEquipment,
   setupApiDb,
@@ -24,11 +26,13 @@ describe("T-OFI-003/004 — clientes, diagnóstico SHA-256 y materiales", () => 
     const seeded = await seedCustomerEquipment(client);
     customerId = seeded.customerId;
     equipmentId = seeded.equipmentId;
-    await client`
-      UPDATE ofi_customers
-      SET legal_name = ${"Distribuidora Sintetica Demo"}, tax_id = ${"9001000001"}
-      WHERE id = ${customerId}::uuid
-    `;
+    await withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+      await tx`
+        UPDATE ofi_customers
+        SET legal_name = ${"Distribuidora Sintetica Demo"}, tax_id = ${"9001000001"}
+        WHERE id = ${customerId}::uuid
+      `;
+    });
   });
 
   afterAll(async () => {

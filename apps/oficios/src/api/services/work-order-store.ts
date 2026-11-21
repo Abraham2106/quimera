@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import type { Sql } from "postgres";
+import type { OficiosSql } from "../../db/connection.js";
 
 import { transitionWorkOrder } from "../../domain/work-order-fsm.js";
 import type { WorkOrderStatus } from "../../domain/work-order-status.js";
@@ -19,7 +19,7 @@ export type WorkOrderRow = {
 };
 
 export async function loadWorkOrderForTenant(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
 ): Promise<WorkOrderRow | null> {
@@ -42,7 +42,7 @@ export async function loadWorkOrderForTenant(
 }
 
 export async function createWorkOrderReceived(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   customerId: string,
   equipmentId: string,
@@ -125,7 +125,7 @@ export type ApplyTransitionInput = {
 };
 
 export async function applyWorkOrderTransition(
-  sql: Sql,
+  sql: OficiosSql,
   input: ApplyTransitionInput,
 ):
   Promise<
@@ -196,7 +196,7 @@ export async function applyWorkOrderTransition(
 }
 
 export async function registerCustomerApproval(
-  sql: Sql,
+  sql: OficiosSql,
   tenantId: string,
   workOrderId: string,
   actorId: string,
