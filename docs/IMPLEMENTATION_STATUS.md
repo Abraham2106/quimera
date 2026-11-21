@@ -41,10 +41,12 @@
 
 - `pnpm typecheck`: exit 0 (9 paquetes, incluye `@quimera/adapter-clairic`).
 - `pnpm lint`: exit 0.
-- `pnpm test`: exit 0, 63 archivos, 152 pruebas.
-- `pnpm test:isolation`: exit 0. Ningún paquete del núcleo ni OficiOS importa `@quimera/adapter-clairic`.
-- `pnpm test:security`: exit 0, 17 pruebas.
+- `pnpm test`: exit 0, 69 archivos, 160 pruebas.
+- `pnpm test:isolation`: exit 0 (`pnpm deploy` de cada `@quimera/*` sin `@quimera/oficios` ni `@quimera/adapter-clairic`).
+- `pnpm test:security`: exit 0, 4 archivos, 17 pruebas (con RLS aplicado por rol `NOSUPERUSER NOBYPASSRLS`).
+- `pnpm audit --audit-level=high`: exit 0 (0 vulnerabilidades high/critical tras fijar `tinypool@2.1.2` y `drizzle-orm@0.45.2`).
 - `QUIMERA_AI_ENABLED=false pnpm demo:verify`: exit 0.
+- Compuerta unificada local: `pnpm verify`.
 
 ## 4. Post-MVP (`WBS-8`)
 
@@ -53,6 +55,7 @@
 - `WBS-8.3`: `notifyWorkOrderEvent` queda desactivado salvo `QUIMERA_WHATSAPP_ENABLED=true`. Sin token responde `ERR_OFI_WHATSAPP_NOT_CONFIGURED` y no envía nada. No aprueba ni cierra órdenes.
 - `WBS-8.4`: el pasaporte `cr.snit.geodata` es `public_ogc`, sin operaciones inventadas ni red en fixture. `marketplace/quimera-skill.yaml` declara el baseline con `QUIMERA_AI_ENABLED=false` y Clairic como paquete opcional.
 
-## 5. Residuales
+## 5. Residuales para producción
 
-- `pnpm audit --audit-level=high` sigue en rojo por `tinypool` (transitiva de Vitest) y `drizzle-orm` anterior a 0.45.2. No se forzó un override.
+- `pnpm audit --audit-level=high` pasa en 0; permanecen avisos `moderate` en dependencias de desarrollo/tooling (`esbuild`, `uuid`, `csv-parse`, `vitest`).
+- Pendientes fuera del alcance del MVP offline: autenticación real en `OficiOS` (OIDC/JWT/MFA), políticas RLS en `ofi_*`, certificados `.p12`/KMS/staging real de Hacienda (`QG-07`) y proveedor real para `@quimera/adapter-clairic`.

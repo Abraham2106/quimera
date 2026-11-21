@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 340" role="img" aria-label="QUIMERA — Infraestructura abierta local-first para datos, APIs y verificación fiscal en Costa Rica">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17162E" />
+      <stop offset="55%" stop-color="#201E3D" />
+      <stop offset="100%" stop-color="#29244E" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF7151" />
+      <stop offset="100%" stop-color="#FF9A62" />
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" stroke-opacity="0.04" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="340" rx="16" fill="url(#bg)" />
+  <rect width="1280" height="340" rx="16" fill="url(#grid)" />
+
+  <!-- Decorative geometric accent on the right -->
+  <g opacity="0.16">
+    <circle cx="1120" cy="170" r="150" fill="none" stroke="#FF7151" stroke-width="2" />
+    <circle cx="1120" cy="170" r="102" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="6 8" />
+    <circle cx="1120" cy="170" r="54" fill="none" stroke="#FF9A62" stroke-width="2" />
+  </g>
+  <g transform="translate(1078, 128)">
+    <polygon points="42,0 84,24 84,72 42,96 0,72 0,24" fill="none" stroke="url(#accent)" stroke-width="3.5" />
+    <polygon points="42,18 68,33 68,63 42,78 16,63 16,33" fill="#FF7151" fill-opacity="0.18" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.5" />
+    <circle cx="42" cy="48" r="8" fill="#FF7151" />
+  </g>
+
+  <!-- Left accent bar -->
+  <rect x="64" y="64" width="6" height="212" rx="3" fill="url(#accent)" />
+
+  <!-- Eyebrow label -->
+  <text x="92" y="92" fill="#FF9A62" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="14" font-weight="600" letter-spacing="2.5">
+    COSTA RICA · LOCAL-FIRST · TYPESCRIPT MONOREPO
+  </text>
+
+  <!-- Title -->
+  <text x="90" y="162" fill="#FFFFFF" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="68" font-weight="800" letter-spacing="3">
+    QUIMERA
+  </text>
+
+  <!-- Subtitle -->
+  <text x="92" y="206" fill="#D8D6EC" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="400">
+    Migración con procedencia, APIs verificables, pruebas fiscales y operación de taller.
+  </text>
+
+  <!-- Module pills -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13" font-weight="600">
+    <rect x="92" y="236" width="124" height="32" rx="6" fill="#FFFFFF" fill-opacity="0.08" stroke="#FF7151" stroke-opacity="0.65" />
+    <text x="154" y="257" fill="#FFFFFF" text-anchor="middle">data-exodus</text>
+
+    <rect x="228" y="236" width="102" height="32" rx="6" fill="#FFFFFF" fill-opacity="0.08" stroke="#FF7151" stroke-opacity="0.65" />
+    <text x="279" y="257" fill="#FFFFFF" text-anchor="middle">pipeline</text>
+
+    <rect x="342" y="236" width="156" height="32" rx="6" fill="#FFFFFF" fill-opacity="0.08" stroke="#FF7151" stroke-opacity="0.65" />
+    <text x="420" y="257" fill="#FFFFFF" text-anchor="middle">cr-api-passport</text>
+
+    <rect x="510" y="236" width="142" height="32" rx="6" fill="#FFFFFF" fill-opacity="0.08" stroke="#FF7151" stroke-opacity="0.65" />
+    <text x="581" y="257" fill="#FFFFFF" text-anchor="middle">fiscal-outbox</text>
+
+    <rect x="664" y="236" width="120" height="32" rx="6" fill="#FFFFFF" fill-opacity="0.08" stroke="#FF7151" stroke-opacity="0.65" />
+    <text x="724" y="257" fill="#FFFFFF" text-anchor="middle">factura-ci</text>
+
+    <rect x="796" y="236" width="98" height="32" rx="6" fill="#FF7151" fill-opacity="0.22" stroke="#FF7151" />
+    <text x="845" y="257" fill="#FFD2C4" text-anchor="middle">OficiOS</text>
+  </g>
+</svg>

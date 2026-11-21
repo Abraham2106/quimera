@@ -2,7 +2,7 @@
 
 - **Versión:** 1.0.0
 - **Fecha:** 2026-11-21
-- **Estado:** Diseño integral completo y auditado — Listo para iniciar implementación del Slice 1
+- **Estado:** Diseño integral completo y MVP de los slices 1–7 implementado y verificado (`pnpm verify`)
 - **Principio rector:** Toolkit modular tipo Apache para rescatar datos dispersos, verificar APIs costarricenses, operar procesos empresariales y probar software fiscal **sin depender de IA ni GPU en el baseline**.
 
 ---
@@ -16,7 +16,7 @@
 | [`docs/DECISIONS.md`](./DECISIONS.md) | Resumen ejecutivo de las 15 decisiones arquitectónicas (`ADR-001`..`ADR-015`) | Vigente |
 | [`docs/ASSUMPTIONS.md`](./ASSUMPTIONS.md) | Catálogo explícito de supuestos e hipótesis medibles (`[HIPÓTESIS]`) | Vigente |
 | [`docs/OPEN_QUESTIONS.md`](./OPEN_QUESTIONS.md) | Cuestiones pendientes de decisión humana o validación de campo | Vigente |
-| [`docs/IMPLEMENTATION_STATUS.md`](./IMPLEMENTATION_STATUS.md) | Estado de preparación documental y avance por vertical slice | Fase 0–12 documentadas; 0 código producto |
+| [`docs/IMPLEMENTATION_STATUS.md`](./IMPLEMENTATION_STATUS.md) | Estado de preparación documental y avance por vertical slice | MVP slices 1–7 + WBS-8 verificados (`pnpm verify`) |
 
 ---
 
