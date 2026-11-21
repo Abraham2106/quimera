@@ -7,42 +7,86 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(path.join(root, "packages/data-exodus/package.json"));
 const postgres = require("postgres");
 
-const migrations = [
-  "packages/data-exodus/drizzle/0001_init_qum.sql",
-  "packages/data-exodus/drizzle/0002_evidence_append_only.sql",
-  "packages/fiscal-outbox/drizzle/0001_init_fob.sql",
-  "packages/fiscal-outbox/drizzle/0002_fob_rls.sql",
-  "apps/oficios/drizzle/0001_init_ofi.sql",
-  "apps/oficios/drizzle/0002_diagnosis_materials.sql",
-  "apps/oficios/drizzle/0003_ofi_rls.sql",
-  "apps/oficios/drizzle/0004_saas_b2b_onboarding.sql",
+const MIGRATION_DIRS = [
+  "packages/data-exodus/drizzle",
+  "packages/fiscal-outbox/drizzle",
+  "apps/oficios/drizzle",
 ];
 
-const databaseUrl =
-  process.env.DATABASE_URL ?? "postgres://quimera:quimera@127.0.0.1:5432/quimera";
-const sql = postgres(databaseUrl, {
-  max: 1,
-  onnotice: () => {},
-});
-
-for (const relative of migrations) {
-  const full = path.join(root, relative);
-  const text = await readFile(full, "utf8");
-  await sql.unsafe(text);
-  process.stderr.write(`${JSON.stringify({ event: "db.migrate", file: relative })}\n`);
-}
-
-const extraDir = path.join(root, "drizzle");
-try {
-  const extra = (await readdir(extraDir)).filter((name) => name.endsWith(".sql")).sort();
-  for (const name of extra) {
-    const text = await readFile(path.join(extraDir, name), "utf8");
-    await sql.unsafe(text);
-    process.stderr.write(`${JSON.stringify({ event: "db.migrate", file: `drizzle/${name}` })}\n`);
+export async function collectMigrationPaths(repoRoot = root) {
+  const files = [];
+  for (const relativeDir of MIGRATION_DIRS) {
+    const dir = path.join(repoRoot, relativeDir);
+    const names = (await readdir(dir)).filter((name) => name.endsWith(".sql")).sort();
+    for (const name of names) {
+      files.push(path.join(relativeDir, name));
+    }
   }
-} catch {
-  // no extra drizzle directory
+  return files;
 }
 
-await sql.end({ timeout: 5 });
-process.stdout.write(`${JSON.stringify({ ok: true, applied: migrations.length })}\n`);
+export async function assertApplicationRole(sql) {
+  const rows = await sql`
+    SELECT rolsuper, rolbypassrls
+    FROM pg_roles
+    WHERE rolname = current_user
+  `;
+  const role = rows[0];
+  if (!role) {
+    throw new Error("db.migrate: current PostgreSQL role not found");
+  }
+  if (role.rolsuper === true) {
+    const err = new Error("db.migrate: SUPERUSER role is forbidden");
+    err.code = "ERR_DB_ROLE_SUPERUSER";
+    throw err;
+  }
+  if (role.rolbypassrls === true) {
+    const err = new Error("db.migrate: BYPASSRLS role is forbidden");
+    err.code = "ERR_DB_ROLE_BYPASSRLS";
+    throw err;
+  }
+}
+
+export async function runDbMigrate(options = {}) {
+  const databaseUrl =
+    options.databaseUrl ??
+    process.env.DATABASE_URL ??
+    "postgres://quimera:quimera@127.0.0.1:5432/quimera";
+  const sql = postgres(databaseUrl, {
+    max: 1,
+    onnotice: () => {},
+  });
+
+  await assertApplicationRole(sql);
+
+  const migrations = await collectMigrationPaths(options.repoRoot ?? root);
+  for (const relative of migrations) {
+    const full = path.join(options.repoRoot ?? root, relative);
+    const text = await readFile(full, "utf8");
+    await sql.unsafe(text);
+    process.stderr.write(`${JSON.stringify({ event: "db.migrate", file: relative })}\n`);
+  }
+
+  await sql.end({ timeout: 5 });
+  return { ok: true, applied: migrations.length };
+}
+
+const isMain =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+
+if (isMain) {
+  try {
+    const result = await runDbMigrate();
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+  } catch (err) {
+    process.stderr.write(
+      `${JSON.stringify({
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+        code: err && typeof err === "object" && "code" in err ? err.code : undefined,
+      })}\n`,
+    );
+    process.exit(1);
+  }
+}

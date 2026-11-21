@@ -25,8 +25,14 @@
 
 ## Web estática y migraciones endurecidas
 
-- [ ] Servir el bundle `web/dist` en staging/producción con cabeceras de seguridad.
-- [ ] Hacer fallar `db:migrate` si el rol PostgreSQL es superusuario o tiene `BYPASSRLS`.
+- [x] Servir el bundle `web/dist` en staging/producción con cabeceras de seguridad.
+- [x] Hacer fallar `db:migrate` si el rol PostgreSQL es superusuario o tiene `BYPASSRLS`.
+
+## Compose staging y runbook
+
+- [x] `deploy/compose.staging.yml` con PostgreSQL 16, `oficios-api` y `fiscal-outbox-worker` (usuario `node`).
+- [x] `.env.example` con nombres de variables de producción sin secretos.
+- [x] Runbook `docs/deploy/staging-and-hacienda-sandbox.md` (migrar, compose, sandbox Hacienda).
 
 ## Verificación global
 
