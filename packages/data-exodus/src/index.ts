@@ -40,11 +40,14 @@ export {
   profileTables,
   proposeMapping,
   renderMappingYaml,
+  type MappingColumn,
   type MappingProposal,
   type SchemaProfile,
   type TabularSource,
 } from "./profile/index.js";
 export { trace, type TraceResult } from "./profile/index.js";
+export { assertFeXmlSafeForParsing } from "./importers/fe-xml.js";
+export { assertXlsxZipNotBomb } from "./importers/xlsx.js";
 export {
   CsvSourceImporter,
   JsonSourceImporter,

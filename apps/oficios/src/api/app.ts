@@ -8,6 +8,7 @@ import {
   createInvitationsRoutes,
 } from "./routes/invitations.js";
 import { createOrgRegisterRoute, createOrgRoutes } from "./routes/org.js";
+import { createMigrationRoutes } from "./routes/migrations.js";
 import { createWorkOrdersRoutes } from "./routes/work-orders.js";
 import {
   createBootstrapContextMiddleware,
@@ -66,6 +67,7 @@ export function createApp(options: CreateAppOptions = {}): Hono<OficiosAppEnv> {
   app.route("/api/v1/org", createOrgRoutes());
   app.route("/api/v1/invitations", createInvitationsRoutes());
   app.route("/api/v1/work-orders", createWorkOrdersRoutes());
+  app.route("/api/v1/migrations", createMigrationRoutes());
   app.route("/api/v1/customers", createCustomersRoutes());
   app.route("/api/v1/catalog", createCatalogRoutes());
 

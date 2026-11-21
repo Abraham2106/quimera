@@ -261,3 +261,19 @@ export async function registerCustomerApproval(
   const json = (await res.json()) as WorkOrderDetailResponse;
   return json.workOrder;
 }
+
+export async function postOfflineSync(
+  config: DevApiConfig,
+  workOrderId: string,
+  body: Record<string, unknown>,
+): Promise<{ status: number; body: unknown }> {
+  const res = await fetch(
+    `${config.apiBase}/api/v1/work-orders/${encodeURIComponent(workOrderId)}/sync`,
+    {
+      method: "POST",
+      headers: headers(config, true),
+      body: JSON.stringify(body),
+    },
+  );
+  return { status: res.status, body: null };
+}
