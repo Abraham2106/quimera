@@ -19,9 +19,9 @@
 
 ## Autenticación JWKS y webhooks de cobro
 
-- [ ] Publicar JWKS con claves RS256 y ES256 para validación de JWT de OficiOS.
-- [ ] Anti-replay en webhooks HMAC con ventana de marca de tiempo configurable.
-- [ ] Pruebas de token expirado, firma inválida y replay rechazado.
+- [x] Publicar JWKS con claves RS256 y ES256 para validación de JWT de OficiOS.
+- [x] Anti-replay en webhooks HMAC con ventana de marca de tiempo configurable.
+- [x] Pruebas de token expirado, firma inválida y replay rechazado.
 
 ## Web estática y migraciones endurecidas
 
