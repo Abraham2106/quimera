@@ -1,15 +1,51 @@
-import { QUIMERA_CORE_VERSION } from "@quimera/core";
+export {
+  CR_API_PASSPORT_MODULE,
+  crApiPassportBootstrap,
+  type CrApiPassportBootstrap,
+} from "./module.js";
+export { MODULE_NAME, PASSPORT_ERROR_CODES, quimeraError, exitCodeForError } from "./errors.js";
 
-export const CR_API_PASSPORT_MODULE = "cr-api-passport" as const;
+export { ApiPassportSchema, type ApiPassport } from "./schema/api-passport.js";
+export {
+  validateAgainstJsonSchema,
+  type SchemaValidationIssue,
+} from "./schema/json-schema-validate.js";
 
-export type CrApiPassportBootstrap = {
-  readonly module: typeof CR_API_PASSPORT_MODULE;
-  readonly coreVersion: typeof QUIMERA_CORE_VERSION;
-};
+export {
+  loadPassportFromFile,
+  loadAllPassports,
+  getPassportById,
+  listPassportFiles,
+  passportIsQueryable,
+} from "./registry.js";
 
-export function crApiPassportBootstrap(): CrApiPassportBootstrap {
-  return {
-    module: CR_API_PASSPORT_MODULE,
-    coreVersion: QUIMERA_CORE_VERSION,
-  };
-}
+export { PassportClient, type PassportClientOptions } from "./client/passport-client.js";
+export { HostTokenBucket } from "./client/token-bucket.js";
+export { TtlCache, cacheKey } from "./client/cache.js";
+export type { QueryResult, QueryMeta, PassportMode, FetchFn } from "./client/types.js";
+
+export {
+  verifyPassport,
+  verifyPassportWithFixtureFile,
+  driftToQuimeraError,
+  type DriftReport,
+} from "./verify/verify.js";
+
+export { generatePassportAdapter, type GenerateResult } from "./generate/generate.js";
+
+export {
+  getCapabilities,
+  PASSPORT_CLI_COMMANDS,
+  PASSPORT_MCP_TOOLS,
+  type PassportCapabilities,
+} from "./capabilities.js";
+
+export { runCli, runCliMain, type CliRunResult } from "./cli.js";
+
+export {
+  createPassportMcpServer,
+  startPassportMcpStdio,
+  listRegisteredMcpToolNames,
+} from "./mcp/server.js";
+
+export { PACKAGE_ROOT, passportsDir, fixturesDir } from "./paths.js";

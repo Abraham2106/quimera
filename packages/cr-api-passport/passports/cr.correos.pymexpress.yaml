@@ -1,0 +1,35 @@
+passportId: cr.correos.pymexpress
+passportVersion: 0.1.0
+status: INFORMATIONAL
+country: CR
+executable: false
+accessTier: private_contract_required
+provider:
+  name: Correos de Costa Rica — Pymexpress
+  docsUrl: https://www.correos.go.cr/
+  upstreamSpecRef: pymexpress-private-2026
+  lastVerifiedAt: "2026-11-21T00:00:00Z"
+  notes: "Acceso comercial privado. Contacto pymexpress@correos.go.cr. QUIMERA no declara endpoints hasta documentación oficial."
+baseUrl: https://www.correos.go.cr
+auth:
+  type: private_contract
+  credentialsRequired: true
+  instructions: "Contrato comercial Pymexpress o Fulfillment WMS. Sin sandbox público."
+rateLimit:
+  scopeHost: www.correos.go.cr
+  officialPolicy:
+    burstRequestsPerSec: 5
+    burstWindowSec: 5
+    sustainedRequestsPerSec: 2
+    sustainedWindowSec: 120
+  quimeraGuardrail:
+    burstRequestsPerSec: 15
+    sustainedRequestsPerSec: 8
+    circuitBreakerCooldownSec: 60
+privacy:
+  containsPersonalData: true
+  logRedactionFields: [Username, Password, Usuario ID]
+cache:
+  defaultTtlSec: 300
+operations: {}
+contractTests: []

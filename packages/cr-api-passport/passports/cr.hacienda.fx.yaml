@@ -1,0 +1,85 @@
+passportId: cr.hacienda.fx
+passportVersion: 1.0.0
+status: ACTIVE
+country: CR
+executable: true
+provider:
+  name: Ministerio de Hacienda de Costa Rica
+  docsUrl: https://api.hacienda.go.cr/docs/
+  upstreamSpecRef: hacienda-indicadores-tc-2026
+  lastVerifiedAt: "2026-11-21T00:00:00Z"
+baseUrl: https://api.hacienda.go.cr
+auth:
+  type: public
+  credentialsRequired: false
+rateLimit:
+  scopeHost: api.hacienda.go.cr
+  officialPolicy:
+    burstRequestsPerSec: 20
+    burstWindowSec: 5
+    sustainedRequestsPerSec: 10
+    sustainedWindowSec: 120
+    penaltyOnViolation: "IP ban temporal de 10 minutos (HTTP 429)"
+  quimeraGuardrail:
+    burstRequestsPerSec: 15
+    sustainedRequestsPerSec: 8
+    maxRetriesOn5xx: 2
+    circuitBreakerCooldownSec: 60
+privacy:
+  containsPersonalData: false
+  logRedactionFields: []
+cache:
+  defaultTtlSec: 3600
+  allowStaleOnUpstreamError: true
+operations:
+  getDollarRate:
+    method: GET
+    path: /indicadores/tc/dolar
+    idempotent: true
+    responses:
+      "200":
+        contentType: application/json
+        schema:
+          type: object
+          required: [venta, compra, fecha]
+          properties:
+            venta: { type: number }
+            compra: { type: number }
+            fecha: { type: string }
+      "429":
+        mappedError: ERR_PASS_RATE_LIMITED
+  getDollarHistorical:
+    method: GET
+    path: /indicadores/tc/dolar/historico
+    idempotent: true
+    responses:
+      "200":
+        contentType: application/json
+        schema:
+          type: array
+          items:
+            type: object
+            required: [fecha, venta, compra]
+            properties:
+              fecha: { type: string }
+              venta: { type: number }
+              compra: { type: number }
+  getEuroRate:
+    method: GET
+    path: /indicadores/tc/euro
+    idempotent: true
+    responses:
+      "200":
+        contentType: application/json
+        schema:
+          type: object
+          required: [venta, compra, fecha]
+          properties:
+            venta: { type: number }
+            compra: { type: number }
+            fecha: { type: string }
+contractTests:
+  - id: CT-FX-01
+    operation: getDollarRate
+    fixture: fx-dolar-200.json
+    expectStatus: 200

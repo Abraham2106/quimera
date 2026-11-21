@@ -1,0 +1,34 @@
+passportId: cr.snit.geodata
+passportVersion: 0.1.0
+status: INFORMATIONAL
+country: CR
+executable: false
+accessTier: public_ogc
+provider:
+  name: Instituto Geográfico Nacional (SNIT) — Costa Rica
+  docsUrl: https://www.snitcr.go.cr/
+  upstreamSpecRef: snit-ogc-2026
+  lastVerifiedAt: "2026-11-21T00:00:00Z"
+  notes: "Ficha informativa post-MVP. Servicios OGC públicos (WMS, WFS, WMTS, OGC API-Features). No ejecutable en MVP."
+baseUrl: https://www.snitcr.go.cr
+auth:
+  type: public
+  credentialsRequired: false
+rateLimit:
+  scopeHost: www.snitcr.go.cr
+  officialPolicy:
+    burstRequestsPerSec: 10
+    burstWindowSec: 5
+    sustainedRequestsPerSec: 5
+    sustainedWindowSec: 120
+  quimeraGuardrail:
+    burstRequestsPerSec: 15
+    sustainedRequestsPerSec: 8
+    circuitBreakerCooldownSec: 60
+privacy:
+  containsPersonalData: false
+  logRedactionFields: []
+cache:
+  defaultTtlSec: 86400
+operations: {}
+contractTests: []
