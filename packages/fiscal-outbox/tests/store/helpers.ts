@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import type { Sql } from "postgres";
 
 import {
+  applyFobFiscalCredentialsMigration,
   applyFobMigration,
   applyFobRlsMigration,
   dropFobObjects,
@@ -22,6 +23,10 @@ export async function readFobMigrationSql(): Promise<string> {
 
 export async function readFobRlsMigrationSql(): Promise<string> {
   return readFile(path.join(packageRoot, "drizzle/0002_fob_rls.sql"), "utf8");
+}
+
+export async function readFobFiscalCredentialsMigrationSql(): Promise<string> {
+  return readFile(path.join(packageRoot, "drizzle/0003_fob_fiscal_credentials.sql"), "utf8");
 }
 
 export async function readQumMigrationSql(): Promise<string> {
@@ -62,6 +67,8 @@ export async function resetFobSchema(): Promise<Sql> {
   await applyFobMigration(client, fobSql);
   const rlsSql = await readFobRlsMigrationSql();
   await applyFobRlsMigration(client, rlsSql);
+  const credSql = await readFobFiscalCredentialsMigrationSql();
+  await applyFobFiscalCredentialsMigration(client, credSql);
   return client;
 }
 

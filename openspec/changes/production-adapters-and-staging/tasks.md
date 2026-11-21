@@ -7,9 +7,9 @@
 
 ## Bóveda KMS/local y certificados por tenant
 
-- [ ] Implementar bóveda con envelope encryption (KMS o clave local de staging) y ciphertext aislado por `tenant_id`.
-- [ ] Flujo `ADMIN` de carga y promoción de certificado `.p12` sin filtrar secretos en respuestas ni logs.
-- [ ] Pruebas de regresión que demuestren que operadores no `ADMIN` no pueden leer material de clave.
+- [x] Implementar bóveda con envelope encryption (KMS o clave local de staging) y ciphertext aislado por `tenant_id`.
+- [x] Flujo `ADMIN` de carga y promoción de certificado `.p12` sin filtrar secretos en respuestas ni logs.
+- [x] Pruebas de regresión que demuestren que operadores no `ADMIN` no pueden leer material de clave.
 
 ## Worker fiscal y transporte Hacienda
 
