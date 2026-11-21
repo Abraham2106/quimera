@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { Hono } from "hono";
 import type { Sql } from "postgres";
 
@@ -19,6 +21,9 @@ import {
   type OficiosAppEnv,
 } from "./middleware/request-context.js";
 import { requireMutationRole } from "./middleware/rbac.js";
+import { handleBillingWebhook, createBillingUsageRoute } from "./routes/billing.js";
+import { listAuditLogs } from "./services/audit-log.js";
+import { errorResponse } from "./errors.js";
 
 export type CreateAppOptions = {
   readonly sql?: Sql;
@@ -27,6 +32,12 @@ export type CreateAppOptions = {
 export function createApp(options: CreateAppOptions = {}): Hono<OficiosAppEnv> {
   const sql = options.sql;
   const app = new Hono<OficiosAppEnv>();
+
+  app.use("*", async (c, next) => {
+    const requestId = c.req.header("x-request-id") ?? randomUUID();
+    c.header("x-request-id", requestId);
+    await next();
+  });
 
   app.use(
     "/api/v1/org/register",
@@ -40,9 +51,35 @@ export function createApp(options: CreateAppOptions = {}): Hono<OficiosAppEnv> {
   );
   app.route("/api/v1/invitations", createInvitationAcceptRoute());
 
+  app.get("/healthz", (c) => c.json({ ok: true, live: true }));
+  app.get("/readyz", async (c) => {
+    if (!sql) {
+      return c.json({ ok: false, ready: false, database: "unavailable" }, 503);
+    }
+    try {
+      await sql`SELECT 1`;
+      const role = await sql<{ rolsuper: boolean }[]>`
+        SELECT rolsuper FROM pg_roles WHERE rolname = current_user
+      `;
+      if (role[0]?.rolsuper === true) {
+        return c.json({ ok: false, ready: false, database: "unavailable" }, 503);
+      }
+      return c.json({ ok: true, ready: true, database: "up" });
+    } catch {
+      return c.json({ ok: false, ready: false, database: "unavailable" }, 503);
+    }
+  });
+
   const tenantContext = createRequestContextMiddleware({ sql });
   app.use("*", async (c, next) => {
     const path = new URL(c.req.url).pathname;
+    if (path === "/healthz" || path === "/readyz") {
+      await next();
+      return;
+    }
+    if (path === "/api/v1/billing/webhooks") {
+      return handleBillingWebhook(c, sql);
+    }
     if (
       path === "/api/v1/org/register" ||
       path === "/api/v1/invitations/accept"
@@ -70,6 +107,24 @@ export function createApp(options: CreateAppOptions = {}): Hono<OficiosAppEnv> {
   app.route("/api/v1/migrations", createMigrationRoutes());
   app.route("/api/v1/customers", createCustomersRoutes());
   app.route("/api/v1/catalog", createCatalogRoutes());
+  app.get("/api/v1/billing/usage", createBillingUsageRoute());
+  app.get("/api/v1/audit", async (c) => {
+    if (c.get("role") !== "ADMIN" && c.get("role") !== "AUDITOR_READONLY") {
+      const { status, body } = errorResponse(403, "ERR_FORBIDDEN", "SECURITY", "La bitácora no está disponible para este rol.");
+      return c.json(body, status);
+    }
+    const rows = await listAuditLogs(c.get("sql"), c.get("tenantId"));
+    return c.json({
+      ok: true,
+      events: rows.map((row) => ({
+        id: row.id,
+        actorId: row.actor_id,
+        action: row.action,
+        resource: row.resource,
+        createdAt: row.created_at.toISOString(),
+      })),
+    });
+  });
 
   return app;
 }

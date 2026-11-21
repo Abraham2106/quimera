@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 
 import { createApp } from "./api/app.js";
+import { otelExporterEndpoint } from "./api/logging/otel.js";
 
 export type StartedOficiosServer = {
   readonly url: string;
@@ -23,7 +24,13 @@ export async function startOficiosServer(options?: {
   const host = options?.host ?? process.env.OFICIOS_HOST ?? "127.0.0.1";
   const port = options?.port ?? Number(process.env.OFICIOS_PORT ?? 8787);
   const app = createApp();
+  let draining = false;
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
+    if (draining) {
+      res.statusCode = 503;
+      res.end(JSON.stringify({ ok: false, draining: true }));
+      return;
+    }
     try {
       const hostHeader = req.headers.host ?? `${host}:${port}`;
       const url = new URL(req.url ?? "/", `http://${hostHeader}`);
@@ -55,6 +62,13 @@ export async function startOficiosServer(options?: {
     }
   });
 
+  process.once("SIGTERM", () => {
+    draining = true;
+    server.close(() => {
+      process.exit(0);
+    });
+  });
+
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
     server.listen(port, host, () => resolve());
@@ -77,6 +91,6 @@ const isDirect =
 if (isDirect) {
   const started = await startOficiosServer();
   process.stderr.write(
-    `${JSON.stringify({ event: "oficios.listen", url: started.url, host: "127.0.0.1" })}\n`,
+    `${JSON.stringify({ event: "oficios.listen", url: started.url, host: "127.0.0.1", otel: otelExporterEndpoint() !== null })}\n`,
   );
 }
