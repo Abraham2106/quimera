@@ -25,6 +25,11 @@ async function readSql(relativePath: string): Promise<string> {
 
 async function dropSaasObjects(client: Sql): Promise<void> {
   for (const table of [
+    "saas_audit_logs",
+    "saas_usage_meters",
+    "saas_billing_events",
+    "saas_subscriptions",
+    "saas_plans",
     "saas_invitations",
     "saas_memberships",
     "saas_organizations",
@@ -92,6 +97,8 @@ export async function resetApiSchema(client: Sql): Promise<void> {
   await client.unsafe(await readSql("apps/oficios/drizzle/0003_ofi_rls.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0004_saas_b2b_onboarding.sql"));
   await client.unsafe(await readSql("apps/oficios/drizzle/0005_web_workbench.sql"));
+  await client.unsafe(await readSql("apps/oficios/drizzle/0006_saas_billing.sql"));
+  await client.unsafe(await readSql("apps/oficios/drizzle/0007_saas_audit.sql"));
   await client`
     INSERT INTO qum_tenants (id, slug, display_name)
     VALUES (${TENANT_ID}::uuid, 'ofi-api-test', 'Ofi API Test')

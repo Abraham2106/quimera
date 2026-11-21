@@ -24,6 +24,11 @@ async function readSql(relativePath: string): Promise<string> {
 
 async function dropSaas(client: Sql): Promise<void> {
   for (const table of [
+    "saas_audit_logs",
+    "saas_usage_meters",
+    "saas_billing_events",
+    "saas_subscriptions",
+    "saas_plans",
     "saas_invitations",
     "saas_memberships",
     "saas_organizations",

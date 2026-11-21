@@ -10,6 +10,7 @@ import {
   ERR_VALIDATION,
   errorResponse,
 } from "../errors.js";
+import { evaluateSeatInvitation } from "../services/billing.js";
 import {
   AttachmentRejected,
   readDiagnosisAttachment,
@@ -282,6 +283,12 @@ export function createWorkOrdersRoutes() {
         "VALIDATION",
         "tenantId en el cuerpo no coincide con x-tenant-id.",
       );
+      return c.json(errBody, status);
+    }
+
+    const quota = await evaluateSeatInvitation(c.get("sql"), c.get("tenantId"));
+    if (!quota.ok) {
+      const { status, body: errBody } = errorResponse(quota.status, quota.code, "BILLING", quota.message);
       return c.json(errBody, status);
     }
 

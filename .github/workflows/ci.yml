@@ -64,5 +64,15 @@ jobs:
       - name: Security
         run: pnpm test:security
 
+      - name: Verify offline including demo
+        run: pnpm verify
+        env:
+          QUIMERA_AI_ENABLED: "false"
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Audit
         run: pnpm audit --audit-level=high

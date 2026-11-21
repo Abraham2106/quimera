@@ -17,6 +17,7 @@ import {
 } from "./api/client.js";
 import type { CustomerListItem } from "./api/types.js";
 import type { ProvenanceEntry, SerializedWorkOrder } from "./api/types.js";
+import { BillingUsagePanel } from "./components/BillingUsagePanel.js";
 import { MigrationWorkbench } from "./components/MigrationWorkbench.js";
 import { OrgOnboardingPanel } from "./components/OrgOnboardingPanel.js";
 import { TeamManagementPanel } from "./components/TeamManagementPanel.js";
@@ -215,6 +216,7 @@ export function App() {
         </p>
       </header>
 
+      <BillingUsagePanel config={config} />
       <MigrationWorkbench config={config} />
       <OrgOnboardingPanel config={config} />
       <TeamManagementPanel config={config} />

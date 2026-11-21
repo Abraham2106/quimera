@@ -15,6 +15,8 @@ import {
   ERR_VALIDATION,
   errorResponse,
 } from "../errors.js";
+import { evaluateSeatInvitation } from "../services/billing.js";
+import { writeAuditLog } from "../services/audit-log.js";
 import {
   acceptInvitation,
   createInvitation,
@@ -127,11 +129,23 @@ export function createInvitationsRoutes() {
       return c.json(err, status);
     }
 
+    const quota = await evaluateSeatInvitation(c.get("sql"), c.get("tenantId"));
+    if (!quota.ok) {
+      const { status, body: err } = errorResponse(quota.status, quota.code, "BILLING", quota.message);
+      return c.json(err, status);
+    }
+
     const created = await createInvitation(
       c.get("sql"),
       c.get("tenantId"),
       parsed.data,
     );
+    await writeAuditLog(c.get("sql"), {
+      tenantId: c.get("tenantId"),
+      actorId: c.get("actorId"),
+      action: "invitation.create",
+      resource: `invitation:${created.id}`,
+    });
 
     return c.json(
       {
