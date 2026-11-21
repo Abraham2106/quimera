@@ -82,7 +82,7 @@ export function OrgOnboardingPanel(props: Props) {
         </label>
         <button
           type="submit"
-          className="w-fit rounded bg-emerald-800 px-4 py-2 font-medium text-white disabled:opacity-50"
+          className="touch w-fit rounded bg-[var(--accent)] px-4 py-2 font-medium text-white disabled:opacity-50"
           disabled={busy}
         >
           Registrar organización

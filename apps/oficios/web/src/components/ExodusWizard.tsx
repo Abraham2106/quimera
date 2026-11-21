@@ -32,7 +32,7 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
       <p className="mb-3 text-sm text-[var(--ink-muted)]">Cargue el archivo, revise NEEDS_REVIEW, resuelva conflictos y reanude la carga sin usar la CLI.</p>
       <ol className="mb-4 flex flex-wrap gap-2 text-xs">
         {STEPS.map((label, index) => (
-          <li key={label} className={`rounded px-2 py-2 ${index === step ? "bg-sky-50 text-[var(--accent)]" : "bg-white"}`}>{index + 1}. {label}</li>
+          <li key={label} className={`rounded px-2 py-2 ${index === step ? "bg-[var(--status-now)] text-[var(--status-now-ink)]" : "bg-[var(--surface-card)]"}`}>{index + 1}. {label}</li>
         ))}
       </ol>
       {step === 0 ? (

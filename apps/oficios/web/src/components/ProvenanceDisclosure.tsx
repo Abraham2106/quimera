@@ -15,7 +15,7 @@ export function ProvenanceDisclosure({ entries, loading, error }: Props) {
     <section className="rounded-lg border border-slate-200 bg-white p-4">
       <button
         type="button"
-        className="text-left text-sm font-medium text-sky-800 underline-offset-2 hover:underline"
+        className="text-left text-sm font-medium text-[var(--focus)] underline-offset-2 hover:underline"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
       >

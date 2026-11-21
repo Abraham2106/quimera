@@ -19,18 +19,18 @@ export function AppShell(props: Props) {
   const items = visibleSections(props.role).map((id) => ({ id, label: sectionLabel(id) }));
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
-      <aside className="hidden border-r border-[var(--border-subtle)] bg-[var(--surface-muted)] lg:flex lg:flex-col">
+      <aside className="hidden bg-[var(--surface-rail)] text-[var(--on-rail)] lg:flex lg:flex-col">
         <div className="px-4 py-5">
-          <p className="text-sm font-semibold">OficiOS</p>
-          <p className="text-xs text-[var(--ink-muted)]">Taller HVAC</p>
-          <p className="mt-2 text-xs uppercase tracking-wide text-[var(--ink-muted)]">{props.role}</p>
+          <p className="text-sm font-semibold tracking-wide">OficiOS</p>
+          <p className="text-xs text-[var(--on-rail-muted)]">Taller HVAC</p>
+          <p className="mt-3 inline-block rounded bg-[#2c241f] px-2 py-1 text-[10px] uppercase tracking-wider text-[var(--on-rail-muted)]">{props.role}</p>
         </div>
         <nav className="flex flex-col gap-1 px-2" aria-label="Secciones">
           {items.map((item) => (
             <button
               key={item.id}
               type="button"
-              className={`touch rounded px-3 text-left text-sm ${props.section === item.id ? "bg-white font-medium text-[var(--accent)]" : "text-[var(--ink)]"}`}
+              className={`touch rounded px-3 text-left text-sm ${props.section === item.id ? "bg-[var(--accent)] font-medium text-white" : "text-[var(--on-rail-muted)]"}`}
               onClick={() => props.onSection(item.id)}
             >
               {item.label}

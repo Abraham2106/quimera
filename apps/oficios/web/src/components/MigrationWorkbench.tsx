@@ -56,7 +56,7 @@ export function MigrationWorkbench({ config }: { config: DevApiConfig }) {
         }}
       >
         <input name="file" type="file" accept=".csv,.xlsx,.xml,text/csv" />
-        <button type="submit" className="rounded bg-sky-800 px-3 py-2 text-sm text-white">
+        <button type="submit" className="touch rounded bg-[var(--accent)] px-3 py-2 text-sm text-white">
           Subir
         </button>
       </form>

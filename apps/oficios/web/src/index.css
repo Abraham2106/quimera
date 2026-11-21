@@ -1,13 +1,32 @@
 @import "tailwindcss";
 
+/*
+  Paleta de campo, tomada de shots públicos de Dribbble:
+  - SwiftFix Plumbing (Tahrim Jim): carbón #1A1511, cobre #9A5A3A, arena #D0BBA9, lienzo #E0E0E0
+    https://dribbble.com/shots/25561228--
+  - Loacl Home Service (Md Shamim Hossain): naranja de acción #DF4B22, azul #1A53B9, gris frío #DDE4EC
+    https://dribbble.com/shots/14135455-Loacl-Home-Service-App-UI
+  - Dispatch KPI Dashboard (Andy Hamilton): salvia #6BB29B y cian #2DA3D9 sobre #F8F8F9
+    https://dribbble.com/shots/1813095-Dispatch-KPI-Dashboard
+  El naranja queda solo en la acción principal, como en los tableros industriales de despacho HVAC.
+*/
 :root {
-  --surface-canvas: #f7f7f5;
-  --surface-card: #ffffff;
-  --surface-muted: #f0f0ec;
-  --border-subtle: #e5e5e0;
-  --accent: #0f4c81;
-  --ink: #111827;
-  --ink-muted: #52525b;
+  --surface-canvas: #f4efe8;
+  --surface-card: #fffcf8;
+  --surface-muted: #e7dfd6;
+  --surface-rail: #1a1511;
+  --border-subtle: #d8cfc4;
+  --accent: #c2410c;
+  --accent-soft: #df4b22;
+  --ink: #1a1511;
+  --ink-muted: #645e59;
+  --on-rail: #f6f1ea;
+  --on-rail-muted: #d0bba9;
+  --status-done: #e5f4ee;
+  --status-done-ink: #1f6b52;
+  --status-now: #e7f6fb;
+  --status-now-ink: #0f6f93;
+  --focus: #1a53b9;
   color-scheme: light;
 }
 
@@ -34,7 +53,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #0284c7;
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 

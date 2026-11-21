@@ -226,7 +226,7 @@ export function OrdersWorkspace(props: Props) {
             </header>
             <ol className="mb-4 grid grid-cols-2 gap-1 text-xs sm:grid-cols-4 lg:grid-cols-7">
               {STEPS.map((step, index) => (
-                <li key={step} className={`rounded px-2 py-2 ${index < stepIndex ? "bg-emerald-50 text-emerald-800" : index === stepIndex ? "bg-sky-50 text-[var(--accent)]" : "bg-[var(--surface-muted)] text-[var(--ink-muted)]"}`}>
+                <li key={step} className={`rounded px-2 py-2 ${index < stepIndex ? "bg-[var(--status-done)] text-[var(--status-done-ink)]" : index === stepIndex ? "bg-[var(--status-now)] text-[var(--status-now-ink)]" : "bg-[var(--surface-muted)] text-[var(--ink-muted)]"}`}>
                   {statusLabel(step)}
                 </li>
               ))}
