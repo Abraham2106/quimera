@@ -13,8 +13,8 @@
 
 ## Worker fiscal y transporte Hacienda
 
-- [ ] Seleccionar `HaciendaSdkTransport` o loopback por entorno en el worker de outbox fiscal.
-- [ ] Apagado ordenado con `SIGTERM` drenando leases activos antes de salir.
+- [x] Seleccionar `HaciendaSdkTransport` o loopback por entorno en el worker de outbox fiscal.
+- [x] Apagado ordenado con `SIGTERM` drenando leases activos antes de salir.
 - [ ] Mantener `pnpm test:security` y Factura CI estrictamente loopback-only.
 
 ## Autenticación JWKS y webhooks de cobro

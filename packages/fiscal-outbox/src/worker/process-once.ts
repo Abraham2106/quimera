@@ -341,16 +341,16 @@ export async function processOnce(
 
     if (shouldReconcileOnly(state, claim.last_error_json)) {
       await reconcileByClave(client, claim, options);
-      return { processed: true, clave: claim.clave, action: "get" };
+      return { processed: true, documentId: claim.id, clave: claim.clave, action: "get" };
     }
 
     if (state === "FIRMADO" || state === "PENDIENTE") {
       await dispatchPost(client, claim, options);
-      return { processed: true, clave: claim.clave, action: "post" };
+      return { processed: true, documentId: claim.id, clave: claim.clave, action: "post" };
     }
 
     await reconcileByClave(client, claim, options);
-    return { processed: true, clave: claim.clave, action: "get" };
+    return { processed: true, documentId: claim.id, clave: claim.clave, action: "get" };
   } finally {
     await releaseDocumentLease(client, options.tenantId, claim.id);
   }

@@ -36,7 +36,12 @@ describe.sequential("T-OUT-005 — timeout post-POST solo dispara GET", () => {
     const opts = { workerId: "w-timeout", tenantId: TENANT_A, transport };
 
     const first = await processOnce(client, opts);
-    expect(first).toEqual({ processed: true, action: "post", clave: expect.any(String) });
+    expect(first).toEqual({
+      processed: true,
+      action: "post",
+      clave: expect.any(String),
+      documentId: expect.any(String),
+    });
     expect(transport.postCount).toBe(1);
     expect(transport.getCount).toBe(0);
 

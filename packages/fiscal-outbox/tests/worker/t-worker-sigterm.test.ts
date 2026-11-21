@@ -12,7 +12,7 @@ describe("SIGTERM drena el worker fiscal", () => {
       processOnce: async () => {
         claims.push("claim");
         stop = true;
-        return { claimedId: "doc-1" };
+        return { claimedId: "doc-1", idle: false };
       },
       releaseLease: async (documentId) => {
         released.push(documentId);
