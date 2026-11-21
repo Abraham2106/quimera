@@ -12,12 +12,26 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://quimera:quimera@127.0.0.1:5432/quimera
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: quimera
+          POSTGRES_PASSWORD: quimera
+          POSTGRES_DB: quimera
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U quimera -d quimera"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - uses: actions/setup-node@v4
         with:
@@ -25,7 +39,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck
         run: pnpm typecheck
@@ -35,3 +49,9 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      - name: Isolation
+        run: pnpm test:isolation
+
+      - name: Security
+        run: pnpm test:security
