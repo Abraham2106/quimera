@@ -11,7 +11,9 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:isolation": "node scripts/test-isolation.mjs",
+    "test:security": "DATABASE_URL=${DATABASE_URL:-postgres://quimera:quimera@127.0.0.1:5432/quimera} vitest run --fileParallelism=false packages/data-exodus/tests/storage/fs-artifact-store.test.ts packages/data-exodus/tests/importers/fe-xml.test.ts packages/factura-ci/src/t-sec-012-loopback-only.test.ts packages/data-exodus/tests/db/postgres-qum.integration.test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
