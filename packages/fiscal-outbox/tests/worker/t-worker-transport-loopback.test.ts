@@ -2,6 +2,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
+import { startSimulator } from "@quimera/factura-ci";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { Sql } from "postgres";
 
@@ -175,6 +176,44 @@ describe.sequential("worker — transporte loopback y arranque", () => {
     expect(row[0]?.delivery_state).toBe("ACEPTADO");
   });
 
+  it("processOnce alcanza ACEPTADO contra simulador @quimera/factura-ci", async () => {
+    if (!client) throw new Error("no client");
+    const simulator = await startSimulator({ mode: "accepted" });
+    process.env.FISCAL_TRANSPORT = "loopback";
+    process.env.FISCAL_TRANSPORT_URL = simulator.baseUrl;
+
+    const doc = buildWorkerDoc(193);
+    await persistWorkerDoc(client, doc);
+    await withFobTenantTransaction(client, TENANT_A, async (tx) => {
+      await tx`
+        UPDATE fob_fiscal_documents
+        SET delivery_state = 'ENVIADO', next_poll_at = now()
+        WHERE clave = ${doc.clave}
+      `;
+    });
+
+    const creds = await loadDecryptedFiscalCredentials(client, vault, TENANT_A, ISSUER);
+    const { transport } = await createFiscalWorkerTransport({ credentials: creds });
+
+    const result = await processOnce(client, {
+      workerId: "w-factura-ci",
+      tenantId: TENANT_A,
+      transport,
+      signXml: async (xml) => `${xml}<Signature/>`,
+    });
+    await simulator.close();
+
+    expect(result.processed).toBe(true);
+    if (result.processed) expect(result.action).toBe("get");
+
+    const row = await withFobTenantTransaction(client, TENANT_A, async (tx) =>
+      tx<{ delivery_state: string }[]>`
+        SELECT delivery_state FROM fob_fiscal_documents WHERE clave = ${doc.clave}
+      `,
+    );
+    expect(row[0]?.delivery_state).toBe("ACEPTADO");
+  });
+
   it("runFiscalWorker sale con código 0 cuando shouldStop se activa (SIGTERM)", async () => {
     if (!client) throw new Error("no client");
     const stub = await startRecepcionStub();
@@ -200,7 +239,7 @@ describe.sequential("worker — transporte loopback y arranque", () => {
 
   it("permanece en ciclo con backoff cuando la cola está vacía", async () => {
     let polls = 0;
-    let stop = false;
+    const stop = false;
     const sleep = vi.fn(async () => undefined);
     const code = await runWorkerUntilStop({
       shouldStop: () => stop || polls >= 2,

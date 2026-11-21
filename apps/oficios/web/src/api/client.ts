@@ -1,4 +1,5 @@
 import type { DevApiConfig } from "../config.js";
+import { appendDevAuthHeaders } from "../dev-auth-headers.js";
 import type {
   ApiErrorResponse,
   CabysSearchResponse,
@@ -45,6 +46,7 @@ function headers(config: DevApiConfig, json = false): HeadersInit {
   if (config.accessToken.trim().length > 0) {
     h.authorization = `Bearer ${config.accessToken.trim()}`;
   }
+  appendDevAuthHeaders(config, h);
   if (json) {
     h["content-type"] = "application/json";
   }

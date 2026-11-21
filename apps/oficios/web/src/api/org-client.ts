@@ -1,4 +1,5 @@
 import type { DevApiConfig } from "../config.js";
+import { appendDevAuthHeaders } from "../dev-auth-headers.js";
 import { ApiRequestError } from "./client.js";
 
 export const HVAC_TRADE_CONTRACT_ID = "hvac-refrigeration-v1";
@@ -24,6 +25,7 @@ function authHeaders(config: DevApiConfig, json = false): HeadersInit {
   if (config.accessToken.trim()) {
     h.authorization = `Bearer ${config.accessToken.trim()}`;
   }
+  appendDevAuthHeaders(config, h);
   if (json) {
     h["content-type"] = "application/json";
   }

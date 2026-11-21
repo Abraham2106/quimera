@@ -15,7 +15,7 @@
 
 - [x] Seleccionar `HaciendaSdkTransport` o loopback por entorno en el worker de outbox fiscal.
 - [x] Apagado ordenado con `SIGTERM` drenando leases activos antes de salir.
-- [ ] Mantener `pnpm test:security` y Factura CI estrictamente loopback-only.
+- [x] Mantener `pnpm test:security` y Factura CI estrictamente loopback-only.
 
 ## Autenticación JWKS y webhooks de cobro
 
@@ -36,4 +36,5 @@
 
 ## Verificación global
 
-- [ ] Ejecutar `pnpm verify` y `pnpm spec:validate` en verde con adaptadores productivos configurables.
+- [x] E2E Playwright contra bundle servido y Postgres local (`pnpm --filter @quimera/oficios test:e2e`).
+- [x] Ejecutar `pnpm verify` y `pnpm spec:validate` en verde con adaptadores productivos configurables.

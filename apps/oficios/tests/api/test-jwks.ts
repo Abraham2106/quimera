@@ -1,4 +1,4 @@
-import { createPublicKey, createSign, generateKeyPairSync, type KeyObject } from "node:crypto";
+import { createSign, generateKeyPairSync, type KeyObject } from "node:crypto";
 import { createServer, type Server } from "node:http";
 
 function base64UrlEncode(data: Buffer | string): string {

@@ -48,12 +48,6 @@ export class LoopbackRecepcionTransport implements FiscalOutboxTransport {
           comprobanteXml: Buffer.from(signed, "utf8").toString("base64"),
         }),
       });
-      let body: Record<string, unknown> | null = null;
-      try {
-        body = (await response.json()) as Record<string, unknown>;
-      } catch {
-        body = null;
-      }
       if (!response.ok) {
         return {
           httpStatus: response.status,

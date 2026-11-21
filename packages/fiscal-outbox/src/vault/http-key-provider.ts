@@ -8,9 +8,6 @@ export type HttpKeyProviderOptions = {
   readonly fetchImpl?: typeof fetch;
 };
 
-type WrapResponse = { readonly ciphertext: string };
-type UnwrapResponse = { readonly plaintext: string };
-
 function authHeaders(token: string): Record<string, string> {
   return {
     authorization: `Bearer ${token}`,
