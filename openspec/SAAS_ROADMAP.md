@@ -1,10 +1,10 @@
 # Hoja de ruta OpenSpec: de Demo Offline a SaaS B2B en Producción
 
-Este documento ordena los **cambios activos** de `openspec/changes/` para evolucionar QUIMERA / OficiOS desde el MVP offline verificado hasta una aplicación **B2B / SaaS multi-tenant** operando con clientes reales y emisión fiscal en Costa Rica.
+Este documento ordena los cambios de `openspec/changes/` que llevan QUIMERA / OficiOS desde el MVP offline verificado hasta una aplicación **B2B / SaaS multi-tenant** operando con clientes reales y emisión fiscal en Costa Rica. Todos están archivados.
 
 Ningún cambio rompe las invariantes base del repositorio: `pnpm verify` sigue corriendo 100% offline, `@quimera/*` mantiene aislamiento sin depender de `OficiOS` ni `Clairic` (`pnpm test:isolation`) y `Factura CI` permanece loopback-only (`ERR_SEC_LOOPBACK_ONLY`).
 
-Las **cuatro oleadas** originales del SaaS B2B están **archivadas** bajo `openspec/changes/archive/2026-11-21-*`. El trabajo vigente de adaptadores productivos y staging verificable vive en [`production-adapters-and-staging`](changes/production-adapters-and-staging/proposal.md) (activo).
+Las **cuatro oleadas** originales del SaaS B2B y el cambio de adaptadores productivos están **archivados** bajo `openspec/changes/archive/2026-11-21-*`. El staging verificable quedó en [`production-adapters-and-staging`](changes/archive/2026-11-21-production-adapters-and-staging/proposal.md).
 
 ---
 
@@ -54,11 +54,11 @@ Las **cuatro oleadas** originales del SaaS B2B están **archivadas** bajo `opens
 
 ---
 
-### Trabajo activo — Adaptadores productivos y staging
+### Adaptadores productivos y staging (archivado)
 
 | Cambio | Capacidad |
 | --- | --- |
-| [`production-adapters-and-staging`](changes/production-adapters-and-staging/proposal.md) | S3/KMS productivos configurables, worker con transporte loopback/Hacienda, bundle estático, compose staging y verificación E2E local/cloud. |
+| [`production-adapters-and-staging`](changes/archive/2026-11-21-production-adapters-and-staging/proposal.md) | S3/KMS productivos configurables, worker con transporte loopback/Hacienda, bundle estático, compose staging y verificación E2E local/cloud. **Archivado.** |
 
 ---
 
