@@ -1,0 +1,70 @@
+# Ejemplo de pipeline declarativo: Migración Data Exodus -> OficiOS (sin IA obligatoria)
+pipelineId: exodus-to-oficios-hvac
+pipelineVersion: 1.0.0
+contractVersion: 1.0.0
+requiresAi: false
+
+parameters:
+  tenantSlug: taller-frio-demo
+  targetSchema: oficios-v1@1.0.0
+  inputDir: ./fixtures/demo-hvac-1000
+
+steps:
+  - id: ingest_csv_sales
+    uses: exodus.ingest
+    contractVersion: "^1.0.0"
+    idempotent: true
+    config:
+      sourceName: ventas_2025_csv
+      format: csv
+      path: "${inputDir}/ventas_2025.csv"
+    retries:
+      maxAttempts: 2
+      backoffMs: 500
+
+  - id: ingest_xlsx_customers
+    uses: exodus.ingest
+    contractVersion: "^1.0.0"
+    idempotent: true
+    config:
+      sourceName: clientes_xlsx
+      format: xlsx
+      path: "${inputDir}/clientes.xlsx"
+
+  - id: ingest_fe_xml
+    uses: exodus.ingest
+    contractVersion: "^1.0.0"
+    idempotent: true
+    config:
+      sourceName: facturas_fe44
+      format: fe_xml
+      path: "${inputDir}/xml/*.xml"
+
+  - id: profile_and_reconcile
+    uses: exodus.reconcile
+    contractVersion: "^1.0.0"
+    dependsOn: [ingest_csv_sales, ingest_xlsx_customers, ingest_fe_xml]
+    idempotent: true
+    config:
+      mappingFile: ./fixtures/demo-hvac-1000/mapping.yaml
+      autoResolveExactDuplicates: true
+
+  - id: human_conflict_gate
+    uses: pipeline.human_review
+    contractVersion: "^1.0.0"
+    dependsOn: [profile_and_reconcile]
+    idempotent: true
+    config:
+      blockOnSeverity: BLOCKING
+      allowDeferredWarnings: true
+
+  - id: migrate_to_oficios
+    uses: exodus.migrate
+    contractVersion: "^1.0.0"
+    dependsOn: [human_conflict_gate]
+    idempotent: true
+    config:
+      targetSchema: "${targetSchema}"
+      writeReconciliationReport: true
+    compensation:
+      uses: exodus.rollback_target_batch
