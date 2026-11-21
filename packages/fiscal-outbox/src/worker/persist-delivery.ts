@@ -3,8 +3,9 @@ import {
   type DeliveryState,
   type StoredDocument,
 } from "@dojocoding/hacienda-sdk";
-import type { Sql } from "postgres";
+import type { Sql, TransactionSql } from "postgres";
 
+import { withFobTenantTransaction } from "../db/connection.js";
 import {
   deliveryJsonEnvelope,
   rowToStoredDocument,
@@ -33,8 +34,10 @@ function mergeLastErrorJson(
   };
 }
 
+type FobWriteClient = Sql | TransactionSql;
+
 export async function transitionFiscalDocument(
-  client: Sql,
+  client: FobWriteClient,
   row: FiscalDocumentRow,
   to: FobDeliveryState,
   reason?: string,
@@ -75,20 +78,22 @@ export async function transitionFiscalDocument(
     next.lastError,
   );
 
-  await client`
-    UPDATE fob_fiscal_documents
-    SET
-      delivery_state = ${to},
-      last_error_json = ${client.json(merged as never)},
-      updated_at = now()
-    WHERE id = ${row.id}::uuid
-  `;
+  await withFobTenantTransaction(client, row.tenant_id, async (tx) => {
+    await tx`
+      UPDATE fob_fiscal_documents
+      SET
+        delivery_state = ${to},
+        last_error_json = ${tx.json(merged as never)},
+        updated_at = now()
+      WHERE id = ${row.id}::uuid
+    `;
+  });
 
   return next;
 }
 
 export async function patchFiscalDocumentAttempts(
-  client: Sql,
+  client: FobWriteClient,
   row: FiscalDocumentRow,
   attempts: number,
   nextPollAt: Date | null,
@@ -102,15 +107,17 @@ export async function patchFiscalDocumentAttempts(
     doc.lastError,
   );
 
-  await client`
-    UPDATE fob_fiscal_documents
-    SET
-      attempts = ${attempts},
-      next_poll_at = ${nextPollAt ? nextPollAt.toISOString() : null}::timestamptz,
-      last_error_json = ${client.json(merged as never)},
-      updated_at = now()
-    WHERE id = ${row.id}::uuid
-  `;
+  await withFobTenantTransaction(client, row.tenant_id, async (tx) => {
+    await tx`
+      UPDATE fob_fiscal_documents
+      SET
+        attempts = ${attempts},
+        next_poll_at = ${nextPollAt ? nextPollAt.toISOString() : null}::timestamptz,
+        last_error_json = ${tx.json(merged as never)},
+        updated_at = now()
+      WHERE id = ${row.id}::uuid
+    `;
+  });
 }
 
 export function markPostDispatchedExtras(): Record<string, unknown> {

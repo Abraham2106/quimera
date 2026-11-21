@@ -29,6 +29,7 @@ export type FiscalOutboxTransport = {
 
 export type ProcessOnceOptions = {
   readonly workerId: string;
+  readonly tenantId: string;
   readonly transport: FiscalOutboxTransport;
   readonly leaseSeconds?: number;
   readonly now?: () => Date;
@@ -37,6 +38,7 @@ export type ProcessOnceOptions = {
 export type ClaimedFiscalDocument = FiscalDocumentRow & {
   issuer_id: string;
   environment: FiscalEnvironment;
+  signed_xml_artifact_id: string | null;
   lease_owner: string | null;
   lease_expires_at: string | null;
   next_poll_at: string | null;

@@ -17,9 +17,13 @@ export function fiscalOutboxBootstrap(): FiscalOutboxBootstrap {
 export {
   createPostgresClient,
   resolveDatabaseUrl,
+  assertFobTenantId,
+  withFobTenantTransaction,
   FiscalOutboxDbError,
   INIT_FOB_MIGRATION_SQL_PATH,
+  FOB_RLS_MIGRATION_SQL_PATH,
   applyFobMigration,
+  applyFobRlsMigration,
   dropFobObjects,
 } from "./db/index.js";
 
@@ -47,3 +51,26 @@ export {
   type ClaimedFiscalDocument,
   type FobDeliveryState,
 } from "./worker/index.js";
+
+export {
+  LocalFiscalVault,
+  LocalKeyProvider,
+  redactFiscalSecrets,
+  type FiscalCredentialVaultPort,
+  asFiscalCredentialVault,
+  type FiscalSecretKind,
+  type SealedSecret,
+} from "./vault/port.js";
+
+export {
+  assessPkcs12Upload,
+  assertCanPromoteToProduction,
+  signedXmlMustExistBeforePost,
+} from "./vault/certificate-policy.js";
+
+export {
+  evaluatePromoteToProduction,
+  isSandboxEnvironment,
+  type PromoteToProductionInput,
+  type PromoteToProductionResult,
+} from "./config/promote-to-production.js";

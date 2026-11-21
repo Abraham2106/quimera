@@ -7,6 +7,8 @@ import {
 } from "@dojocoding/hacienda-sdk";
 import type { Sql } from "postgres";
 
+import { withFobTenantTransaction } from "../db/connection.js";
+import { signedXmlMustExistBeforePost } from "../vault/certificate-policy.js";
 import { PgDocumentStore } from "../store/pg-document-store.js";
 import { rowToStoredDocument } from "../store/row-map.js";
 import { claimNextDocument, isPostDispatched, releaseDocumentLease } from "./claim.js";
@@ -24,6 +26,14 @@ import type {
 } from "./types.js";
 
 const GET_BACKOFF_MS = 5_000;
+
+function scopedStore(client: Sql, claim: ClaimedFiscalDocument): PgDocumentStore {
+  return new PgDocumentStore(client, {
+    tenantId: claim.tenant_id,
+    issuerId: claim.issuer_id,
+    environment: claim.environment,
+  });
+}
 
 function toHaciendaPayload(
   response: TransportCallResult["response"],
@@ -69,11 +79,7 @@ async function applySendResult(
     return target;
   }
 
-  const store = new PgDocumentStore(client, {
-    tenantId: claim.tenant_id,
-    issuerId: claim.issuer_id,
-    environment: claim.environment,
-  });
+  const store = scopedStore(client, claim);
   await store.transition(
     claim.clave,
     currentState as DeliveryState,
@@ -82,13 +88,18 @@ async function applySendResult(
   );
 
   if (extras && Object.keys(extras).length > 0) {
-    const refreshed = await client<ClaimedFiscalDocument[]>`
-      SELECT
-        id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts,
-        last_error_json, updated_at, lease_owner, lease_expires_at, next_poll_at
-      FROM fob_fiscal_documents
-      WHERE id = ${claim.id}::uuid
-    `;
+    const refreshed = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
+      tx<ClaimedFiscalDocument[]>`
+        SELECT
+          id, tenant_id, intent_id, clave, consecutivo, delivery_state, attempts,
+          last_error_json, updated_at, lease_owner, lease_expires_at, next_poll_at,
+          signed_xml_artifact_id,
+          ${claim.issuer_id} AS issuer_id,
+          ${claim.environment} AS environment
+        FROM fob_fiscal_documents
+        WHERE id = ${claim.id}::uuid
+      `,
+    );
     const latest = refreshed[0];
     if (latest) {
       await patchFiscalDocumentAttempts(
@@ -142,26 +153,27 @@ async function dispatchPost(
   const doc = rowToStoredDocument(claim);
   const deadline = evaluateDeadline(doc, options.now?.());
   if (deadline.expired && deadline.state === "VENCIDO") {
-    const store = new PgDocumentStore(client, {
-      tenantId: claim.tenant_id,
-      issuerId: claim.issuer_id,
-      environment: claim.environment,
-    });
+    const store = scopedStore(client, claim);
     if (isValidTransition(doc.state, "VENCIDO")) {
       await store.transition(claim.clave, doc.state, "VENCIDO", "deadline expired");
     }
     return;
   }
 
-  const store = new PgDocumentStore(client, {
-    tenantId: claim.tenant_id,
-    issuerId: claim.issuer_id,
-    environment: claim.environment,
-  });
+  const store = scopedStore(client, claim);
 
   if (doc.state === "FIRMADO") {
     await store.transition(claim.clave, "FIRMADO", "PENDIENTE", "worker: pre-POST");
   }
+
+  const signedArtifactId = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
+    tx<{ signed_xml_artifact_id: string | null }[]>`
+      SELECT signed_xml_artifact_id
+      FROM fob_fiscal_documents
+      WHERE id = ${claim.id}::uuid
+    `,
+  );
+  signedXmlMustExistBeforePost(signedArtifactId[0]?.signed_xml_artifact_id ?? claim.signed_xml_artifact_id);
 
   const result = await options.transport.postDocument({
     clave: claim.clave,
@@ -173,26 +185,29 @@ async function dispatchPost(
     toHaciendaPayload(result.response),
   );
 
-  const refreshed = await client<ClaimedFiscalDocument[]>`
-    SELECT
-      d.id,
-      d.tenant_id,
-      d.intent_id,
-      d.clave,
-      d.consecutivo,
-      d.delivery_state,
-      d.attempts,
-      d.last_error_json,
-      d.updated_at,
-      d.lease_owner,
-      d.lease_expires_at,
-      d.next_poll_at,
-      i.issuer_id,
-      i.environment
-    FROM fob_fiscal_documents AS d
-    INNER JOIN fob_fiscal_intents AS i ON i.id = d.intent_id
-    WHERE d.id = ${claim.id}::uuid
-  `;
+  const refreshed = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
+    tx<ClaimedFiscalDocument[]>`
+      SELECT
+        d.id,
+        d.tenant_id,
+        d.intent_id,
+        d.clave,
+        d.consecutivo,
+        d.delivery_state,
+        d.attempts,
+        d.last_error_json,
+        d.updated_at,
+        d.lease_owner,
+        d.lease_expires_at,
+        d.next_poll_at,
+        d.signed_xml_artifact_id,
+        i.issuer_id,
+        i.environment
+      FROM fob_fiscal_documents AS d
+      INNER JOIN fob_fiscal_intents AS i ON i.id = d.intent_id
+      WHERE d.id = ${claim.id}::uuid
+    `,
+  );
   const current = refreshed[0] ?? claim;
   const fromState = current.delivery_state as FobDeliveryState;
 
@@ -254,6 +269,6 @@ export async function processOnce(
     await reconcileByClave(client, claim, options);
     return { processed: true, clave: claim.clave, action: "get" };
   } finally {
-    await releaseDocumentLease(client, claim.id);
+    await releaseDocumentLease(client, options.tenantId, claim.id);
   }
 }

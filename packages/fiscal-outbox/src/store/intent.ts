@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { Sql } from "postgres";
 
+import { withFobTenantTransaction } from "../db/connection.js";
 import type {
   EnqueueFiscalIntentInput,
   FiscalIntentRecord,
@@ -44,49 +45,51 @@ export async function enqueueIntent(
   const purpose = input.purpose ?? "primary";
   const id = randomUUID();
 
-  const inserted = await client<IntentRow[]>`
-    INSERT INTO fob_fiscal_intents (
-      id,
-      tenant_id,
-      issuer_id,
-      environment,
-      operation_id,
-      purpose,
-      doc_type,
-      status,
-      payload_snapshot
-    )
-    VALUES (
-      ${id},
-      ${input.tenantId}::uuid,
-      ${input.issuerId},
-      ${input.environment},
-      ${input.operationId},
-      ${purpose},
-      ${input.docType},
-      'QUEUED',
-      ${client.json(input.payloadSnapshot as never)}
-    )
-    ON CONFLICT (tenant_id, environment, operation_id, purpose) DO NOTHING
-    RETURNING *
-  `;
+  return withFobTenantTransaction(client, input.tenantId, async (tx) => {
+    const inserted = await tx<IntentRow[]>`
+      INSERT INTO fob_fiscal_intents (
+        id,
+        tenant_id,
+        issuer_id,
+        environment,
+        operation_id,
+        purpose,
+        doc_type,
+        status,
+        payload_snapshot
+      )
+      VALUES (
+        ${id},
+        ${input.tenantId}::uuid,
+        ${input.issuerId},
+        ${input.environment},
+        ${input.operationId},
+        ${purpose},
+        ${input.docType},
+        'QUEUED',
+        ${tx.json(input.payloadSnapshot as never)}
+      )
+      ON CONFLICT (tenant_id, environment, operation_id, purpose) DO NOTHING
+      RETURNING *
+    `;
 
-  if (inserted[0]) {
-    return mapIntentRow(inserted[0]);
-  }
+    if (inserted[0]) {
+      return mapIntentRow(inserted[0]);
+    }
 
-  const existing = await client<IntentRow[]>`
-    SELECT *
-    FROM fob_fiscal_intents
-    WHERE tenant_id = ${input.tenantId}::uuid
-      AND environment = ${input.environment}
-      AND operation_id = ${input.operationId}
-      AND purpose = ${purpose}
-  `;
+    const existing = await tx<IntentRow[]>`
+      SELECT *
+      FROM fob_fiscal_intents
+      WHERE tenant_id = ${input.tenantId}::uuid
+        AND environment = ${input.environment}
+        AND operation_id = ${input.operationId}
+        AND purpose = ${purpose}
+    `;
 
-  const row = existing[0];
-  if (!row) {
-    throw new Error("enqueueIntent conflict without existing row");
-  }
-  return mapIntentRow(row);
+    const row = existing[0];
+    if (!row) {
+      throw new Error("enqueueIntent conflict without existing row");
+    }
+    return mapIntentRow(row);
+  });
 }

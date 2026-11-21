@@ -3,7 +3,7 @@ import type { Sql } from "postgres";
 
 import { processOnce } from "../../src/worker/process-once.js";
 import { resetFobSchema, seedTenant } from "../store/helpers.js";
-import { buildWorkerDoc, persistWorkerDoc } from "./document-fixture.js";
+import { buildWorkerDoc, persistWorkerDoc, TENANT_A } from "./document-fixture.js";
 import { createCountingTransport } from "./transport-mock.js";
 
 describe.sequential("T-OUT-005 — timeout post-POST solo dispara GET", () => {
@@ -33,16 +33,19 @@ describe.sequential("T-OUT-005 — timeout post-POST solo dispara GET", () => {
       }),
     });
 
-    const opts = { workerId: "w-timeout", transport };
+    const opts = { workerId: "w-timeout", tenantId: TENANT_A, transport };
 
     const first = await processOnce(client, opts);
     expect(first).toEqual({ processed: true, action: "post", clave: expect.any(String) });
     expect(transport.postCount).toBe(1);
     expect(transport.getCount).toBe(0);
 
-    const stateAfterPost = await client<{ delivery_state: string }[]>`
-      SELECT delivery_state FROM fob_fiscal_documents WHERE clave = ${first.clave}
-    `;
+    const stateAfterPost = await client.begin(async (tx) => {
+      await tx`SELECT set_config('app.current_tenant_id', ${TENANT_A}, true)`;
+      return tx<{ delivery_state: string }[]>`
+        SELECT delivery_state FROM fob_fiscal_documents WHERE clave = ${first.clave}
+      `;
+    });
     expect(stateAfterPost[0]?.delivery_state).toBe("INCIERTO");
 
     const second = await processOnce(client, opts);
@@ -50,9 +53,12 @@ describe.sequential("T-OUT-005 — timeout post-POST solo dispara GET", () => {
     expect(transport.postCount).toBe(1);
     expect(transport.getCount).toBe(1);
 
-    const terminal = await client<{ delivery_state: string }[]>`
-      SELECT delivery_state FROM fob_fiscal_documents WHERE clave = ${first.clave}
-    `;
+    const terminal = await client.begin(async (tx) => {
+      await tx`SELECT set_config('app.current_tenant_id', ${TENANT_A}, true)`;
+      return tx<{ delivery_state: string }[]>`
+        SELECT delivery_state FROM fob_fiscal_documents WHERE clave = ${first.clave}
+      `;
+    });
     expect(terminal[0]?.delivery_state).toBe("ACEPTADO");
   });
 });

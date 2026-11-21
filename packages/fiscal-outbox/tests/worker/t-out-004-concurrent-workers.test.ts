@@ -3,7 +3,7 @@ import type { Sql } from "postgres";
 
 import { processOnce } from "../../src/worker/process-once.js";
 import { resetFobSchema, seedTenant } from "../store/helpers.js";
-import { buildWorkerDoc, persistWorkerDoc } from "./document-fixture.js";
+import { buildWorkerDoc, persistWorkerDoc, TENANT_A } from "./document-fixture.js";
 import { createCountingTransport } from "./transport-mock.js";
 
 describe.sequential("T-OUT-004 — SKIP LOCKED evita doble POST", () => {
@@ -32,8 +32,8 @@ describe.sequential("T-OUT-004 — SKIP LOCKED evita doble POST", () => {
     });
 
     const [a, b] = await Promise.all([
-      processOnce(client, { workerId: "w-a", transport }),
-      processOnce(client, { workerId: "w-b", transport }),
+      processOnce(client, { workerId: "w-a", tenantId: TENANT_A, transport }),
+      processOnce(client, { workerId: "w-b", tenantId: TENANT_A, transport }),
     ]);
 
     expect(transport.postCount).toBe(1);
