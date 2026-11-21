@@ -179,7 +179,7 @@ export function OrdersWorkspace(props: Props) {
               void act(async () => {
                 const created = await createWorkOrder(props.config, customerId, equipmentId);
                 setShowNew(false);
-                setSelectedId(created.id);
+                await openOrder(created.id);
               });
             }}
           >

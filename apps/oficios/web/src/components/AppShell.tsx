@@ -1,19 +1,9 @@
 import type { ReactNode } from "react";
 
-export type AppSection = "ordenes" | "clientes" | "exodus" | "admin";
+import { sectionLabel, visibleSections, type AppSection } from "../navigation.js";
 
-const NAV: { id: AppSection; label: string; adminOnly?: boolean }[] = [
-  { id: "ordenes", label: "Órdenes" },
-  { id: "clientes", label: "Clientes y equipos" },
-  { id: "exodus", label: "Data Exodus", adminOnly: true },
-  { id: "admin", label: "Administración", adminOnly: true },
-];
-
-export function visibleSections(role: string): AppSection[] {
-  return NAV.filter((item) => !item.adminOnly || role === "ADMIN" || (item.id === "admin" && role === "AUDITOR_READONLY")).map(
-    (item) => item.id,
-  );
-}
+export type { AppSection };
+export { visibleSections };
 
 type Props = {
   readonly role: string;
@@ -26,12 +16,7 @@ type Props = {
 };
 
 export function AppShell(props: Props) {
-  const items = NAV.filter(
-    (item) =>
-      !item.adminOnly ||
-      props.role === "ADMIN" ||
-      (item.id === "admin" && props.role === "AUDITOR_READONLY"),
-  );
+  const items = visibleSections(props.role).map((id) => ({ id, label: sectionLabel(id) }));
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
       <aside className="hidden border-r border-[var(--border-subtle)] bg-[var(--surface-muted)] lg:flex lg:flex-col">

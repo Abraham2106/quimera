@@ -31,6 +31,6 @@
 ## Fase 5 — Pruebas de regresión, accesibilidad y puertas de calidad
 
 - [x] Añadir pruebas unitarias/de componente para formateo monetario entero en colones (`₡`), stepper contextual de estados, visibilidad por rol y manejo de conflictos `HTTP 409` en el cajón offline.
-- [ ] Actualizar `apps/oficios/tests/e2e/served-staging.spec.ts` para verificar el recorrido completo en el nuevo App Shell (escritorio y viewport móvil): navegación por secciones, Data Exodus wizard, bandeja y stepper de órdenes, materiales CAByS, subida de foto, cola offline y administración.
+- [x] Actualizar `apps/oficios/tests/e2e/served-staging.spec.ts` para verificar el recorrido completo en el nuevo App Shell (escritorio y viewport móvil): navegación por secciones, Data Exodus wizard, bandeja y stepper de órdenes, materiales CAByS, subida de foto, cola offline y administración.
 - [x] Verificar build estático de `apps/oficios/web/dist` sin peticiones a CDNs externos ni errores de consola.
-- [ ] Ejecutar puertas completas en verde: `pnpm verify`, `pnpm spec:validate`, `pnpm test:isolation`, `pnpm test:security` y `pnpm audit --audit-level=high`.
+- [x] Ejecutar puertas completas en verde: `pnpm verify`, `pnpm spec:validate`, `pnpm test:isolation`, `pnpm test:security` y `pnpm audit --audit-level=high`.

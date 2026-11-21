@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 
 import { createApp } from "./api/app.js";
 import { otelExporterEndpoint } from "./api/logging/otel.js";
+import { isReservedHttpPath, resolveStaticAssetDir, serveStaticAsset } from "./static-assets.js";
 
 export type StartedOficiosServer = {
   readonly url: string;
@@ -24,6 +25,7 @@ export async function startOficiosServer(options?: {
   const host = options?.host ?? process.env.OFICIOS_HOST ?? "127.0.0.1";
   const port = options?.port ?? Number(process.env.OFICIOS_PORT ?? 8787);
   const app = createApp();
+  const staticDir = await resolveStaticAssetDir();
   let draining = false;
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     if (draining) {
@@ -34,6 +36,11 @@ export async function startOficiosServer(options?: {
     try {
       const hostHeader = req.headers.host ?? `${host}:${port}`;
       const url = new URL(req.url ?? "/", `http://${hostHeader}`);
+      const method = req.method ?? "GET";
+      if (staticDir && !isReservedHttpPath(url.pathname) && (method === "GET" || method === "HEAD")) {
+        const served = await serveStaticAsset(staticDir, url.pathname, method, res);
+        if (served) return;
+      }
       const body =
         req.method === "GET" || req.method === "HEAD" ? undefined : await readBody(req);
       const headers = new Headers();

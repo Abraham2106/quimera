@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 
 import { postOfflineSync } from "./api/client.js";
 import { AdminView } from "./components/AdminView.js";
-import { AppShell, visibleSections, type AppSection } from "./components/AppShell.js";
+import { AppShell } from "./components/AppShell.js";
+import { visibleSections, type AppSection } from "./navigation.js";
 import { CustomersView } from "./components/CustomersView.js";
 import { ExodusWizard } from "./components/ExodusWizard.js";
 import { OfflineSyncDrawer } from "./components/OfflineSyncDrawer.js";
