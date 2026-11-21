@@ -30,6 +30,8 @@ export {
 export { trace, type TraceResult } from "./profile/index.js";
 export {
   CsvSourceImporter,
+  JsonSourceImporter,
+  SqliteSourceImporter,
   neutralizeCsvExportRow,
   neutralizeCsvFormulaPrefix,
   type CsvImportRequest,

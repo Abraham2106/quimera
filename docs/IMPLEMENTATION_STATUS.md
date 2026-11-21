@@ -2,7 +2,7 @@
 
 - **Versión:** 1.0.0
 - **Fecha:** 2026-11-21
-- **Estado actual:** MVP de los slices 1–7 verificado en esta rama. Post-MVP (`WBS-8`) no está incluido.
+- **Estado actual:** MVP de los slices 1–7 verificado. Post-MVP `WBS-8.1`..`WBS-8.4` añadido sin regresiones.
 - **Código de producto:** MVP implementado en el monorepo. La verificación de demostración es `QUIMERA_AI_ENABLED=false pnpm demo:verify`.
 
 ---
@@ -39,14 +39,20 @@
 
 ## 3. Verificación de esta corrida (2026-11-21)
 
-- `pnpm typecheck`: exit 0 (8 paquetes). `tsc` de `apps/oficios/web` también exit 0.
+- `pnpm typecheck`: exit 0 (9 paquetes, incluye `@quimera/adapter-clairic`).
 - `pnpm lint`: exit 0.
-- `pnpm test`: exit 0, 55 archivos, 128 pruebas (incluye CAByS fixture).
-- `pnpm test:isolation`: exit 0.
+- `pnpm test`: exit 0, 63 archivos, 152 pruebas.
+- `pnpm test:isolation`: exit 0. Ningún paquete del núcleo ni OficiOS importa `@quimera/adapter-clairic`.
 - `pnpm test:security`: exit 0, 17 pruebas.
-- `QUIMERA_AI_ENABLED=false pnpm demo:verify`: exit 0. Lee los archivos de `demo-hvac-1000`, migra tras decisiones con procedencia, pausa el pipeline con exit code 3 y lo reanuda, corre OficiOS 409 + un intent, y el CLI de `demo-pos` (buggy exit 1, outbox 25/25).
+- `QUIMERA_AI_ENABLED=false pnpm demo:verify`: exit 0.
 
-## 4. Residuales
+## 4. Post-MVP (`WBS-8`)
 
-- `pnpm audit --audit-level=high` reporta `tinypool` (transitiva de Vitest 3.2.4) y `drizzle-orm` anterior a 0.45.2. No se forzó un override.
-- Post-MVP `WBS-8` queda fuera de esta compuerta.
+- `WBS-8.1`: `@quimera/adapter-clairic` es un stub determinista. Rechaza más de 4 imágenes, archivos mayores a 4 MiB o un total mayor a 8 MiB, y URLs remotas (`ERR_CLAIRIC_PAYLOAD_LIMIT`). `confidence` menor a 0.90 abre `AI_LOW_CONFIDENCE`. El texto de prompt injection queda como dato y no aprueba nada. 11 pruebas.
+- `WBS-8.2`: `JsonSourceImporter` y `SqliteSourceImporter` implementan `SourceImporterPort`. 5 pruebas `T-DATA-014`. El motor de reconciliación no se modificó.
+- `WBS-8.3`: `notifyWorkOrderEvent` queda desactivado salvo `QUIMERA_WHATSAPP_ENABLED=true`. Sin token responde `ERR_OFI_WHATSAPP_NOT_CONFIGURED` y no envía nada. No aprueba ni cierra órdenes.
+- `WBS-8.4`: el pasaporte `cr.snit.geodata` es `public_ogc`, sin operaciones inventadas ni red en fixture. `marketplace/quimera-skill.yaml` declara el baseline con `QUIMERA_AI_ENABLED=false` y Clairic como paquete opcional.
+
+## 5. Residuales
+
+- `pnpm audit --audit-level=high` sigue en rojo por `tinypool` (transitiva de Vitest) y `drizzle-orm` anterior a 0.45.2. No se forzó un override.

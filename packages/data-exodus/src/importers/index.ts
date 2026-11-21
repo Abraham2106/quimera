@@ -11,6 +11,12 @@ export {
   neutralizeCsvFormulaPrefix,
 } from "./csv-export.js";
 export { CsvSourceImporter, type CsvSourceImporterOptions } from "./csv.js";
+export { JsonSourceImporter, type JsonSourceImporterOptions } from "./json.js";
+export {
+  SqliteSourceImporter,
+  type SqliteImportRequest,
+  type SqliteSourceImporterOptions,
+} from "./sqlite.js";
 export { XlsxSourceImporter, type XlsxSourceImporterOptions } from "./xlsx.js";
 export {
   FeXmlSourceImporter,

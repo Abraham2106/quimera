@@ -39,3 +39,11 @@
 
 - Objetivo nuevo: `WBS-8.1`..`WBS-8.4` más una pasada de QA real sobre lo ya logrado.
 - QA sin escritura, carriles disjuntos. Un solo agente toca PostgreSQL.
+
+## 2026-11-21 — WBS-8 integrado y compuertas reejecutadas
+
+- `@quimera/adapter-clairic`: 11 pruebas. Aislamiento intacto.
+- Importadores JSON y SQLite: 5 pruebas `T-DATA-014`.
+- WhatsApp desactivado por defecto. Pasaporte `cr.snit.geodata` y `marketplace/quimera-skill.yaml`.
+- Tras el código nuevo: `pnpm typecheck` 0 (9 paquetes), `pnpm lint` 0, `pnpm test` 63 archivos / 152 pruebas, `pnpm test:isolation` 0, `pnpm test:security` 17/17, `QUIMERA_AI_ENABLED=false pnpm demo:verify` 0.
+- QA previo de [QA lint typecheck isolation](bc-884f9f16-f8da-5754-9d80-c99bcd5283ab), [QA core passport factura](bc-2fd8b14b-c336-571d-921b-c652ebe8b69f) y [QA OficiOS web and CAByS](bc-89fe57e0-9fd7-5a9e-93b2-0d817d8618d0) en exit 0 sobre el MVP.
