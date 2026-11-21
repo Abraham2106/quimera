@@ -29,7 +29,7 @@
 
 | Slice | Alcance | Historias | Paquetes WBS | Estado |
 |---|---|---|---|---|
-| **Slice 1** | Bootstrap Monorepo, `@quimera/core`, CAS local, DDL `qum_*`, Importador CSV | `US-001`..`US-005` | `WBS-1.1`..`WBS-1.5` (Oleadas 0–1) | `WBS-1.1` verificado (`typecheck`/`lint`/`test` exit 0). `WBS-1.2` en curso. |
+| **Slice 1** | Bootstrap Monorepo, `@quimera/core`, CAS local, DDL `qum_*`, Importador CSV | `US-001`..`US-005` | `WBS-1.1`..`WBS-1.5` (Oleadas 0–1) | `WBS-1.1` y `WBS-1.2` verificados. Oleada 1 (`WBS-1.3` y `WBS-1.4`) en curso. |
 | **Slice 2** | Importadores XLSX + XML FE 4.4 (`hacienda-sdk`), Idempotencia y `demo-hvac-1000` | `US-006`..`US-008` | `WBS-2.1`..`WBS-2.3` (Oleada 2 — Carril A) | Pendiente |
 | **Slice 3** | Perfilador, 10 reglas de reconciliación, decisiones, carga PG y `@quimera/pipeline` | `US-009`..`US-013` | `WBS-3.1`..`WBS-3.5` (Oleada 3 — Carril A) | Pendiente |
 | **Slice 4** | `@quimera/cr-api-passport` (3 pasaportes, rate limit, caché, `verify`, MCP) | `US-014`..`US-017` | `WBS-4.1`..`WBS-4.4` (Oleada 2 — Carril B) | Pendiente (Paralelizable tras `SYNC-1`) |

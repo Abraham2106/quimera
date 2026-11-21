@@ -1,0 +1,328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quimera.dev/schemas/core-contracts/1.0.0/schema.json",
+  "title": "QUIMERA Core Contracts v1.0.0",
+  "description": "Contratos canónicos de intercambio para evidencia, conflictos, decisiones de reconciliación y errores.",
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "Sha256Hex": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "EvidenceArtifact": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "tenantId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "artifactKind": {
+          "type": "string",
+          "enum": [
+            "source_file",
+            "fe_xml_unsigned",
+            "fe_xml_signed",
+            "hacienda_response",
+            "work_order_photo",
+            "approval_proof",
+            "reconciliation_report"
+          ]
+        },
+        "originalName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "mimeType": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 128
+        },
+        "byteSize": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "storageUri": {
+          "type": "string",
+          "pattern": "^(cas|s3|r2):\\/\\/"
+        },
+        "ingestedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        }
+      },
+      "required": [
+        "id",
+        "tenantId",
+        "sha256",
+        "artifactKind",
+        "originalName",
+        "mimeType",
+        "byteSize",
+        "storageUri",
+        "ingestedAt"
+      ],
+      "additionalProperties": false
+    },
+    "Conflict": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "tenantId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "batchId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "conflictCode": {
+          "type": "string",
+          "enum": [
+            "EXACT_DUPLICATE",
+            "PROBABLE_DUPLICATE",
+            "CONFLICTING_IDENTITY",
+            "MONETARY_MISMATCH",
+            "MISSING_REQUIRED_DATA",
+            "ORPHAN_RECORD",
+            "INVALID_REFERENCE",
+            "TEMPORAL_ANOMALY",
+            "UNIT_OR_CURRENCY_MISMATCH",
+            "UNRECONCILABLE_BALANCE",
+            "AI_LOW_CONFIDENCE"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "BLOCKING",
+            "WARNING",
+            "INFO"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "OPEN",
+            "RESOLVED",
+            "DEFERRED",
+            "UNRECONCILABLE"
+          ]
+        },
+        "candidateEntityIds": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          }
+        },
+        "evidenceRefs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifactId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "sourceLocator": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "artifactId",
+              "sourceLocator"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "detectedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        }
+      },
+      "required": [
+        "id",
+        "tenantId",
+        "conflictCode",
+        "severity",
+        "status",
+        "candidateEntityIds",
+        "evidenceRefs",
+        "summary",
+        "detectedAt"
+      ],
+      "additionalProperties": false
+    },
+    "ResolutionDecision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "tenantId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "conflictId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "MERGE",
+            "KEEP_SEPARATE",
+            "OVERRIDE_FIELD",
+            "REJECT_RECORD",
+            "MARK_UNRECONCILABLE",
+            "DEFER"
+          ]
+        },
+        "actorType": {
+          "type": "string",
+          "enum": [
+            "RULE",
+            "HUMAN"
+          ]
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 2000
+        },
+        "payload": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "supersedesDecisionId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        }
+      },
+      "required": [
+        "id",
+        "tenantId",
+        "conflictId",
+        "action",
+        "actorType",
+        "actorId",
+        "rationale",
+        "payload",
+        "decidedAt"
+      ],
+      "additionalProperties": false
+    },
+    "QuimeraError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^ERR_[A-Z0-9_]+$"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "VALIDATION",
+            "CONTRACT",
+            "CONFLICT",
+            "EXTERNAL_API",
+            "SECURITY",
+            "STORAGE",
+            "FISCAL",
+            "INTERNAL"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "requiresHumanReview": {
+          "type": "boolean"
+        },
+        "details": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "correlationId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "module": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "code",
+        "category",
+        "message",
+        "retryable",
+        "correlationId",
+        "module"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
