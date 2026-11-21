@@ -10,13 +10,18 @@
       "default": "./src/index.ts"
     }
   },
+  "bin": {
+    "quimera-pipeline": "./src/cli.ts"
+  },
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint src",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests -c vitest.config.ts"
   },
   "dependencies": {
-    "@quimera/core": "workspace:*"
+    "@quimera/core": "workspace:*",
+    "postgres": "^3.4.7",
+    "yaml": "^2.8.1"
   }
 }
