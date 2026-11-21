@@ -15,6 +15,10 @@ export default defineWorkspace([
       name: "apps",
       include: ["apps/**/*.test.ts"],
       passWithNoTests: true,
+      env: {
+        NODE_ENV: "test",
+        OFICIOS_AUTH_MODE: "test-headers",
+      },
     },
   },
 ]);

@@ -12,8 +12,8 @@ Ningún cambio rompe las invariantes base del repositorio: `pnpm verify` sigue c
 
 | Orden | Cambio OpenSpec | Capacidad | Qué desbloquea |
 | --- | --- | --- | --- |
-| 1 | [`add-oficios-rls-policies`](changes/add-oficios-rls-policies/proposal.md) | `oficios-workshop-flow` (delta) | Aislamiento real en PostgreSQL (`FORCE ROW LEVEL SECURITY`) para todas las tablas `ofi_*`. |
-| 2 | [`replace-oficios-test-headers-auth`](changes/replace-oficios-test-headers-auth/proposal.md) | `oficios-auth-rbac` | Reemplaza cabeceras sintéticas (`x-tenant-id`, `x-test-role`) por JWT/OIDC verificado y RBAC `401`/`403`. |
+| 1 | [`add-oficios-rls-policies`](changes/archive/2026-11-21-add-oficios-rls-policies/proposal.md) | `oficios-workshop-flow` (delta) | Aislamiento real en PostgreSQL (`FORCE ROW LEVEL SECURITY`) para todas las tablas `ofi_*`. Archivado. |
+| 2 | [`replace-oficios-test-headers-auth`](changes/archive/2026-11-21-replace-oficios-test-headers-auth/proposal.md) | `oficios-auth-rbac` | Reemplaza cabeceras sintéticas (`x-tenant-id`, `x-test-role`) por JWT/OIDC verificado y RBAC `401`/`403`. Archivado. |
 
 **Puerta de salida (Oleada 1):** `OficiOS` ya puede desplegarse detrás de HTTPS sin riesgo de suplantación ni fuga de datos entre tenants en PostgreSQL.
 

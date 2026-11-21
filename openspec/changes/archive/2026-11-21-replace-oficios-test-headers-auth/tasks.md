@@ -7,4 +7,4 @@
 ## Pruebas y verificación
 
 - [x] Agregar pruebas de rechazo `401`/`403` (sin token, firma alterada, token expirado, rol insuficiente, intento de suplantación por `x-tenant-id`).
-- [ ] Ejecutar `pnpm verify`, `pnpm test:security` y `pnpm spec:validate` en verde.
+- [x] Ejecutar `pnpm verify`, `pnpm test:security` y `pnpm spec:validate` en verde.

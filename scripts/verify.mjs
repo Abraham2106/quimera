@@ -7,6 +7,8 @@ const env = {
   OPENSPEC_TELEMETRY: "0",
   QUIMERA_AI_ENABLED: "false",
   QUIMERA_PASSPORT_MODE: "fixture",
+  NODE_ENV: process.env.NODE_ENV ?? "test",
+  OFICIOS_AUTH_MODE: process.env.OFICIOS_AUTH_MODE ?? "test-headers",
 };
 
 // Default verification stays strictly offline and never uses live tokens or AI.

@@ -18,10 +18,9 @@ openspec/
 │   ├── fiscal-outbox-sequences/
 │   ├── factura-ci-harness/
 │   ├── oficios-workshop-flow/
+│   ├── oficios-auth-rbac/
 │   └── clairic-optional-isolation/
 └── changes/                             # cambios activos (Demo → SaaS B2B) y archivo histórico
-    ├── add-oficios-rls-policies/
-    ├── replace-oficios-test-headers-auth/
     ├── add-b2b-tenant-onboarding-lifecycle/
     ├── add-cloud-cas-retention-and-pitr/
     ├── add-hacienda-production-fiscal-delivery/
