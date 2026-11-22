@@ -5,7 +5,7 @@ import type { Sql } from "postgres";
 
 import { applyDecision, DataExodusError } from "../../src/decisions/index.js";
 import { withTenantTransaction } from "../../src/db/connection.js";
-import { qumConflicts } from "../../src/db/schema/index.js";
+import { qumConflicts, qumDecisions } from "../../src/db/schema/index.js";
 import { resetAndMigrate, seedTenants, TENANT_A } from "../db/helpers.js";
 import { buildDemoHvacMiniDataset, demoReconcileCounts } from "../migrate/fixtures.js";
 import { persistReconcileSnapshot } from "../migrate/helpers.js";
@@ -152,5 +152,53 @@ describe.sequential("applyDecision — inmutabilidad (T-DATA-007)", () => {
 
       expect(amended.decision.supersedesDecisionId).toBe(first.decision.id);
     });
+  });
+
+  it("gate concurrente: dos decisiones simultáneas dejan una sola activa", async () => {
+    if (!client) throw new Error("no client");
+    const conflictId = randomUUID();
+    await withTenantTransaction(client, TENANT_A, async (db) => {
+      await db.insert(qumConflicts).values({
+        id: conflictId,
+        tenantId: TENANT_A,
+        conflictCode: "PROBABLE_DUPLICATE",
+        severity: "BLOCKING",
+        status: "OPEN",
+        candidateEntityIds: [],
+        evidenceRefs: [],
+        summary: "demo gate concurrente",
+      });
+    });
+
+    const wrapped = {
+      id: conflictId,
+      tenantId: TENANT_A,
+      conflictCode: "PROBABLE_DUPLICATE",
+      severity: "BLOCKING",
+      status: "OPEN",
+      candidateEntityIds: [] as string[],
+    };
+    const attempt = (actorId: string) =>
+      withTenantTransaction(client!, TENANT_A, async (db) =>
+        applyDecision(db, wrapped, "KEEP_SEPARATE", actorId, "decisión concurrente"),
+      );
+
+    const results = await Promise.allSettled([attempt("a@demo.cr"), attempt("b@demo.cr")]);
+    const fulfilled = results.filter((r) => r.status === "fulfilled");
+    const rejected = results.filter((r) => r.status === "rejected");
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    const reason = rejected[0];
+    if (reason?.status === "rejected") {
+      expect((reason.reason as { code?: string }).code).toBe("ERR_CONFLICT_ALREADY_RESOLVED");
+    }
+
+    const active = await withTenantTransaction(client, TENANT_A, async (db) =>
+      db
+        .select({ id: qumDecisions.id })
+        .from(qumDecisions)
+        .where(eq(qumDecisions.conflictId, conflictId)),
+    );
+    expect(active).toHaveLength(1);
   });
 });

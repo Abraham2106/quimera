@@ -27,6 +27,9 @@ export type NormalizedInvoice = {
   clientId?: string;
   clientTaxId?: string;
   issueDate?: string;
+  /** Comprobante anulado: se excluye de agregados de saldo. */
+  annulled?: boolean;
+  status?: string;
   provenance: ProvenanceEntry[];
 };
 
@@ -39,12 +42,16 @@ export type NormalizedPayment = {
   clientId?: string;
   clientTaxId?: string;
   paymentDate?: string;
+  /** Pago anulado: se excluye de agregados de saldo. */
+  annulled?: boolean;
+  status?: string;
   provenance: ProvenanceEntry[];
 };
 
 export type BalanceDeclaration = {
   id: string;
   clientId: string;
+  clientTaxId?: string;
   /** Saldo declarado en unidades menores (centavos / céntimos fiscales). */
   declaredBalanceMinor: bigint;
   currency: string;

@@ -10,6 +10,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -272,6 +273,10 @@ export const qumDecisions = pgTable(
       .defaultNow(),
   },
   (table) => [
+    // Gate concurrente: como máximo una decisión raíz (activa) por conflicto.
+    uniqueIndex("qum_decisions_one_active_per_conflict")
+      .on(table.tenantId, table.conflictId)
+      .where(sql`${table.supersedesDecisionId} IS NULL`),
     foreignKey({
       name: "qum_decisions_supersedes_decision_id_fkey",
       columns: [table.supersedesDecisionId],

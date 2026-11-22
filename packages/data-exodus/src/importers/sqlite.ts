@@ -1,5 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { and, eq } from "drizzle-orm";
 import type {
@@ -21,6 +23,7 @@ import {
 import { FsArtifactStore } from "../storage/fs-artifact-store.js";
 import { quimeraError } from "../storage/path-guards.js";
 import { assertCountInvariant } from "./csv-parse-rows.js";
+import { toPlainJson } from "./safe-object.js";
 import type {
   ImportCounts,
   SourceImporterPort,
@@ -275,7 +278,13 @@ export class SqliteSourceImporter implements SourceImporterPort {
 
     let sqliteRows: Record<string, unknown>[];
     try {
-      sqliteRows = this.readTableRows(request.filePath, request.table);
+      // Se abre una copia de los bytes ya leídos: así SQLite nunca observa una
+      // versión del archivo distinta de la que se ha hashado y almacenado.
+      sqliteRows = await this.readTableRowsFromSnapshot(
+        bytes,
+        request.table,
+        fileSha256,
+      );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       if (message.includes("no such table")) {
@@ -283,6 +292,14 @@ export class SqliteSourceImporter implements SourceImporterPort {
           "ERR_SQLITE_NO_TABLE",
           "VALIDATION",
           `table not found: ${request.table}`,
+          false,
+        );
+      }
+      if (message.includes("ERR_SQLITE_SHA_MISMATCH")) {
+        return fail(
+          "ERR_SQLITE_SHA_MISMATCH",
+          "SECURITY",
+          `SQLite snapshot SHA-256 mismatch for ${request.filePath}`,
           false,
         );
       }
@@ -326,7 +343,7 @@ export class SqliteSourceImporter implements SourceImporterPort {
             artifactId,
             sourceLocator: row.sourceLocator,
             recordHash: row.recordHash,
-            rawPayload: row.rawPayload,
+            rawPayload: toPlainJson(row.rawPayload),
             parseStatus: row.parseStatus,
             parseError: null,
           })),
@@ -360,6 +377,28 @@ export class SqliteSourceImporter implements SourceImporterPort {
     });
 
     return ok(summary);
+  }
+
+  private async readTableRowsFromSnapshot(
+    bytes: Uint8Array,
+    table: string,
+    expectedSha256: string,
+  ): Promise<Record<string, unknown>[]> {
+    const snapshotDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), "quimera-sqlite-snapshot-"),
+    );
+    const snapshotPath = path.join(snapshotDir, "snapshot.sqlite");
+    try {
+      await fs.writeFile(snapshotPath, bytes);
+      const snapshotBytes = new Uint8Array(await fs.readFile(snapshotPath));
+      const snapshotSha256 = createHash("sha256").update(snapshotBytes).digest("hex");
+      if (snapshotSha256 !== expectedSha256) {
+        throw new Error("ERR_SQLITE_SHA_MISMATCH: imported bytes changed on disk");
+      }
+      return this.readTableRows(snapshotPath, table);
+    } finally {
+      await fs.rm(snapshotDir, { recursive: true, force: true });
+    }
   }
 
   private readTableRows(filePath: string, table: string): Record<string, unknown>[] {

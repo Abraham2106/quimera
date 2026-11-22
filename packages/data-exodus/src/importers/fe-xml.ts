@@ -25,6 +25,7 @@ import {
 } from "../db/index.js";
 import { FsArtifactStore } from "../storage/fs-artifact-store.js";
 import { quimeraError } from "../storage/path-guards.js";
+import { toPlainJson } from "./safe-object.js";
 import type {
   ImportCounts,
   SourceImporterPort,
@@ -351,8 +352,27 @@ async function parseFeXmlDocument(
 
   let verifiedSignature: boolean | null = null;
   if (verifySignature) {
-    const verification = await verifySignedDocumentXml(xml);
-    verifiedSignature = verification.valid;
+    try {
+      const verification = await verifySignedDocumentXml(xml);
+      verifiedSignature = verification.valid;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      const rawPayload = {
+        format: "fe_xml",
+        feVersion,
+        verificationError: message,
+      };
+      return {
+        row: {
+          sourceLocator: "fe_xml:document:signature_error",
+          parseStatus: "ERROR",
+          parseError: "ERR_XML_SIGNATURE_VERIFY",
+          rawPayload,
+          recordHash: sha256CanonicalJson(canonicalizeJsonValue(rawPayload)),
+        },
+        warnings,
+      };
+    }
   }
 
   try {
@@ -569,7 +589,7 @@ export class FeXmlSourceImporter implements SourceImporterPort {
         artifactId,
         sourceLocator: row.sourceLocator,
         recordHash: row.recordHash,
-        rawPayload: row.rawPayload,
+        rawPayload: toPlainJson(row.rawPayload),
         parseStatus: row.parseStatus,
         parseError: row.parseError ?? null,
       });
