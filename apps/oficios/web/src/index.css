@@ -209,8 +209,13 @@ h2,
 
   .field:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37, 111, 130, 0.18);
+    box-shadow: 0 0 0 3px rgba(37, 103, 130, 0.18);
     outline: none;
+  }
+
+  .field::placeholder {
+    color: var(--ink-muted);
+    opacity: 1;
   }
 
   .btn-primary,
