@@ -296,6 +296,7 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
           <input
             type="password"
             autoComplete="off"
+            enterKeyHint="done"
             placeholder="PIN"
             className="field mt-1"
             value={pin}

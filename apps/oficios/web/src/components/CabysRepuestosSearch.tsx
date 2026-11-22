@@ -71,6 +71,9 @@ export function CabysRepuestosSearch(props: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            enterKeyHint="search"
           />
         </div>
         <button

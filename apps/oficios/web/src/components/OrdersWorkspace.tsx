@@ -262,6 +262,9 @@ export function OrdersWorkspace(props: Props) {
                 className="field pl-9"
                 placeholder="Folio, cliente o serie"
                 value={query}
+                enterKeyHint="search"
+                autoCapitalize="none"
+                autoCorrect="off"
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
@@ -853,6 +856,10 @@ export function OrdersWorkspace(props: Props) {
                           CAByS
                           <input
                             className="field num mt-1"
+                            inputMode="numeric"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            enterKeyHint="next"
                             value={cabysCode}
                             onChange={(e) => setCabysCode(e.target.value)}
                           />
@@ -861,6 +868,8 @@ export function OrdersWorkspace(props: Props) {
                           Cantidad
                           <input
                             className="field num mt-1"
+                            inputMode="numeric"
+                            enterKeyHint="next"
                             value={quantity}
                             onChange={(e) => setQuantity(e.target.value)}
                           />
@@ -869,6 +878,8 @@ export function OrdersWorkspace(props: Props) {
                           Precio (₡)
                           <input
                             className="field num mt-1"
+                            inputMode="decimal"
+                            enterKeyHint="done"
                             value={priceInput}
                             onChange={(e) => setPriceInput(e.target.value)}
                           />

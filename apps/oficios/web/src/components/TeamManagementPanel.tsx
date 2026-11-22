@@ -107,7 +107,7 @@ export function TeamManagementPanel(props: Props) {
       >
         <label className="block text-xs font-medium text-[var(--ink)]">
           Correo del invitado (ADMIN)
-          <input className="field mt-1 min-w-0" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className="field mt-1 min-w-0" type="email" inputMode="email" autoCapitalize="none" autoCorrect="off" enterKeyHint="send" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <button
           type="submit"
@@ -147,6 +147,10 @@ export function TeamManagementPanel(props: Props) {
           Aceptar invitación (token)
           <input
             className="field num mt-1"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="done"
             value={inviteToken}
             onChange={(e) => setInviteToken(e.target.value)}
           />

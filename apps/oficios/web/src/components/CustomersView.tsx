@@ -54,6 +54,9 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
               className="field pl-9"
               placeholder="Buscar cliente…"
               value={query}
+              enterKeyHint="search"
+              autoCapitalize="none"
+              autoCorrect="off"
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
