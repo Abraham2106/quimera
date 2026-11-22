@@ -1,17 +1,19 @@
 import { useState, type FormEvent } from "react";
 
 import { searchCabysRepuestos } from "../api/client.js";
-import type { DevApiConfig } from "../config.js";
 import type { CabysItem } from "../api/types.js";
+import type { DevApiConfig } from "../config.js";
+import { SearchIcon } from "./Icons.js";
 
 type Props = {
   readonly config: DevApiConfig;
+  readonly onPick?: (code: string) => void;
 };
 
-export function CabysRepuestosSearch({ config }: Props) {
+export function CabysRepuestosSearch(props: Props) {
+  const { config } = props;
   const [query, setQuery] = useState("refriger");
   const [items, setItems] = useState<readonly CabysItem[]>([]);
-  const [metaSource, setMetaSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,10 +24,8 @@ export function CabysRepuestosSearch({ config }: Props) {
     try {
       const result = await searchCabysRepuestos(config, query);
       setItems(result.data.cabys ?? []);
-      setMetaSource(result.meta.source);
     } catch (err) {
       setItems([]);
-      setMetaSource(null);
       setError(
         err instanceof Error
           ? err.message
@@ -37,41 +37,66 @@ export function CabysRepuestosSearch({ config }: Props) {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="text-base font-semibold text-slate-900">Repuestos</h2>
-      <p className="mt-1 text-sm text-slate-600">
-        Busque códigos CAByS para armar el Presupuesto (vía API del taller).
-      </p>
+    <section className="min-w-0">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-semibold text-[var(--ink)]">Repuestos</h3>
+        </div>
+      </div>
+
       <form className="mt-3 flex flex-wrap gap-2" onSubmit={onSearch}>
         <label className="sr-only" htmlFor="cabys-q">
           Búsqueda CAByS
         </label>
-        <input
-          id="cabys-q"
-          className="min-w-[12rem] flex-1 rounded border border-slate-300 px-3 py-2 text-sm"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          autoComplete="off"
-        />
+        <div className="relative min-w-[13rem] flex-1">
+          <SearchIcon
+            width={16}
+            height={16}
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[var(--ink-muted)]"
+          />
+          <input
+            id="cabys-q"
+            className="field pl-9"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            enterKeyHint="search"
+          />
+        </div>
         <button
           type="submit"
-          className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+          className="touch btn-secondary"
           disabled={loading}
         >
           {loading ? "Buscando…" : "Buscar repuestos"}
         </button>
       </form>
-      {metaSource ? (
-        <p className="mt-2 text-xs text-slate-500">Fuente: {metaSource}</p>
-      ) : null}
-      {error ? <p className="mt-2 text-sm text-amber-800">{error}</p> : null}
+
+      {error ? <p className="mt-2 text-sm text-[var(--status-warn-ink)]">{error}</p> : null}
+
       {items.length > 0 ? (
-        <ul className="mt-3 divide-y divide-slate-100 rounded border border-slate-100">
+        <ul className="mt-3 divide-y divide-[var(--border-subtle)] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-white">
           {items.map((item) => (
-            <li key={item.codigo ?? item.descripcion} className="px-3 py-2 text-sm">
-              <span className="font-mono text-slate-800">{item.codigo}</span>
-              {item.descripcion ? (
-                <span className="text-slate-600"> — {item.descripcion}</span>
+            <li
+              key={item.codigo ?? item.descripcion}
+              className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm hover:bg-[var(--surface-subtle)]"
+            >
+              <div className="min-w-0 flex-1">
+                <span className="num font-semibold text-[var(--ink)]">{item.codigo}</span>
+                {item.descripcion ? (
+                  <span className="ml-2 text-xs text-[var(--ink-muted)]">{item.descripcion}</span>
+                ) : null}
+              </div>
+              {item.codigo && props.onPick ? (
+                <button
+                  type="button"
+                  className="touch btn-secondary text-xs"
+                  onClick={() => props.onPick?.(item.codigo!)}
+                >
+                  Usar {item.codigo}
+                </button>
               ) : null}
             </li>
           ))}

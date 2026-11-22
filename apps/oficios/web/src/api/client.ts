@@ -182,6 +182,31 @@ export async function closeWorkOrder(
   return (await res.json()) as { fiscalIntentId: string };
 }
 
+export async function fetchWorkOrders(
+  config: DevApiConfig,
+): Promise<readonly SerializedWorkOrder[]> {
+  const res = await fetch(`${config.apiBase}/api/v1/work-orders`, {
+    headers: headers(config),
+  });
+  if (!res.ok) throw await parseError(res);
+  const json = (await res.json()) as WorkOrderListResponse;
+  return json.workOrders;
+}
+
+export async function uploadWorkOrderAttachment(
+  config: DevApiConfig,
+  workOrderId: string,
+  file: File,
+): Promise<void> {
+  const body = new FormData();
+  body.set("file", file);
+  const res = await fetch(
+    `${config.apiBase}/api/v1/work-orders/${encodeURIComponent(workOrderId)}/attachments`,
+    { method: "POST", headers: headers(config), body },
+  );
+  if (!res.ok) throw await parseError(res);
+}
+
 export async function fetchWorkOrder(
   config: DevApiConfig,
   workOrderId: string,

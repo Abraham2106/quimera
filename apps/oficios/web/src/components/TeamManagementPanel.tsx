@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 
-import type { DevApiConfig } from "../config.js";
 import {
   acceptInvitation,
   createInvitation,
@@ -8,6 +7,7 @@ import {
   updateMemberRole,
   type MemberSummary,
 } from "../api/org-client.js";
+import type { DevApiConfig } from "../config.js";
 
 type Props = {
   readonly config: DevApiConfig;
@@ -36,48 +36,56 @@ export function TeamManagementPanel(props: Props) {
   }, [reload]);
 
   return (
-    <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="text-base font-semibold text-slate-900">Equipo y roles</h2>
-      <ul className="mt-2 list-disc pl-5 text-sm text-slate-700">
-        {members.map((member) => (
-          <li key={member.userSub} className="flex flex-wrap items-center gap-2">
-            <span>
-              {member.userSub} — {member.role}
-            </span>
-            {props.config.testRole === "ADMIN" ? (
-              <select
-                className="rounded border border-slate-300 px-2 py-1 text-xs"
-                value={member.role}
-                onChange={(event) => {
-                  void (async () => {
-                    setBusy(true);
-                    try {
-                      await updateMemberRole(
-                        props.config,
-                        member.userSub,
-                        event.target.value as MemberSummary["role"],
-                      );
-                      await reload();
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : "No se pudo actualizar el rol.");
-                    } finally {
-                      setBusy(false);
-                    }
-                  })();
-                }}
-                disabled={busy}
-              >
-                <option value="ADMIN">ADMIN</option>
-                <option value="OPERATOR">OPERATOR</option>
-                <option value="AUDITOR_READONLY">AUDITOR_READONLY</option>
-              </select>
-            ) : null}
-          </li>
-        ))}
+    <section className="card p-5">
+      <h2 className="text-base font-semibold text-[var(--ink)]">Equipo y roles</h2>
+
+      <ul className="mt-4 divide-y divide-[var(--border-subtle)] overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/50">
+        {members.length === 0 ? (
+          <li className="px-3.5 py-3 text-xs text-[var(--ink-muted)]">Sin miembros registrados en esta sesión.</li>
+        ) : (
+          members.map((member) => (
+            <li
+              key={member.userSub}
+              className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 text-sm"
+            >
+              <span className="num min-w-0 truncate text-xs font-medium text-[var(--ink)]" title={member.userSub}>
+                {member.userSub} — <strong>{member.role}</strong>
+              </span>
+              {props.config.testRole === "ADMIN" ? (
+                <select
+                  className="rounded-lg border border-[var(--border-strong)] bg-white px-2.5 py-1 text-xs font-medium text-[var(--ink)]"
+                  value={member.role}
+                  onChange={(event) => {
+                    void (async () => {
+                      setBusy(true);
+                      try {
+                        await updateMemberRole(
+                          props.config,
+                          member.userSub,
+                          event.target.value as MemberSummary["role"],
+                        );
+                        await reload();
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : "No se pudo actualizar el rol.");
+                      } finally {
+                        setBusy(false);
+                      }
+                    })();
+                  }}
+                  disabled={busy}
+                >
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="OPERATOR">OPERATOR</option>
+                  <option value="AUDITOR_READONLY">AUDITOR_READONLY</option>
+                </select>
+              ) : null}
+            </li>
+          ))
+        )}
       </ul>
 
       <form
-        className="mt-4 grid gap-2 text-sm sm:grid-cols-2"
+        className="mt-4 min-w-0 space-y-2.5 text-sm"
         onSubmit={(event) => {
           event.preventDefault();
           void (async () => {
@@ -94,17 +102,13 @@ export function TeamManagementPanel(props: Props) {
           })();
         }}
       >
-        <label className="flex flex-col sm:col-span-2">
-          <span className="text-slate-600">Correo del invitado (ADMIN)</span>
-          <input
-            className="rounded border border-slate-300 px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <label className="block text-xs font-medium text-[var(--ink)]">
+          Correo del invitado (ADMIN)
+          <input className="field mt-1 min-w-0" type="email" inputMode="email" autoCapitalize="none" autoCorrect="off" enterKeyHint="send" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <button
           type="submit"
-          className="w-fit rounded border border-slate-300 px-3 py-2"
+          className="touch btn-secondary text-xs"
           disabled={busy || props.config.testRole !== "ADMIN"}
         >
           Crear invitación OPERATOR
@@ -112,11 +116,13 @@ export function TeamManagementPanel(props: Props) {
       </form>
 
       {lastToken ? (
-        <p className="mt-2 break-all text-xs text-slate-600">Token (solo demo local): {lastToken}</p>
+        <p className="num mt-2 break-all rounded-lg bg-[var(--surface-subtle)] p-2 text-xs text-[var(--ink-muted)]">
+          Token (solo demo local): {lastToken}
+        </p>
       ) : null}
 
       <form
-        className="mt-4 grid gap-2 text-sm"
+        className="mt-4 space-y-2.5 border-t border-[var(--border-subtle)] pt-4 text-sm"
         onSubmit={(event) => {
           event.preventDefault();
           void (async () => {
@@ -134,20 +140,24 @@ export function TeamManagementPanel(props: Props) {
           })();
         }}
       >
-        <label className="flex flex-col">
-          <span className="text-slate-600">Aceptar invitación (token)</span>
+        <label className="block text-xs font-medium text-[var(--ink)]">
+          Aceptar invitación (token)
           <input
-            className="rounded border border-slate-300 px-3 py-2"
+            className="field num mt-1"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="done"
             value={inviteToken}
             onChange={(e) => setInviteToken(e.target.value)}
           />
         </label>
-        <button type="submit" className="w-fit rounded border border-slate-300 px-3 py-2" disabled={busy}>
+        <button type="submit" className="touch btn-secondary text-xs" disabled={busy}>
           Aceptar invitación
         </button>
       </form>
 
-      {error ? <p className="mt-2 text-sm text-amber-800">{error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-[var(--status-warn-ink)]">{error}</p> : null}
     </section>
   );
 }

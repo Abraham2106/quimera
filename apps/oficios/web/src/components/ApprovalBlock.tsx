@@ -11,15 +11,15 @@ export function ApprovalBlock({ visible, busy, onRegisterApproval }: Props) {
 
   return (
     <div
-      className="rounded-lg border border-amber-300 bg-amber-50 p-4"
+      className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       role="alert"
     >
-      <p className="text-sm text-amber-950">
+      <p className="break-words text-sm text-[var(--ink)]">
         {"No se puede iniciar ni cerrar esta orden todavía: falta registrar la aprobación del presupuesto por parte del cliente"}
       </p>
       <button
         type="button"
-        className="mt-3 rounded bg-amber-800 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+        className="touch btn-primary shrink-0"
         disabled={busy}
         onClick={onRegisterApproval}
       >

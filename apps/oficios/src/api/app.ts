@@ -11,6 +11,7 @@ import {
 } from "./routes/invitations.js";
 import { createOrgRegisterRoute, createOrgRoutes } from "./routes/org.js";
 import { createMigrationRoutes } from "./routes/migrations.js";
+import { createFiscalCredentialsRoutes } from "./routes/fiscal-credentials.js";
 import { createWorkOrdersRoutes } from "./routes/work-orders.js";
 import {
   createBootstrapContextMiddleware,
@@ -22,7 +23,6 @@ import {
 } from "./middleware/request-context.js";
 import { requireMutationRole } from "./middleware/rbac.js";
 import { handleBillingWebhook, createBillingUsageRoute } from "./routes/billing.js";
-import { createFiscalCredentialsRoutes } from "./routes/fiscal-credentials.js";
 import { listAuditLogs } from "./services/audit-log.js";
 import { errorResponse } from "./errors.js";
 

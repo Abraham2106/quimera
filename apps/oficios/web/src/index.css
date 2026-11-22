@@ -1,5 +1,417 @@
 @import "tailwindcss";
 
+/* El hover de Tailwind v4 solo mira (hover: hover). Un Android con puntero grueso
+   igual deja el :hover pegado después del toque. Las dos condiciones lo evitan. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
+/*
+  Taste deal, primera mano, oficio workshop:
+  paleta putty-black-teal (piedra cálida del papel de orden, teal del metal HVAC).
+  Tipo Red Hat Display / Red Hat Text, autoalojado. Radio soft.
+  Modo operar: la vía de etapas es el único gesto propio.
+*/
+@font-face {
+  font-family: "Red Hat Display";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/red-hat-display-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Red Hat Display";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/red-hat-display-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/red-hat-text-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/red-hat-text-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --p-bg: #f3f1ec;
+  --p-surface: #e7e4de;
+  --p-ink: #1a1a1a;
+  --p-muted: #5e5a55;
+  --p-accent: #1a1a1a;
+  --p-accent-ink: #ffffff;
+  --p-inv-bg: #0a0a0a;
+  --p-inv-ink: #dedad3;
+  --p-inv-muted: #84827e;
+  --surface-canvas: var(--p-bg);
+  --surface-card: #fffcf8;
+  --surface-subtle: var(--p-surface);
+  --surface-muted: #c9c3ba;
+  --surface-rail: var(--p-inv-bg);
+  --surface-rail-elevated: #151515;
+  --border-subtle: rgba(10, 10, 10, 0.12);
+  --border-strong: rgba(10, 10, 10, 0.28);
+  --accent: var(--p-accent);
+  --accent-hover: #000000;
+  --accent-tint: #e7e4de;
+  --ink: var(--p-ink);
+  --ink-muted: var(--p-muted);
+  --on-rail: var(--p-inv-ink);
+  --on-rail-muted: var(--p-inv-muted);
+  --status-done: #e4f0e8;
+  --status-done-ink: #1d5c3a;
+  --status-done-border: #9ec7b0;
+  --status-now: #e4f2f5;
+  --status-now-ink: #1b5566;
+  --status-now-border: #a9cdd6;
+  --status-warn: #f6ead0;
+  --status-warn-ink: #7a4e10;
+  --status-warn-border: #e0c48a;
+  --status-warn-action: #7a4e10;
+  --status-warn-action-hover: #5e3b0c;
+  --focus: #1a1a1a;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --font-display: "Red Hat Display", "Red Hat Text", system-ui, sans-serif;
+  --font-text: "Red Hat Text", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-canvas);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--accent);
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.pane-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+::selection {
+  background: #b7d5de;
+  color: var(--ink);
+}
+
+* {
+  scrollbar-color: #8d877e transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #8d877e;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+h1,
+h2,
+.display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.num {
+  font-family: var(--font-text);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.touch {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.order-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 4.75rem;
+}
+
+.stage-rail {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: #b7b1a7;
+  overflow: hidden;
+}
+
+.stage-rail > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(var(--stage, 0));
+  transform-origin: left center;
+  transition: transform 280ms var(--ease-out);
+}
+
+.drawer-scrim {
+  animation: scrim-in 200ms var(--ease-out);
+}
+
+.drawer-panel {
+  animation: drawer-in 320ms var(--ease-drawer);
+}
+
+@keyframes scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@layer components {
+  .card {
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-card);
+    box-shadow: none;
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: #fffcf8;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    color: var(--ink);
+    transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .field:hover {
+      border-color: #6f6a64;
+    }
+  }
+
+  .field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.12);
+    outline: none;
+  }
+
+  .field::placeholder {
+    color: var(--ink-muted);
+    opacity: 1;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-warn {
+    transition:
+      background-color 160ms var(--ease-out),
+      border-color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent);
+    padding: 0 18px;
+    font-family: var(--font-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--p-accent-ink);
+    cursor: pointer;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(10, 10, 10, 0.04);
+    }
+
+    .btn-warn:hover:not(:disabled) {
+      background: var(--status-warn-action-hover);
+    }
+  }
+
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled),
+  .btn-warn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .btn-primary:disabled,
+  .btn-secondary:disabled,
+  .btn-warn:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    padding: 0 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .btn-warn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: var(--status-warn-action);
+    padding: 0 18px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .pill-done,
+  .pill-now,
+  .pill-warn,
+  .pill-idle {
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  .pill-done {
+    border-color: var(--status-done-border);
+    background: var(--status-done);
+    color: var(--status-done-ink);
+  }
+
+  .pill-now {
+    border-color: var(--status-now-border);
+    background: var(--status-now);
+    color: var(--status-now-ink);
+  }
+
+  .pill-warn {
+    border-color: var(--status-warn-border);
+    background: var(--status-warn);
+    color: var(--status-warn-ink);
+  }
+
+  .pill-idle {
+    border-color: var(--border-subtle);
+    background: var(--surface-muted);
+    color: var(--ink);
+  }
+
+  .banner-done,
+  .banner-warn {
+    border-radius: 12px;
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  .banner-done {
+    border-color: var(--status-done-border);
+    background: var(--status-done);
+    color: var(--status-done-ink);
+  }
+
+  .banner-warn {
+    border-color: var(--status-warn-border);
+    background: var(--status-warn);
+    color: var(--status-warn-ink);
+  }
+
+  .skeleton {
+    border-radius: 8px;
+    background: var(--surface-muted);
+  }
+
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }

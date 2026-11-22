@@ -41,7 +41,7 @@ export function MigrationWorkbench({ config }: { config: DevApiConfig }) {
     <section className="mb-6 rounded border border-slate-200 p-4">
       <h2 className="text-base font-semibold text-slate-900">Data Exodus</h2>
       <p className="mb-3 text-sm text-slate-600">
-        Subí el archivo, revisá NEEDS_REVIEW, resolvé conflictos y reanudá la carga sin usar la CLI.
+        Cargue el archivo, revise NEEDS_REVIEW, resuelva conflictos y reanude la carga sin usar la CLI.
       </p>
       <form
         className="mb-3 flex flex-wrap items-center gap-2"
@@ -65,7 +65,7 @@ export function MigrationWorkbench({ config }: { config: DevApiConfig }) {
         }}
       >
         <input name="file" type="file" accept=".csv,.xlsx,.xml,text/csv" />
-        <button type="submit" className="rounded bg-sky-800 px-3 py-2 text-sm text-white">
+        <button type="submit" className="touch rounded bg-[var(--accent)] px-3 py-2 text-sm text-white">
           Subir
         </button>
       </form>

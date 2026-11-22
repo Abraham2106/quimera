@@ -3,7 +3,7 @@
   "short_name": "OficiOS",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#075985",
+  "background_color": "#f3f1ec",
+  "theme_color": "#fffcf8",
   "lang": "es-CR"
 }

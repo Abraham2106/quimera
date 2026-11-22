@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import type { DevApiConfig } from "../config.js";
 import { HVAC_TRADE_CONTRACT_ID, registerOrganization } from "../api/org-client.js";
+import type { DevApiConfig } from "../config.js";
 
 type Props = {
   readonly config: DevApiConfig;
@@ -17,13 +17,10 @@ export function OrgOnboardingPanel(props: Props) {
   const [tenantId, setTenantId] = useState<string | null>(null);
 
   return (
-    <section className="mb-6 rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="text-base font-semibold text-slate-900">Alta de organización B2B</h2>
-      <p className="mt-1 text-sm text-slate-600">
-        Registro transaccional con cédula CR normalizada y rol ADMIN inicial.
-      </p>
+    <section className="card p-5">
+      <h2 className="text-base font-semibold text-[var(--ink)]">Alta de organización</h2>
       <form
-        className="mt-4 grid gap-3 text-sm sm:grid-cols-2"
+        className="mt-4 grid min-w-0 gap-3 text-sm sm:grid-cols-2"
         onSubmit={(event) => {
           event.preventDefault();
           void (async () => {
@@ -48,50 +45,50 @@ export function OrgOnboardingPanel(props: Props) {
           })();
         }}
       >
-        <label className="flex flex-col">
-          <span className="text-slate-600">Nombre comercial</span>
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
+          Nombre comercial
           <input
-            className="rounded border border-slate-300 px-3 py-2"
+            className="field mt-1 min-w-0"
             value={commercialName}
             onChange={(e) => setCommercialName(e.target.value)}
           />
         </label>
-        <label className="flex flex-col">
-          <span className="text-slate-600">Razón social</span>
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
+          Razón social
           <input
-            className="rounded border border-slate-300 px-3 py-2"
+            className="field mt-1 min-w-0"
             value={legalName}
             onChange={(e) => setLegalName(e.target.value)}
           />
         </label>
-        <label className="flex flex-col">
-          <span className="text-slate-600">Cédula jurídica / física</span>
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
+          Cédula jurídica / física
           <input
-            className="rounded border border-slate-300 px-3 py-2"
+            className="field num mt-1 min-w-0"
             value={taxId}
             onChange={(e) => setTaxId(e.target.value)}
           />
         </label>
-        <label className="flex flex-col">
-          <span className="text-slate-600">Slug</span>
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
+          Slug
           <input
-            className="rounded border border-slate-300 px-3 py-2"
+            className="field num mt-1 min-w-0"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
           />
         </label>
-        <button
-          type="submit"
-          className="w-fit rounded bg-emerald-800 px-4 py-2 font-medium text-white disabled:opacity-50"
-          disabled={busy}
-        >
-          Registrar organización
-        </button>
+        <div className="sm:col-span-2 pt-1">
+          <button type="submit" className="touch btn-primary" disabled={busy}>
+            Registrar organización
+          </button>
+        </div>
       </form>
-      {message ? <p className="mt-3 text-sm text-slate-800">{message}</p> : null}
-      {tenantId ? (
-        <p className="mt-1 text-xs text-slate-500">Tenant: {tenantId}</p>
+      {message ? (
+        <p className="mt-3 break-words rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2 text-sm text-[var(--ink)]">
+          {message}
+        </p>
       ) : null}
+      {tenantId ? <p className="num mt-1.5 break-all text-xs text-[var(--ink-muted)]">Tenant: {tenantId}</p> : null}
     </section>
   );
 }
