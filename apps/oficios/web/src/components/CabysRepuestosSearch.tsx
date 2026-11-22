@@ -103,7 +103,7 @@ export function CabysRepuestosSearch(props: Props) {
               {item.codigo && props.onPick ? (
                 <button
                   type="button"
-                  className="touch rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-tint)] px-3 text-xs font-semibold text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                  className="touch btn-secondary text-xs"
                   onClick={() => props.onPick?.(item.codigo!)}
                 >
                   Usar {item.codigo}

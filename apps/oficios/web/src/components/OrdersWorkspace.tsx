@@ -665,10 +665,10 @@ export function OrdersWorkspace(props: Props) {
                 <div className="mb-5 flex flex-wrap gap-1 border-b border-[var(--border-subtle)]">
                   <button
                     type="button"
-                    className={`touch relative inline-flex items-center gap-2 px-4 text-sm transition-colors ${
+                    className={`touch relative inline-flex items-center gap-2 px-4 text-sm ${
                       tab === "diag"
                         ? "font-semibold text-[var(--accent)]"
-                        : "font-medium text-[var(--ink-muted)] hover:text-[var(--ink)]"
+                        : "font-medium text-[var(--ink-muted)]"
                     }`}
                     onClick={() => setTab("diag")}
                   >
@@ -681,10 +681,10 @@ export function OrdersWorkspace(props: Props) {
 
                   <button
                     type="button"
-                    className={`touch relative inline-flex items-center gap-2 px-4 text-sm transition-colors ${
+                    className={`touch relative inline-flex items-center gap-2 px-4 text-sm ${
                       tab === "mat"
                         ? "font-semibold text-[var(--accent)]"
-                        : "font-medium text-[var(--ink-muted)] hover:text-[var(--ink)]"
+                        : "font-medium text-[var(--ink-muted)]"
                     }`}
                     onClick={() => setTab("mat")}
                   >
@@ -702,10 +702,10 @@ export function OrdersWorkspace(props: Props) {
 
                   <button
                     type="button"
-                    className={`touch relative inline-flex items-center gap-2 px-4 text-sm transition-colors ${
+                    className={`touch relative inline-flex items-center gap-2 px-4 text-sm ${
                       tab === "hist"
                         ? "font-semibold text-[var(--accent)]"
-                        : "font-medium text-[var(--ink-muted)] hover:text-[var(--ink)]"
+                        : "font-medium text-[var(--ink-muted)]"
                     }`}
                     onClick={() => setTab("hist")}
                   >
