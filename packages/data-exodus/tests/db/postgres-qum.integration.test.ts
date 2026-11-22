@@ -58,7 +58,8 @@ describe.sequential("PostgreSQL qum_* — migración y RLS", () => {
   it("QG-04: RLS + FORCE en tablas con tenant_id", async () => {
     if (!client) throw new Error("client not initialized");
     const rows = await rlsEnabledTables(client);
-    expect(rows.length).toBe(10);
+    expect(rows.length).toBe(11);
+    expect(rows.map((row) => row.table)).toContain("qum_checkpoints");
     for (const row of rows) {
       expect(row.relrowsecurity).toBe(true);
       expect(row.relforcerowsecurity).toBe(true);

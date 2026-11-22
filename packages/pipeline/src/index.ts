@@ -2,9 +2,22 @@ export {
   ERR_ARTIFACT_HASH_MISMATCH,
   ERR_PIPELINE_CONTRACT_MISMATCH,
   ERR_PIPELINE_INVALID_DAG,
+  ERR_PIPELINE_INVALID_RETRIES,
+  ERR_PIPELINE_INVALID_STATE,
+  ERR_PIPELINE_RUN_MISMATCH,
+  ERR_PIPELINE_RUN_NOT_FOUND,
+  ERR_PIPELINE_TENANT_MISMATCH,
   PipelineError,
   isPipelineError,
 } from "./errors.js";
+
+export {
+  HumanDecisionSchema,
+  PipelineRetriesSchema,
+  type HumanDecision,
+  type HumanDecisionInput,
+  type PipelineRetriesInput,
+} from "./schemas.js";
 
 export { validateDag, topoSort } from "./dag.js";
 export {
@@ -28,6 +41,8 @@ export {
   createExecutionRun,
   updateExecutionRunStatus,
   upsertCheckpoint,
+  persistStepCheckpoint,
+  recordHumanDecision,
   getExecutionRun,
   listCheckpoints,
 } from "./store/postgres.js";

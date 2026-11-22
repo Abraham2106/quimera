@@ -1,7 +1,19 @@
+import { PipelineRetriesSchema } from "./schemas.js";
 import type { PipelineDefinition } from "./types.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseRetries(value: Record<string, unknown>, stepId: string) {
+  const parsed = PipelineRetriesSchema.safeParse(value);
+  if (!parsed.success) {
+    const detail = parsed.error.issues
+      .map((issue) => `${issue.path.join(".") || "retries"}: ${issue.message}`)
+      .join("; ");
+    throw new Error(`Step "${stepId}" has invalid retries — ${detail}`);
+  }
+  return parsed.data;
 }
 
 export function parsePipelineJson(raw: string): PipelineDefinition {
@@ -62,16 +74,7 @@ export function normalizePipelineDefinition(parsed: unknown): PipelineDefinition
       gate: item.gate === "human_review" ? ("human_review" as const) : undefined,
       config: isRecord(item.config) ? item.config : undefined,
       retries: isRecord(item.retries)
-        ? {
-            maxAttempts:
-              typeof item.retries.maxAttempts === "number"
-                ? item.retries.maxAttempts
-                : undefined,
-            backoffMs:
-              typeof item.retries.backoffMs === "number"
-                ? item.retries.backoffMs
-                : undefined,
-          }
+        ? parseRetries(item.retries, id)
         : undefined,
     };
   });

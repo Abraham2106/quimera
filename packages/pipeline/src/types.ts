@@ -1,5 +1,9 @@
 import type { StepContext } from "@quimera/core";
 
+import type { HumanDecision, HumanDecisionInput } from "./schemas.js";
+
+export type { HumanDecision, HumanDecisionInput } from "./schemas.js";
+
 export const PIPELINE_EXIT_SUCCESS = 0;
 export const PIPELINE_EXIT_ERROR = 1;
 export const PIPELINE_EXIT_WAITING_APPROVAL = 3;
@@ -84,12 +88,15 @@ export interface RunContext {
 
 export interface CheckpointRecord {
   readonly id: string;
+  readonly tenantId: string;
   readonly runId: string;
   readonly stepId: string;
   readonly status: CheckpointStatus;
   readonly inputHash: string;
   readonly outputRef: unknown | null;
   readonly attemptCount: number;
+  readonly decisionJson: HumanDecision | null;
+  readonly decisionConsumedAt: string | null;
 }
 
 export interface ExecutionRunRecord {
@@ -124,4 +131,6 @@ export interface ResumePipelineOptions {
   readonly definition: PipelineDefinition;
   readonly registry: StepRegistry;
   readonly context: RunContext;
+  /** Decisión humana a persistir ANTES de re-ejecutar la compuerta. */
+  readonly humanDecision?: HumanDecisionInput;
 }

@@ -11,8 +11,9 @@ pnpm quimera -- pipeline run pipelines/exodus-to-oficios.yaml --tenant taller-fr
 # Aplica las decisiones humanas
 pnpm quimera -- exodus decisions apply --file decisions-demo.yaml --json
 
-# Reanuda desde el checkpoint y completa la carga en PostgreSQL
-pnpm quimera -- pipeline resume --run <run_id> --manifest pipelines/exodus-to-oficios.yaml --tenant taller-frio-demo --json
+# Reanuda desde el checkpoint. Sin --actor/--rationale la compuerta NO se re-ejecuta
+# y el pipeline vuelve a pausarse con exit 3.
+pnpm quimera -- pipeline resume --run <run_id> --manifest pipelines/exodus-to-oficios.yaml --tenant taller-frio-demo --actor operador@demo.cr --rationale "Conflictos revisados" --json
 ```
 
 Los logs estructurados se escriben exclusivamente a `stderr`; con `--json`, `stdout` contiene únicamente el resultado JSON del comando.
@@ -31,6 +32,8 @@ Los logs estructurados se escriben exclusivamente a `stderr`; con `--json`, `std
 | --- | --- | --- |
 | `parsePipelineManifest`, `validatePipelineDefinition`, `validateDagAndContracts` | Funciones | Parseo YAML/JSON y validación de DAG y contratos |
 | `runPipeline`, `resumePipeline`, `executePipeline` | Funciones | Ejecución y reanudación desde checkpoints en PostgreSQL |
+| `recordHumanDecision`, `persistStepCheckpoint` | Funciones | Persistencia de la decisión humana y escritura atómica checkpoint + estado del run |
+| `PipelineRetriesSchema`, `HumanDecisionSchema` | Esquemas Zod | Validación de `maxAttempts`/`backoffMs` y de la decisión que desbloquea la compuerta |
 | `computeStepInputHash` | Función | Hash determinista de entradas para idempotencia |
 | `runCli` | Función | Punto de entrada de la CLI de pipeline |
 

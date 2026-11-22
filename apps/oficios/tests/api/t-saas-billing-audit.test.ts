@@ -30,16 +30,16 @@ describe("billing, auditoría y sondas", () => {
     equipmentId = seeded.equipmentId;
     await withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
       await tx`
-        UPDATE saas_plans SET max_seats = 1 WHERE code = 'starter'
-      `;
-      await tx`
         INSERT INTO saas_subscriptions (tenant_id, plan_code, status, current_period_end)
         VALUES (${TENANT_ID}::uuid, 'starter', 'trialing', now() + interval '30 days')
       `;
-      await tx`
-        INSERT INTO saas_memberships (id, tenant_id, user_sub, role, status)
-        VALUES (gen_random_uuid(), ${TENANT_ID}::uuid, 'seat-1', 'ADMIN', 'active')
-      `;
+      // El plan starter permite 3 asientos; saturamos la cuota sin mutar el catálogo.
+      for (const seat of ["seat-1", "seat-2", "seat-3"]) {
+        await tx`
+          INSERT INTO saas_memberships (id, tenant_id, user_sub, role, status)
+          VALUES (gen_random_uuid(), ${TENANT_ID}::uuid, ${seat}, 'ADMIN', 'active')
+        `;
+      }
     });
   });
 
@@ -185,6 +185,29 @@ describe("billing, auditoría y sondas", () => {
         await tx`UPDATE saas_audit_logs SET action = 'tamper'`;
       }),
     ).rejects.toMatchObject({ code: "42501" });
+  });
+
+  it("T-SEC: saas_plans es catálogo de solo lectura y rechaza escritura con 42501", async () => {
+    if (!dbAvailable) return;
+    await expect(
+      withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+        await tx`UPDATE saas_plans SET max_seats = 99 WHERE code = 'starter'`;
+      }),
+    ).rejects.toMatchObject({ code: "42501" });
+    await expect(
+      withOfiTenantTransaction(client, TENANT_ID, async (tx) => {
+        await tx`
+          INSERT INTO saas_plans (code, max_seats, monthly_fiscal_intents, max_storage_bytes)
+          VALUES ('hacked', 99, 99, 99)
+        `;
+      }),
+    ).rejects.toMatchObject({ code: "42501" });
+    const plans = await withOfiTenantTransaction(client, TENANT_ID, async (tx) =>
+      tx<{ max_seats: number }[]>`
+        SELECT max_seats FROM saas_plans WHERE code = 'starter'
+      `,
+    );
+    expect(plans[0]?.max_seats).toBe(3);
   });
 
   it("healthz vive y readyz no filtra DATABASE_URL", async () => {

@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS saas_plans (
   features_json JSONB NOT NULL DEFAULT '{}'::jsonb
 );
 
+-- La siembra del catálogo se hace con RLS desactivado para que la migración
+-- sea re-aplicable una vez que el catálogo ya quedó en modo solo lectura.
+ALTER TABLE saas_plans DISABLE ROW LEVEL SECURITY;
 INSERT INTO saas_plans (code, max_seats, monthly_fiscal_intents, max_storage_bytes, features_json)
 VALUES
   ('starter', 3, 50, 1073741824, '{"whatsapp":false,"clairic":false}'::jsonb),
@@ -45,10 +48,29 @@ CREATE TABLE IF NOT EXISTS saas_usage_meters (
   PRIMARY KEY (tenant_id, period_ym, metric_key)
 );
 
+-- Catálogo global de solo lectura: ni el dueño de la tabla puede alterar planes.
 ALTER TABLE saas_plans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE saas_plans FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS saas_plans_catalog ON saas_plans;
-CREATE POLICY saas_plans_catalog ON saas_plans USING (true) WITH CHECK (true);
+CREATE POLICY saas_plans_catalog ON saas_plans FOR SELECT USING (true);
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON saas_plans FROM PUBLIC;
+
+-- RLS sin política de escritura bloquea INSERT (42501), pero UPDATE/DELETE
+-- afectarían 0 filas silenciosamente; el trigger a nivel de sentencia se
+-- dispara incluso cuando RLS oculta las filas y garantiza el mismo error.
+CREATE OR REPLACE FUNCTION saas_deny_plan_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RAISE EXCEPTION 'saas_plans es un catálogo de solo lectura' USING ERRCODE = '42501';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS saas_plans_read_only ON saas_plans;
+CREATE TRIGGER saas_plans_read_only
+  BEFORE UPDATE OR DELETE OR TRUNCATE ON saas_plans
+  FOR EACH STATEMENT EXECUTE FUNCTION saas_deny_plan_mutation();
 
 DO $rls$
 DECLARE

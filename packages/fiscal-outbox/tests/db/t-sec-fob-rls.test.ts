@@ -47,6 +47,34 @@ describe.sequential("T-SEC-FOB-RLS — aislamiento fob_*", () => {
     expect(ctx).toBeDefined();
   });
 
+  it("FK compuesta impide que el tenant A referencie una intención del tenant B", async () => {
+    if (!client) throw new Error("no client");
+    const rows = await withFobTenantTransaction(client, TENANT_B, async (tx) =>
+      tx<{ id: string }[]>`
+        SELECT id::text AS id FROM fob_fiscal_intents WHERE operation_id = 'rls-b'
+      `,
+    );
+    const intentId = rows[0]?.id;
+    expect(intentId).toBeDefined();
+
+    await expect(
+      withFobTenantTransaction(client, TENANT_A, async (tx) => {
+        await tx`
+          INSERT INTO fob_fiscal_documents (
+            id, tenant_id, intent_id, clave, consecutivo, delivery_state
+          ) VALUES (
+            gen_random_uuid(),
+            ${TENANT_A}::uuid,
+            ${intentId}::uuid,
+            ${"1".repeat(50)},
+            ${"1".repeat(20)},
+            'FIRMADO'
+          )
+        `;
+      }),
+    ).rejects.toMatchObject({ code: "23503" });
+  });
+
   it("sin app.current_tenant_id no devuelve filas", async () => {
     if (!client) throw new Error("no client");
     const rows = await client<{ count: string }[]>`
