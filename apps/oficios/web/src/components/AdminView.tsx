@@ -109,19 +109,11 @@ function PlanPanel(props: { readonly config: DevApiConfig }) {
     void load();
   }, [props.config]);
 
-  const pct =
-    billing && billing.limits.maxSeats > 0
-      ? Math.min(100, Math.round((billing.usage.seats / billing.limits.maxSeats) * 100))
-      : 0;
-
   return (
     <section className="card p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-[var(--ink)]">Plan y consumo</h2>
-          <p className="mt-0.5 text-xs text-[var(--ink-muted)]">
-            Supervisión de licencias activas y límites del taller.
-          </p>
         </div>
         <button type="button" className="touch btn-secondary text-xs" onClick={() => void load()}>
           Actualizar
@@ -130,17 +122,6 @@ function PlanPanel(props: { readonly config: DevApiConfig }) {
 
       {summary ? <p className="num mt-4 text-sm font-medium text-[var(--ink)]">{summary}</p> : null}
 
-      {billing ? (
-        <div className="mt-3">
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-[var(--surface-muted)]">
-            <div
-              className={`h-full rounded-full ${warn ? "bg-[var(--status-warn-action)]" : "bg-[var(--status-done-ink)]"}`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <p className="num mt-1.5 text-xs text-[var(--ink-muted)]">{pct}% de capacidad utilizada</p>
-        </div>
-      ) : null}
 
       {warn ? (
         <p
@@ -173,9 +154,6 @@ function AuditPanel(props: { readonly config: DevApiConfig }) {
     <section className="card overflow-hidden">
       <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)]/70 px-5 py-4">
         <h2 className="text-base font-semibold text-[var(--ink)]">Auditoría</h2>
-        <p className="mt-0.5 text-xs text-[var(--ink-muted)]">
-          Registro cronológico de eventos en hora de Costa Rica (UTC-6).
-        </p>
       </div>
       {error ? <p className="p-5 text-sm text-[var(--status-warn-ink)]">{error}</p> : null}
       <div className="overflow-x-auto">
@@ -243,9 +221,7 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
             La verificación en este entorno es local y no constituye aceptación del Ministerio de Hacienda.
           </p>
         </div>
-        <span className="pill-warn num rounded-full px-3 py-1 text-xs font-semibold">
-          sandbox
-        </span>
+        <span className="text-xs text-[var(--ink-muted)]">sandbox</span>
       </div>
 
       {fingerprint ? (

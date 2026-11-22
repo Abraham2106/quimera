@@ -32,19 +32,13 @@ export function AppShell(props: Props) {
       <aside className="hidden bg-[var(--surface-rail)] text-[var(--on-rail)] lg:flex lg:flex-col">
         <div className="border-b border-white/10 px-5 py-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--accent)] text-sm font-bold text-white shadow-sm">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-sm font-bold text-[var(--ink)]">
               OF
             </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold tracking-tight text-white">OficiOS</p>
-              <p className="truncate text-xs text-[var(--on-rail-muted)]">Taller HVAC · CR</p>
+              <p className="truncate text-xs text-[var(--on-rail-muted)]">{props.role}</p>
             </div>
-          </div>
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-[var(--surface-rail-elevated)] px-3 py-2">
-            <span className="text-xs font-medium text-[var(--on-rail-muted)]">Rol activo</span>
-            <span className="num rounded bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
-              {props.role}
-            </span>
           </div>
         </div>
 
@@ -58,7 +52,7 @@ export function AppShell(props: Props) {
                 aria-current={active ? "page" : undefined}
                 className={`touch flex items-center gap-3 rounded-xl px-3.5 text-left text-sm transition-[background-color,color] duration-150 ease-[var(--ease-out)] ${
                   active
-                    ? "bg-[var(--accent)] font-semibold text-white shadow-sm"
+                    ? "bg-white font-semibold text-[var(--ink)]"
                     : "text-[var(--on-rail-muted)] hover:bg-white/6 hover:text-white"
                 }`}
                 onClick={() => props.onSection(item.id)}
@@ -70,10 +64,6 @@ export function AppShell(props: Props) {
           })}
         </nav>
 
-        <div className="border-t border-white/10 px-5 py-4 text-xs text-[var(--on-rail-muted)]">
-          <p className="font-medium text-white/90">QUIMERA Local-First</p>
-          <p className="mt-0.5 text-xs text-[var(--on-rail-muted)]">Operación en campo y sincronización segura</p>
-        </div>
       </aside>
 
       <div className="flex min-h-dvh flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
@@ -83,26 +73,15 @@ export function AppShell(props: Props) {
               OF
             </span>
             <div>
-              <h1 className="text-base font-semibold tracking-tight text-[var(--ink)]">{currentLabel}</h1>
-              <p className="hidden text-xs text-[var(--ink-muted)] sm:block">
-                Gestión operativa de órdenes, evidencia técnica y facturación electrónica
-              </p>
+              <h1 className="text-base font-semibold tracking-tight text-[var(--ink)] lg:sr-only">{currentLabel}</h1>
             </div>
           </div>
 
           <button
             type="button"
-            className={`touch inline-flex items-center gap-2 rounded-full px-3.5 text-xs font-semibold transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] ${
-              props.online && props.pendingCount === 0 ? "pill-done" : "pill-warn"
-            }`}
+            className="touch px-1 text-sm font-medium text-[var(--ink)] transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97]"
             onClick={props.onOpenQueue}
           >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                props.online && props.pendingCount === 0 ? "bg-[var(--status-done-ink)]" : "bg-[var(--status-warn-ink)]"
-              }`}
-              aria-hidden="true"
-            />
             <span>
               {props.online ? "En línea" : "Sin conexión"}
               {props.pendingCount > 0 ? ` · ${props.pendingCount} pendientes` : ""}
@@ -115,7 +94,7 @@ export function AppShell(props: Props) {
         </main>
 
         <nav
-          className="fixed inset-x-0 bottom-0 z-10 flex border-t border-[var(--border-subtle)] bg-[var(--surface-card)] pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_16px_rgba(10,10,10,0.08)] lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-10 flex border-t border-[var(--border-subtle)] bg-[var(--surface-card)] pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
           aria-label="Secciones móviles"
         >
           {items.map((item) => {

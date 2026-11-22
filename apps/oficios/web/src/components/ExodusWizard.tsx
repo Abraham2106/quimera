@@ -2,8 +2,6 @@ import { useState } from "react";
 
 import type { DevApiConfig } from "../config.js";
 import { appendDevAuthHeaders } from "../dev-auth-headers.js";
-import { UploadCloudIcon } from "./Icons.js";
-
 type NeedsReview = { column: string; status: string; confidence: number };
 type ConflictRow = { id: string; status: string; summary: string };
 
@@ -32,9 +30,6 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
     <section className="card p-5 sm:p-6">
       <div className="border-b border-[var(--border-subtle)] pb-4">
         <h2 className="text-lg font-semibold text-[var(--ink)]">Data Exodus</h2>
-        <p className="mt-1 text-sm text-[var(--ink-muted)]">
-          Cargue el archivo, revise NEEDS_REVIEW, resuelva conflictos y reanude la carga sin usar la CLI.
-        </p>
       </div>
 
       <div className="my-6">
@@ -86,16 +81,7 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
             })();
           }}
         >
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-tint)] text-[var(--accent)]">
-            <UploadCloudIcon width={24} height={24} />
-          </span>
-          <p className="mt-3 text-sm font-semibold text-[var(--ink)]">
-            Seleccione un archivo CSV, XLSX o XML de clientes / equipos
-          </p>
-          <p className="mt-1 text-xs text-[var(--ink-muted)]">
-            Cada columna ambigua quedará marcada como NEEDS_REVIEW para confirmación humana.
-          </p>
-          <label className="touch btn-secondary mt-4 cursor-pointer">
+          <label className="touch btn-secondary cursor-pointer">
             Elegir archivo
             <input
               name="file"

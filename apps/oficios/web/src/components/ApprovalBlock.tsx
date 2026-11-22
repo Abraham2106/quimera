@@ -1,5 +1,3 @@
-import { AlertTriangleIcon, CheckIcon } from "./Icons.js";
-
 type Props = {
   readonly visible: boolean;
   readonly busy: boolean;
@@ -13,27 +11,18 @@ export function ApprovalBlock({ visible, busy, onRegisterApproval }: Props) {
 
   return (
     <div
-      className="banner-warn mb-4 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+      className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
       role="alert"
     >
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/70">
-          <AlertTriangleIcon />
-        </span>
-        <div>
-          <p className="text-sm font-medium">Aprobación del cliente</p>
-          <p className="mt-0.5 break-words text-sm">
-            {"No se puede iniciar ni cerrar esta orden todavía: falta registrar la aprobación del presupuesto por parte del cliente"}
-          </p>
-        </div>
-      </div>
+      <p className="break-words text-sm text-[var(--ink)]">
+        {"No se puede iniciar ni cerrar esta orden todavía: falta registrar la aprobación del presupuesto por parte del cliente"}
+      </p>
       <button
         type="button"
-        className="touch btn-warn shrink-0"
+        className="touch btn-primary shrink-0"
         disabled={busy}
         onClick={onRegisterApproval}
       >
-        <CheckIcon width={16} height={16} />
         Registrar aprobación del cliente
       </button>
     </div>

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchCustomerProvenance, fetchCustomers, fetchEquipment } from "../api/client.js";
 import type { CustomerListItem, ProvenanceEntry } from "../api/types.js";
 import type { DevApiConfig } from "../config.js";
-import { SearchIcon, UsersIcon } from "./Icons.js";
+import { SearchIcon } from "./Icons.js";
 import { ProvenanceDisclosure } from "./ProvenanceDisclosure.js";
 
 export function CustomersView(props: { readonly config: DevApiConfig }) {
@@ -41,9 +41,6 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
       <section className="card overflow-hidden">
         <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)]/70 p-4">
           <h2 className="text-base font-semibold text-[var(--ink)]">Clientes y equipos</h2>
-          <p className="mt-0.5 text-xs text-[var(--ink-muted)]">
-            {shown.length} {shown.length === 1 ? "cliente registrado" : "clientes registrados"}
-          </p>
           <div className="relative mt-3">
             <SearchIcon
               width={16}
@@ -76,7 +73,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
                   type="button"
                   className={`touch relative flex w-full min-w-0 items-center justify-between px-4 py-3 text-left text-sm ${
                     active
-                      ? "bg-[var(--accent-tint)]/75 font-semibold text-[var(--ink)]"
+                      ? "bg-[var(--p-surface)] font-semibold text-[var(--ink)]"
                       : "hover:bg-[var(--surface-subtle)]"
                   }`}
                   aria-current={active ? "true" : undefined}
@@ -92,16 +89,12 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
 
       <section className="card min-w-0 p-5 sm:p-6">
         {!current ? (
-          <div className="flex flex-col items-center justify-center py-14 text-center text-[var(--ink-muted)]">
-            <UsersIcon width={24} height={24} />
-            <p className="mt-2 text-sm">Seleccione un cliente para consultar sus equipos y procedencia.</p>
-          </div>
+          <p className="py-14 text-center text-sm text-[var(--ink-muted)]">Seleccione un cliente.</p>
         ) : (
           <div className="space-y-5">
-            <div className="border-b border-[var(--border-subtle)] pb-4">
-              <p className="text-sm text-[var(--ink-muted)]">Cliente</p>
-              <h3 className="mt-1 break-words text-xl font-medium text-[var(--ink)]">{current.legalName}</h3>
-            </div>
+            <h3 className="break-words border-b border-[var(--border-subtle)] pb-4 text-xl font-medium text-[var(--ink)]">
+              {current.legalName}
+            </h3>
 
             <div>
               <h3 className="text-sm font-semibold text-[var(--ink)]">Equipo</h3>

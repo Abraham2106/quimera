@@ -18,10 +18,7 @@ export function OrgOnboardingPanel(props: Props) {
 
   return (
     <section className="card p-5">
-      <h2 className="text-base font-semibold text-[var(--ink)]">Alta de organización B2B</h2>
-      <p className="mt-1 text-xs text-[var(--ink-muted)]">
-        Registro transaccional con cédula CR normalizada y rol ADMIN inicial.
-      </p>
+      <h2 className="text-base font-semibold text-[var(--ink)]">Alta de organización</h2>
       <form
         className="mt-4 grid min-w-0 gap-3 text-sm sm:grid-cols-2"
         onSubmit={(event) => {

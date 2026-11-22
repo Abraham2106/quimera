@@ -50,17 +50,17 @@
 }
 
 :root {
-  --p-bg: #dedad3;
-  --p-surface: #d3cec6;
-  --p-ink: #0a0a0a;
-  --p-muted: #55514c;
-  --p-accent: #256782;
+  --p-bg: #f3f1ec;
+  --p-surface: #e7e4de;
+  --p-ink: #1a1a1a;
+  --p-muted: #5e5a55;
+  --p-accent: #1a1a1a;
   --p-accent-ink: #ffffff;
   --p-inv-bg: #0a0a0a;
   --p-inv-ink: #dedad3;
   --p-inv-muted: #84827e;
   --surface-canvas: var(--p-bg);
-  --surface-card: #f4f1eb;
+  --surface-card: #fffcf8;
   --surface-subtle: var(--p-surface);
   --surface-muted: #c9c3ba;
   --surface-rail: var(--p-inv-bg);
@@ -68,8 +68,8 @@
   --border-subtle: rgba(10, 10, 10, 0.12);
   --border-strong: rgba(10, 10, 10, 0.28);
   --accent: var(--p-accent);
-  --accent-hover: #1b5566;
-  --accent-tint: #e5f1f4;
+  --accent-hover: #000000;
+  --accent-tint: #e7e4de;
   --ink: var(--p-ink);
   --ink-muted: var(--p-muted);
   --on-rail: var(--p-inv-ink);
@@ -85,7 +85,7 @@
   --status-warn-border: #e0c48a;
   --status-warn-action: #7a4e10;
   --status-warn-action-hover: #5e3b0c;
-  --focus: #1b5566;
+  --focus: #1a1a1a;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
@@ -220,7 +220,7 @@ h2,
     border-radius: 16px;
     border: 1px solid var(--border-subtle);
     background: var(--surface-card);
-    box-shadow: 0 10px 28px -22px rgba(10, 10, 10, 0.45);
+    box-shadow: none;
   }
 
   .field {
@@ -242,7 +242,7 @@ h2,
 
   .field:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37, 103, 130, 0.18);
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.12);
     outline: none;
   }
 

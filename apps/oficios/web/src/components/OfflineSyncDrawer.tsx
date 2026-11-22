@@ -93,9 +93,7 @@ export function OfflineSyncDrawer(props: {
                       {row.kind} · orden {row.workOrderId.slice(0, 8)}
                     </p>
                     {!conflicts.includes(row.clientMutationId) ? (
-                      <span className="pill-warn rounded-full px-2.5 py-0.5 text-xs font-semibold">
-                        En cola
-                      </span>
+                      <span className="text-xs text-[var(--ink-muted)]">En cola</span>
                     ) : null}
                   </div>
                   <p className="num mt-1 text-xs text-[var(--ink-muted)]">

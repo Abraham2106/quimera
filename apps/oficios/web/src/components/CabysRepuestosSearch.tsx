@@ -14,7 +14,6 @@ export function CabysRepuestosSearch(props: Props) {
   const { config } = props;
   const [query, setQuery] = useState("refriger");
   const [items, setItems] = useState<readonly CabysItem[]>([]);
-  const [metaSource, setMetaSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,10 +24,8 @@ export function CabysRepuestosSearch(props: Props) {
     try {
       const result = await searchCabysRepuestos(config, query);
       setItems(result.data.cabys ?? []);
-      setMetaSource(result.meta.source);
     } catch (err) {
       setItems([]);
-      setMetaSource(null);
       setError(
         err instanceof Error
           ? err.message
@@ -44,15 +41,7 @@ export function CabysRepuestosSearch(props: Props) {
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold text-[var(--ink)]">Repuestos</h3>
-          <p className="mt-0.5 text-xs text-[var(--ink-muted)]">
-            Busque códigos CAByS para armar el Presupuesto (vía API del taller).
-          </p>
         </div>
-        {metaSource ? (
-          <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--ink-muted)]">
-            Fuente: {metaSource}
-          </span>
-        ) : null}
       </div>
 
       <form className="mt-3 flex flex-wrap gap-2" onSubmit={onSearch}>

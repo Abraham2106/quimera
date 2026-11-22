@@ -38,9 +38,6 @@ export function TeamManagementPanel(props: Props) {
   return (
     <section className="card p-5">
       <h2 className="text-base font-semibold text-[var(--ink)]">Equipo y roles</h2>
-      <p className="mt-1 text-xs text-[var(--ink-muted)]">
-        Administre permisos RBAC y emita invitaciones de un solo uso.
-      </p>
 
       <ul className="mt-4 divide-y divide-[var(--border-subtle)] overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/50">
         {members.length === 0 ? (
