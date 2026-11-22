@@ -7,6 +7,7 @@ import {
   type FiscalCredentialEnvironment,
 } from "../store/pg-fiscal-credentials.js";
 import type { FiscalCredentialVaultPort, FiscalSecretKind } from "../vault/port.js";
+import { zeroBuffers } from "../vault/secret-buffer.js";
 
 export type DecryptedFiscalCredentials = {
   readonly issuerId: string;
@@ -71,12 +72,17 @@ export async function loadDecryptedFiscalCredentials(
     openKind(client, vault, tenantId, issuerId, activeEnv, "idp_password"),
   ]);
 
-  return {
-    issuerId,
-    environment: activeEnv,
-    p12,
-    pin: pin.toString("utf8"),
-    idpUsername: idpUsername.toString("utf8"),
-    idpPassword: idpPassword.toString("utf8"),
-  };
+  try {
+    return {
+      issuerId,
+      environment: activeEnv,
+      p12,
+      pin: pin.toString("utf8"),
+      idpUsername: idpUsername.toString("utf8"),
+      idpPassword: idpPassword.toString("utf8"),
+    };
+  } finally {
+    // El p12 se conserva porque el transporte lo usa para firmar; el resto se limpia.
+    zeroBuffers(pin, idpUsername, idpPassword);
+  }
 }

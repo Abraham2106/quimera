@@ -22,6 +22,8 @@ export type PgDocumentStoreScope = {
   readonly issuerId: string;
   readonly environment: "staging" | "production" | "mock";
   readonly docType?: string;
+  /** Fencing token del lease del worker; cuando se indica, toda escritura lo exige. */
+  readonly leaseOwner?: string;
 };
 
 export class PgDocumentStore implements DocumentStore {
@@ -187,14 +189,18 @@ export class PgDocumentStore implements DocumentStore {
       const snapshot = snapshotFromStoredDocument({ ...doc, transitions });
       const envelope = deliveryJsonEnvelope(snapshot, doc.lastError);
 
-      await tx`
+      const result = await tx`
         UPDATE fob_fiscal_documents
         SET
           delivery_state = ${to},
           last_error_json = ${tx.json(envelope as never)},
           updated_at = now()
         WHERE id = ${row.id}::uuid
+          AND (${this.scope.leaseOwner ?? null}::text IS NULL OR lease_owner = ${this.scope.leaseOwner ?? null})
       `;
+      if (Number(result.count ?? 0) !== 1) {
+        throw new Error("ERR_FOB_FENCE: el lease ya no pertenece a este worker");
+      }
     });
   }
 
@@ -225,14 +231,18 @@ export class PgDocumentStore implements DocumentStore {
       const snapshot = snapshotFromStoredDocument(next);
       const envelope = deliveryJsonEnvelope(snapshot, next.lastError);
 
-      await tx`
+      const result = await tx`
         UPDATE fob_fiscal_documents
         SET
           attempts = ${next.attempts},
           last_error_json = ${tx.json(envelope as never)},
           updated_at = now()
         WHERE id = ${row.id}::uuid
+          AND (${this.scope.leaseOwner ?? null}::text IS NULL OR lease_owner = ${this.scope.leaseOwner ?? null})
       `;
+      if (Number(result.count ?? 0) !== 1) {
+        throw new Error("ERR_FOB_FENCE: el lease ya no pertenece a este worker");
+      }
     });
   }
 

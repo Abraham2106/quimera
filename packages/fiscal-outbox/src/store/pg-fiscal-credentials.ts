@@ -1,4 +1,5 @@
 import type { FiscalCredentialVaultPort, FiscalSecretKind, SealedSecret } from "../vault/port.js";
+import { zeroBuffer } from "../vault/secret-buffer.js";
 import { type FobSql, withFobTenantTransaction } from "../db/connection.js";
 
 export type FiscalCredentialEnvironment = "sandbox" | "production";
@@ -47,16 +48,38 @@ export async function upsertFiscalCredentials(
   vault: FiscalCredentialVaultPort,
   input: FiscalCredentialUploadInput,
 ): Promise<FiscalCredentialUploadResult> {
-  const pieces: Array<{ kind: FiscalSecretKind; plain: Buffer; certNotAfter: Date | null }> = [
-    { kind: "p12", plain: input.p12, certNotAfter: input.certNotAfter },
-    { kind: "pin", plain: Buffer.from(input.pin, "utf8"), certNotAfter: null },
-    { kind: "idp_username", plain: Buffer.from(input.idpUsername, "utf8"), certNotAfter: null },
-    { kind: "idp_password", plain: Buffer.from(input.idpPassword, "utf8"), certNotAfter: null },
+  const pieces: Array<{
+    kind: FiscalSecretKind;
+    plain: Buffer;
+    certNotAfter: Date | null;
+    owned: boolean;
+  }> = [
+    { kind: "p12", plain: input.p12, certNotAfter: input.certNotAfter, owned: false },
+    { kind: "pin", plain: Buffer.from(input.pin, "utf8"), certNotAfter: null, owned: true },
+    {
+      kind: "idp_username",
+      plain: Buffer.from(input.idpUsername, "utf8"),
+      certNotAfter: null,
+      owned: true,
+    },
+    {
+      kind: "idp_password",
+      plain: Buffer.from(input.idpPassword, "utf8"),
+      certNotAfter: null,
+      owned: true,
+    },
   ];
 
   await withFobTenantTransaction(client, input.tenantId, async (tx) => {
     for (const piece of pieces) {
-      const sealed = await vault.seal(input.tenantId, piece.kind, piece.plain);
+      let sealed: SealedSecret;
+      try {
+        sealed = await vault.seal(input.tenantId, piece.kind, input.environment, piece.plain);
+      } finally {
+        if (piece.owned) {
+          zeroBuffer(piece.plain);
+        }
+      }
       await tx`
         INSERT INTO fob_fiscal_credentials (
           tenant_id,
@@ -154,6 +177,7 @@ export async function loadSealedCredential(
     return {
       tenantId,
       kind: row.kind,
+      environment: row.environment,
       ciphertext: row.ciphertext,
       iv: row.iv,
       tag: row.tag,

@@ -1,12 +1,16 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
-import type { EnvelopeKeyProvider } from "./local-envelope.js";
+import { DEFAULT_KEK_ID, type EnvelopeKeyProvider } from "./local-envelope.js";
 
 export type HttpKeyProviderOptions = {
   readonly baseUrl: string;
   readonly token: string;
   readonly fetchImpl?: typeof fetch;
+  readonly timeoutMs?: number;
+  readonly kekId?: string;
 };
+
+export const DEFAULT_VAULT_HTTP_TIMEOUT_MS = 5_000;
 
 function authHeaders(token: string): Record<string, string> {
   return {
@@ -15,19 +19,47 @@ function authHeaders(token: string): Record<string, string> {
   };
 }
 
-function resolveUrl(baseUrl: string, path: string): URL {
-  const base = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+/** Sólo HTTPS, con excepción explícita de loopback en pruebas. */
+export function resolveSecureVaultUrl(raw: string): URL {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error("ERR_VAULT_HTTP: FISCAL_VAULT_URL no es una URL válida");
+  }
+  if (url.username || url.password) {
+    throw new Error("ERR_VAULT_HTTP: la URL del vault no debe incluir credenciales");
+  }
+  const isSecure = url.protocol === "https:";
+  const isTestLoopback =
+    url.protocol === "http:" &&
+    url.hostname === "127.0.0.1" &&
+    process.env.NODE_ENV === "test";
+  if (!isSecure && !isTestLoopback) {
+    throw new Error("ERR_VAULT_HTTP: se requiere HTTPS (sólo http://127.0.0.1 permitido en test)");
+  }
+  if (!url.pathname.endsWith("/")) {
+    url.pathname = `${url.pathname}/`;
+  }
+  return url;
+}
+
+function resolveUrl(base: URL, path: string): URL {
   return new URL(path.replace(/^\//, ""), base);
 }
 
 /** Adaptador HTTP hacia un endpoint KMS/Vault configurable (envelope DEK). */
 export class HttpKeyProvider {
   private readonly fetchImpl: typeof fetch;
+  private readonly baseUrl: URL;
+  readonly kekId: string;
 
   constructor(private readonly options: HttpKeyProviderOptions) {
     if (!options.baseUrl.trim() || !options.token.trim()) {
       throw new Error("ERR_VAULT_HTTP: FISCAL_VAULT_URL y FISCAL_VAULT_TOKEN son obligatorios");
     }
+    this.baseUrl = resolveSecureVaultUrl(options.baseUrl.trim());
+    this.kekId = options.kekId?.trim() || DEFAULT_KEK_ID;
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
@@ -36,7 +68,9 @@ export class HttpKeyProvider {
     return Buffer.from(value, "base64url");
   }
 
-  async unwrapDekAsync(payload: Buffer): Promise<Buffer> {
+  async unwrapDekAsync(payload: Buffer, kekId?: string): Promise<Buffer> {
+    // El KMS remoto resuelve la versión de KEK; aquí sólo se registra el hint.
+    void kekId;
     const value = await this.postField(
       "/v1/unwrap",
       { ciphertext: payload.toString("base64url") },
@@ -50,16 +84,28 @@ export class HttpKeyProvider {
     body: Record<string, string>,
     field: "ciphertext" | "plaintext",
   ): Promise<string> {
-    const url = resolveUrl(this.options.baseUrl, path);
-    const res = await this.fetchImpl(url, {
-      method: "POST",
-      headers: authHeaders(this.options.token),
-      body: JSON.stringify(body),
-    });
+    const url = resolveUrl(this.baseUrl, path);
+    let res: Response;
+    try {
+      res = await this.fetchImpl(url, {
+        method: "POST",
+        headers: authHeaders(this.options.token),
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(this.options.timeoutMs ?? DEFAULT_VAULT_HTTP_TIMEOUT_MS),
+      });
+    } catch {
+      // Nunca propagar la URL ni el token del proveedor en el error.
+      throw new Error("ERR_VAULT_HTTP: falló la solicitud al proveedor de claves");
+    }
     if (!res.ok) {
       throw new Error(`ERR_VAULT_HTTP: ${res.status}`);
     }
-    const json = (await res.json()) as Record<string, unknown>;
+    let json: Record<string, unknown>;
+    try {
+      json = (await res.json()) as Record<string, unknown>;
+    } catch {
+      throw new Error("ERR_VAULT_HTTP: respuesta inválida");
+    }
     const value = json[field];
     if (typeof value !== "string" || !value) {
       throw new Error("ERR_VAULT_HTTP: respuesta inválida");
@@ -70,6 +116,8 @@ export class HttpKeyProvider {
 
 /** Proveedor síncrono directo sobre handlers loopback (pruebas sin red). */
 export class LoopbackHttpKeyProvider implements EnvelopeKeyProvider {
+  readonly kekId = "http-loopback";
+
   constructor(
     private readonly handlers: ReturnType<typeof createLoopbackVaultHttpHandlers>,
   ) {}

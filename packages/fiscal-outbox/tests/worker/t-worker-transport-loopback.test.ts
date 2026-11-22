@@ -140,7 +140,7 @@ describe.sequential("worker — transporte loopback y arranque", () => {
     await withFobTenantTransaction(client, TENANT_A, async (tx) => {
       await tx`
         UPDATE fob_fiscal_documents
-        SET delivery_state = 'ENVIADO', next_poll_at = now()
+        SET delivery_state = 'ENVIADO', next_poll_at = now() - interval '2 seconds'
         WHERE clave = ${doc.clave}
       `;
     });
@@ -187,7 +187,7 @@ describe.sequential("worker — transporte loopback y arranque", () => {
     await withFobTenantTransaction(client, TENANT_A, async (tx) => {
       await tx`
         UPDATE fob_fiscal_documents
-        SET delivery_state = 'ENVIADO', next_poll_at = now()
+        SET delivery_state = 'ENVIADO', next_poll_at = now() - interval '2 seconds'
         WHERE clave = ${doc.clave}
       `;
     });

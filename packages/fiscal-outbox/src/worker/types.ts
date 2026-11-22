@@ -24,8 +24,9 @@ export type FiscalOutboxTransport = {
   postDocument(input: {
     clave: string;
     xml: string;
+    signal?: AbortSignal;
   }): Promise<TransportCallResult>;
-  getByClave(clave: string): Promise<TransportCallResult>;
+  getByClave(clave: string, signal?: AbortSignal): Promise<TransportCallResult>;
 };
 
 export type ProcessOnceOptions = {
@@ -36,6 +37,8 @@ export type ProcessOnceOptions = {
   readonly now?: () => Date;
   /** Firma el XML (XAdES-EPES) antes de persistirlo y de hacer POST. */
   readonly signXml?: (xml: string) => Promise<string>;
+  /** Abortado por SIGTERM: cancela llamadas HTTP en curso. */
+  readonly signal?: AbortSignal;
 };
 
 export type ClaimedFiscalDocument = FiscalDocumentRow & {

@@ -67,17 +67,27 @@ export {
 export {
   LocalFiscalVault,
   LocalKeyProvider,
+  LocalKeyRing,
   redactFiscalSecrets,
+  redactFiscalObject,
+  redactFiscalLog,
+  FISCAL_REDACTED,
   type FiscalCredentialVaultPort,
   asFiscalCredentialVault,
   type FiscalSecretKind,
+  type FiscalSecretEnvironment,
   type SealedSecret,
 } from "./vault/port.js";
+
+export { zeroBuffer, zeroBuffers } from "./vault/secret-buffer.js";
+export { fiscalSecretAad, DEFAULT_KEK_ID, type EnvelopeKeyProvider } from "./vault/local-envelope.js";
 
 export {
   createFiscalCredentialVault,
   resolveFiscalVaultKind,
+  resolveLocalKek,
   createEphemeralLocalVault,
+  TEST_KEK_ID,
   type FiscalVaultKind,
   type CreateFiscalCredentialVaultOptions,
 } from "./vault/create-fiscal-vault.js";
@@ -86,6 +96,8 @@ export {
   HttpKeyProvider,
   LoopbackHttpKeyProvider,
   createLoopbackVaultHttpHandlers,
+  resolveSecureVaultUrl,
+  DEFAULT_VAULT_HTTP_TIMEOUT_MS,
   type HttpKeyProviderOptions,
 } from "./vault/http-key-provider.js";
 
