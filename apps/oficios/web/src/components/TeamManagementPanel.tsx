@@ -160,7 +160,7 @@ export function TeamManagementPanel(props: Props) {
         </button>
       </form>
 
-      {error ? <p className="mt-2 text-sm text-amber-800">{error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-[var(--status-warn-ink)]">{error}</p> : null}
     </section>
   );
 }

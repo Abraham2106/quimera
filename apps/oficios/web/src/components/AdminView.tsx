@@ -134,7 +134,7 @@ function PlanPanel(props: { readonly config: DevApiConfig }) {
         <div className="mt-3">
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-[var(--surface-muted)]">
             <div
-              className={`h-full rounded-full ${warn ? "bg-amber-600" : "bg-[var(--status-done-ink)]"}`}
+              className={`h-full rounded-full ${warn ? "bg-[var(--status-warn-action)]" : "bg-[var(--status-done-ink)]"}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -144,7 +144,7 @@ function PlanPanel(props: { readonly config: DevApiConfig }) {
 
       {warn ? (
         <p
-          className="mt-4 rounded-xl border border-amber-300 bg-[var(--status-warn)] px-4 py-3 text-sm text-amber-950"
+          className="banner-warn mt-4 px-4 py-3 text-sm"
           role="status"
         >
           El consumo se acerca o alcanzó el límite. Los comprobantes fiscales ya encolados no se interrumpen.
@@ -177,7 +177,7 @@ function AuditPanel(props: { readonly config: DevApiConfig }) {
           Registro cronológico de eventos en hora de Costa Rica (UTC-6).
         </p>
       </div>
-      {error ? <p className="p-5 text-sm text-amber-800">{error}</p> : null}
+      {error ? <p className="p-5 text-sm text-[var(--status-warn-ink)]">{error}</p> : null}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-[var(--border-subtle)] text-xs font-medium text-[var(--ink-muted)]">
@@ -243,13 +243,13 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
             La verificación en este entorno es local y no constituye aceptación del Ministerio de Hacienda.
           </p>
         </div>
-        <span className="num rounded-full border border-amber-300 bg-[var(--status-warn)] px-3 py-1 text-xs font-semibold text-[var(--status-warn-ink)]">
+        <span className="pill-warn num rounded-full px-3 py-1 text-xs font-semibold">
           sandbox
         </span>
       </div>
 
       {fingerprint ? (
-        <p className="num mt-4 rounded-xl border border-emerald-200 bg-[var(--status-done)] px-4 py-2.5 text-xs font-semibold text-[var(--status-done-ink)]">
+        <p className="banner-done num mt-4 px-4 py-2.5 text-xs font-semibold">
           Huella {fingerprint} · sandbox
         </p>
       ) : null}

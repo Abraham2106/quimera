@@ -41,7 +41,7 @@ export function AppShell(props: Props) {
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between rounded-lg bg-[var(--surface-rail-elevated)] px-3 py-2">
-            <span className="text-[11px] font-medium text-[var(--on-rail-muted)]">Rol activo</span>
+            <span className="text-xs font-medium text-[var(--on-rail-muted)]">Rol activo</span>
             <span className="num rounded bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
               {props.role}
             </span>
@@ -72,7 +72,7 @@ export function AppShell(props: Props) {
 
         <div className="border-t border-white/10 px-5 py-4 text-xs text-[var(--on-rail-muted)]">
           <p className="font-medium text-white/90">QUIMERA Local-First</p>
-          <p className="mt-0.5 text-[11px] opacity-80">Operación en campo y sincronización segura</p>
+          <p className="mt-0.5 text-xs text-[var(--on-rail-muted)]">Operación en campo y sincronización segura</p>
         </div>
       </aside>
 
@@ -92,16 +92,14 @@ export function AppShell(props: Props) {
 
           <button
             type="button"
-            className={`touch inline-flex items-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-[border-color] duration-150 ease-[var(--ease-out)] ${
-              props.online && props.pendingCount === 0
-                ? "border-emerald-200 bg-[var(--status-done)] text-[var(--status-done-ink)] hover:border-emerald-300"
-                : "border-amber-300 bg-[var(--status-warn)] text-[var(--status-warn-ink)] hover:border-amber-400"
+            className={`touch inline-flex items-center gap-2 rounded-full px-3.5 text-xs font-semibold transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] ${
+              props.online && props.pendingCount === 0 ? "pill-done" : "pill-warn"
             }`}
             onClick={props.onOpenQueue}
           >
             <span
               className={`h-2 w-2 rounded-full ${
-                props.online && props.pendingCount === 0 ? "bg-emerald-600" : "bg-amber-600"
+                props.online && props.pendingCount === 0 ? "bg-[var(--status-done-ink)]" : "bg-[var(--status-warn-ink)]"
               }`}
               aria-hidden="true"
             />
@@ -127,7 +125,7 @@ export function AppShell(props: Props) {
                 key={item.id}
                 type="button"
                 aria-current={active ? "page" : undefined}
-                className={`touch flex flex-1 flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] ${
+                className={`touch flex flex-1 flex-col items-center justify-center gap-1 px-1 py-2 text-xs ${
                   active ? "font-semibold text-[var(--accent)]" : "text-[var(--ink-muted)]"
                 }`}
                 onClick={() => props.onSection(item.id)}

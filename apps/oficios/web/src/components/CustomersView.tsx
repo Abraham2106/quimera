@@ -60,7 +60,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-          {error ? <p className="mt-2 text-xs text-amber-800">{error}</p> : null}
+          {error ? <p className="mt-2 text-xs text-[var(--status-warn-ink)]">{error}</p> : null}
         </div>
         <ul className="pane-scroll max-h-[min(70dvh,40rem)] divide-y divide-[var(--border-subtle)]">
           {shown.length === 0 ? (

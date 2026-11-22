@@ -13,23 +13,23 @@ export function ApprovalBlock({ visible, busy, onRegisterApproval }: Props) {
 
   return (
     <div
-      className="mb-4 flex flex-col gap-3 rounded-xl border border-amber-300 bg-[var(--status-warn)] p-4 sm:flex-row sm:items-center sm:justify-between"
+      className="banner-warn mb-4 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
       role="alert"
     >
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-200/80 text-amber-900">
+        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/70">
           <AlertTriangleIcon />
         </span>
         <div>
-          <p className="text-sm font-medium text-amber-950">Aprobación del cliente</p>
-          <p className="mt-0.5 break-words text-sm text-amber-950">
+          <p className="text-sm font-medium">Aprobación del cliente</p>
+          <p className="mt-0.5 break-words text-sm">
             {"No se puede iniciar ni cerrar esta orden todavía: falta registrar la aprobación del presupuesto por parte del cliente"}
           </p>
         </div>
       </div>
       <button
         type="button"
-        className="touch inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-amber-800 px-4 text-sm font-medium text-white transition-transform duration-150 ease-[var(--ease-out)] hover:bg-amber-900 active:scale-[0.97] disabled:opacity-50"
+        className="touch btn-warn shrink-0"
         disabled={busy}
         onClick={onRegisterApproval}
       >

@@ -53,16 +53,10 @@ type Props = {
 };
 
 function statusPillClasses(status: string): string {
-  if (status === "CLOSED" || status === "VERIFIED") {
-    return "border-emerald-200 bg-[var(--status-done)] text-[var(--status-done-ink)]";
-  }
-  if (status === "QUOTED") {
-    return "border-amber-300 bg-[var(--status-warn)] text-[var(--status-warn-ink)]";
-  }
-  if (status === "IN_PROGRESS" || status === "APPROVED") {
-    return "border-sky-200 bg-[var(--status-now)] text-[var(--status-now-ink)]";
-  }
-  return "border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--ink)]";
+  if (status === "CLOSED" || status === "VERIFIED") return "pill-done";
+  if (status === "QUOTED") return "pill-warn";
+  if (status === "IN_PROGRESS" || status === "APPROVED") return "pill-now";
+  return "pill-idle";
 }
 
 export function OrdersWorkspace(props: Props) {
@@ -334,7 +328,7 @@ export function OrdersWorkspace(props: Props) {
                           {formatOrdenFolio(order.id)}
                         </span>
                         <span
-                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusPillClasses(order.status)}`}
+                          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusPillClasses(order.status)}`}
                         >
                           {statusLabel(order.status)}
                         </span>
@@ -434,7 +428,7 @@ export function OrdersWorkspace(props: Props) {
 
           {notice ? (
             <p
-              className="rounded-xl border border-emerald-200 bg-[var(--status-done)] px-4 py-3 text-sm font-medium text-[var(--status-done-ink)]"
+              className="banner-done px-4 py-3 text-sm font-medium"
               role="status"
             >
               {notice}
@@ -581,7 +575,7 @@ export function OrdersWorkspace(props: Props) {
                       return (
                         <li
                           key={step.status}
-                          className={`text-[11px] leading-tight ${
+                          className={`text-xs leading-tight ${
                             current
                               ? "font-medium text-[var(--accent)]"
                               : done
@@ -691,7 +685,7 @@ export function OrdersWorkspace(props: Props) {
                     <PackageIcon width={16} height={16} />
                     <span>Materiales y CAByS</span>
                     {workOrder.materials?.length ? (
-                      <span className="num rounded-full bg-[var(--surface-muted)] px-1.5 py-0.5 text-[11px] font-semibold text-[var(--ink)]">
+                      <span className="num rounded-full bg-[var(--surface-muted)] px-1.5 py-0.5 text-xs font-semibold text-[var(--ink)]">
                         {workOrder.materials.length}
                       </span>
                     ) : null}
@@ -811,7 +805,7 @@ export function OrdersWorkspace(props: Props) {
                         />
                       </label>
                       {fileError ? (
-                        <p className="mt-2.5 text-sm text-amber-800" role="alert">
+                        <p className="mt-2.5 text-sm text-[var(--status-warn-ink)]" role="alert">
                           {fileError}
                         </p>
                       ) : null}
@@ -957,21 +951,31 @@ export function OrdersWorkspace(props: Props) {
                 ) : null}
               </div>
             </article>
+          ) : selectedId ? (
+            <div className="card px-5 py-6 sm:px-6" aria-busy="true">
+              <p className="sr-only">Cargando la orden…</p>
+              <div className="skeleton h-3 w-28" />
+              <div className="skeleton mt-3 h-9 w-56 max-w-full" />
+              <div className="skeleton mt-6 h-1 w-full" />
+              <div className="mt-6 space-y-3">
+                <div className="skeleton h-4 w-full" />
+                <div className="skeleton h-4 w-4/5" />
+                <div className="skeleton h-28 w-full" />
+              </div>
+            </div>
           ) : (
             <div className="card flex flex-col items-center justify-center px-6 py-20 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--surface-muted)] text-[var(--ink-muted)]">
                 <WrenchIcon width={22} height={22} />
               </span>
-              <p className="mt-3 text-sm font-semibold text-[var(--ink)]">
-                {selectedId ? "Cargando la orden…" : "Seleccione una orden de la bandeja."}
-              </p>
+              <p className="mt-3 text-sm font-semibold text-[var(--ink)]">Seleccione una orden de la bandeja.</p>
             </div>
           )}
         </section>
       </div>
       {import.meta.env.DEV ? (
         <div
-          className="z-40 mx-auto mt-4 flex w-fit rounded-full bg-neutral-200 p-1 text-xs text-neutral-900 lg:fixed lg:bottom-4 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2"
+          className="mx-auto mt-4 flex w-fit rounded-full bg-neutral-200 p-1 text-xs text-neutral-900"
           style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}
         >
           <button

@@ -145,9 +145,9 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
       {step === 2 ? (
         <div className="space-y-4">
           {needsReview.length > 0 ? (
-            <div className="rounded-xl border border-amber-300 bg-[var(--status-warn)] p-4">
-              <p className="text-sm font-medium text-amber-950">Columnas marcadas como NEEDS_REVIEW</p>
-              <ul className="mt-2 space-y-1 text-sm text-amber-950">
+            <div className="banner-warn p-4">
+              <p className="text-sm font-medium">Columnas marcadas como NEEDS_REVIEW</p>
+              <ul className="mt-2 space-y-1 text-sm">
                 {needsReview.map((column) => (
                   <li key={column.column} className="num">
                     NEEDS_REVIEW {column.column} ({column.confidence})
@@ -202,7 +202,7 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
       ) : null}
 
       {step === 3 ? (
-        <div className="rounded-xl border border-emerald-200 bg-[var(--status-done)]/60 p-5">
+        <div className="banner-done p-5">
           <p className="text-sm font-medium text-[var(--ink)]">
             Todos los conflictos han sido resueltos. Puede reanudar la carga final hacia el taller.
           </p>

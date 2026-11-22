@@ -49,7 +49,7 @@ export function CabysRepuestosSearch(props: Props) {
           </p>
         </div>
         {metaSource ? (
-          <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--ink-muted)]">
+          <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--ink-muted)]">
             Fuente: {metaSource}
           </span>
         ) : null}
@@ -85,7 +85,7 @@ export function CabysRepuestosSearch(props: Props) {
         </button>
       </form>
 
-      {error ? <p className="mt-2 text-sm text-amber-800">{error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-[var(--status-warn-ink)]">{error}</p> : null}
 
       {items.length > 0 ? (
         <ul className="mt-3 divide-y divide-[var(--border-subtle)] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-white">

@@ -24,7 +24,7 @@ export function ProvenanceDisclosure({ entries, loading, error }: Props) {
       {open ? (
         <div className="mt-3 space-y-2 text-sm text-[var(--ink-muted)]">
           {loading ? <p>Cargando procedencia…</p> : null}
-          {error ? <p className="text-amber-800">{error}</p> : null}
+          {error ? <p className="text-[var(--status-warn-ink)]">{error}</p> : null}
           {!loading && !error && entries && entries.length === 0 ? (
             <p>Sin registros de migración para este cliente.</p>
           ) : null}

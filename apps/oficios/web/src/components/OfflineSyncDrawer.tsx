@@ -93,7 +93,7 @@ export function OfflineSyncDrawer(props: {
                       {row.kind} · orden {row.workOrderId.slice(0, 8)}
                     </p>
                     {!conflicts.includes(row.clientMutationId) ? (
-                      <span className="rounded-full bg-[var(--status-warn)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--status-warn-ink)]">
+                      <span className="pill-warn rounded-full px-2.5 py-0.5 text-xs font-semibold">
                         En cola
                       </span>
                     ) : null}
@@ -103,7 +103,7 @@ export function OfflineSyncDrawer(props: {
                   </p>
                   {conflicts.includes(row.clientMutationId) ? (
                     <div
-                      className="mt-3 rounded-lg border border-amber-300 bg-[var(--status-warn)] p-3 text-xs text-amber-950"
+                      className="banner-warn mt-3 p-3 text-xs"
                       role="alert"
                     >
                       <p className="font-semibold">Conflicto HTTP 409: la orden cambió en el servidor.</p>
