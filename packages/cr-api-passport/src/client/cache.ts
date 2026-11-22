@@ -8,6 +8,7 @@ export type CacheEntry<T> = {
 
 export type QueryCacheKeyInput = {
   readonly passportId: string;
+  readonly passportVersion: string;
   readonly operation: string;
   readonly params: Record<string, string>;
 };
@@ -17,7 +18,7 @@ export function cacheKey(input: QueryCacheKeyInput): string {
     .sort()
     .map((k) => `${k}=${input.params[k]}`)
   .join("&");
-  const raw = `${input.passportId}|${input.operation}|${sorted}`;
+  const raw = `${input.passportId}|${input.passportVersion}|${input.operation}|${sorted}`;
   return createHash("sha256").update(raw).digest("hex");
 }
 
@@ -50,6 +51,10 @@ export class TtlCache<T> {
     };
     this.store.set(key, entry);
     return entry;
+  }
+
+  delete(key: string): void {
+    this.store.delete(key);
   }
 
   clear(): void {

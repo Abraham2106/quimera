@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CONFIDENCE_LOW_MARKER } from "./constants.js";
+import { CONFIDENCE_LOW_MARKER, W_AI_LOW_CONFIDENCE } from "./constants.js";
 import { createClairicStubAdapter } from "./clairic-stub-adapter.js";
 import { lowConfidenceConflict } from "./low-confidence.js";
 import type { ClairicFieldMeta } from "./stub-extract.js";
@@ -14,7 +14,7 @@ const schema = {
 } as const;
 
 describe("T-CLAI-003 — confidence gate (QR-CLAI-003)", () => {
-  const adapter = createClairicStubAdapter();
+  const adapter = createClairicStubAdapter({ env: { QUIMERA_AI_ENABLED: "true" } });
 
   it("CONFIDENCE_LOW marker yields confidence 0.72, pNull 0.2 and lowConfidence flag", async () => {
     const result = await adapter.extract({
@@ -31,6 +31,19 @@ describe("T-CLAI-003 — confidence gate (QR-CLAI-003)", () => {
       expect(lowConfidenceConflict({ confidence: 0.72, pNull: 0.2 })).toBe(
         "AI_LOW_CONFIDENCE",
       );
+      expect(result.data.conflictCodes).toContain("AI_LOW_CONFIDENCE");
+      expect(result.warnings.some((w) => w.code === W_AI_LOW_CONFIDENCE)).toBe(
+        true,
+      );
+    }
+  });
+
+  it("sin baja confianza no emite conflictos ni advertencias", async () => {
+    const result = await adapter.extract({ schema, text: "total: 1200" });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.conflictCodes).toEqual([]);
+      expect(result.warnings).toEqual([]);
     }
   });
 

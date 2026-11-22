@@ -2,6 +2,8 @@ export {
   CLAIRIC_STUB_PROVIDER_ID,
   CLAIRIC_MODEL_ID,
   ERR_CLAIRIC_PAYLOAD_LIMIT,
+  ERR_CLAIRIC_AI_DISABLED,
+  W_AI_LOW_CONFIDENCE,
   CONFIDENCE_LOW_MARKER,
   PROMPT_INJECTION_FIXTURE,
   MAX_CLAIRIC_IMAGES,
@@ -12,6 +14,7 @@ export {
 export {
   ClairicStubAdapter,
   createClairicStubAdapter,
+  type ClairicStubAdapterOptions,
 } from "./clairic-stub-adapter.js";
 
 export {

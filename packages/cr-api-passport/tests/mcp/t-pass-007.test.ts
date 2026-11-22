@@ -3,6 +3,7 @@ import { getPassportById } from "../../src/registry.js";
 import {
   createPassportMcpServer,
   listRegisteredMcpToolNames,
+  PassportQueryModeSchema,
 } from "../../src/mcp/server.js";
 
 describe("T-PASS-007 — fichas SNIT/Correos y registro MCP", () => {
@@ -26,5 +27,11 @@ describe("T-PASS-007 — fichas SNIT/Correos y registro MCP", () => {
     ]);
     const server = createPassportMcpServer();
     expect(server).toBeDefined();
+  });
+
+  it("no expone mode=live en los argumentos de las herramientas", () => {
+    expect(PassportQueryModeSchema.safeParse("live").success).toBe(false);
+    expect(PassportQueryModeSchema.safeParse("fixture").success).toBe(true);
+    expect(PassportQueryModeSchema.safeParse("mock").success).toBe(true);
   });
 });
