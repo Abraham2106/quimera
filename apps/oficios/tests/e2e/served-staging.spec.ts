@@ -81,17 +81,30 @@ test.afterAll(async () => {
   await dbClient?.end({ timeout: 2 });
 });
 
-test("pantalla servida: onboarding, Data Exodus, orden, cobro y auditoría", async ({
+test("staging servido: administración, Data Exodus, orden, cobro y auditoría", async ({
   page,
 }) => {
   const api = await playwrightRequest.newContext({
     baseURL: server.url,
     extraHTTPHeaders: testHeaders,
   });
-  await page.goto(server.url);
-  await expect(page.getByRole("heading", { name: "Alta de organización B2B" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Data Exodus" })).toBeVisible();
+
+  // --- Administración: sub-pestañas del App Shell -------------------------
+  await page.goto(`${server.url}/#/admin`);
+  await expect(page.getByRole("button", { name: "Plan y consumo" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Administración" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Plan y consumo" }).click();
   await expect(page.getByRole("heading", { name: "Plan y consumo" })).toBeVisible();
+  await expect(page.getByText(/starter/i)).toBeVisible({ timeout: 10_000 });
+
+  await page.getByRole("button", { name: "Auditoría" }).click();
+  await expect(page.getByRole("heading", { name: "Auditoría" })).toBeVisible();
+  await expect(page.getByText("e2e.staging").first()).toBeVisible({ timeout: 10_000 });
+
+  // --- Data Exodus: wizard de 4 pasos -------------------------------------
+  await page.goto(`${server.url}/#/exodus`);
+  await expect(page.getByRole("heading", { name: "Data Exodus" })).toBeVisible();
 
   const xxeDir = await mkdtemp(path.join(os.tmpdir(), "ofi-xxe-"));
   const xxePath = path.join(xxeDir, "malicioso.xml");
@@ -100,10 +113,12 @@ test("pantalla servida: onboarding, Data Exodus, orden, cobro y auditoría", asy
     '<?xml version="1.0"?><!DOCTYPE foo [<!ENTITY xxe "pwned">]><root/>',
     "utf8",
   );
-  const xxeInput = page.locator('section:has-text("Data Exodus") input[type="file"]');
-  await xxeInput.setInputFiles(xxePath);
-  await page.locator('section:has-text("Data Exodus") button:has-text("Subir")').click();
-  await expect(page.getByText(/xxe|rechaz|no se pudo/i)).toBeVisible({ timeout: 15_000 });
+  const fileInput = page.locator('input[name="file"]');
+  await fileInput.setInputFiles(xxePath);
+  await page.getByRole("button", { name: "Subir", exact: true }).click();
+  await expect(page.getByText(/xxe|rechaz|no se pudo/i).first()).toBeVisible({
+    timeout: 15_000,
+  });
 
   const csvDir = await mkdtemp(path.join(os.tmpdir(), "ofi-csv-"));
   const csvPath = path.join(csvDir, "clientes.csv");
@@ -114,78 +129,71 @@ test("pantalla servida: onboarding, Data Exodus, orden, cobro y auditoría", asy
     ),
     "utf8",
   );
-  await xxeInput.setInputFiles(csvPath);
-  await page.locator('section:has-text("Data Exodus") button:has-text("Subir")').click();
+  await fileInput.setInputFiles(csvPath);
+  await page.getByRole("button", { name: "Subir", exact: true }).click();
   await expect(page.getByText(/Corrida/)).toBeVisible({ timeout: 15_000 });
-  await page.locator('section:has-text("Data Exodus") button:has-text("Perfilar")').click();
-  await expect(page.getByText("NEEDS_REVIEW")).toBeVisible({ timeout: 20_000 });
 
-  const rationale = page
-    .locator('section:has-text("Data Exodus") input[name="rationale"]')
-    .first();
-  await expect(rationale).toBeVisible({ timeout: 15_000 });
-  await rationale.fill("Dos clientes distintos con la misma cédula");
-  await page
-    .locator('section:has-text("Data Exodus") button:has-text("Registrar decisión")')
-    .first()
-    .click();
-  await expect(page.getByText(/Decisión registrada/i)).toBeVisible({ timeout: 15_000 });
+  await page.getByRole("button", { name: "Perfilar" }).click();
+  await expect(page.getByText("NEEDS_REVIEW").first()).toBeVisible({ timeout: 20_000 });
 
-  await page.locator('section:has-text("Data Exodus") button:has-text("Reanudar carga")').click();
-  await expect(page.getByText(/Carga (completed|COMPLETED|completada)/i)).toBeVisible({ timeout: 20_000 });
+  const conflicts = page.getByRole("button", { name: "Registrar decisión" });
+  const pending = await conflicts.count();
+  expect(pending).toBeGreaterThan(0);
+  for (let index = 0; index < pending; index += 1) {
+    const rationale = page.locator('input[name="rationale"]').first();
+    await expect(rationale).toBeVisible({ timeout: 15_000 });
+    await rationale.fill("Dos clientes distintos con la misma cédula");
+    await conflicts.first().click();
+    await expect(page.getByText(/Decisión registrada/i)).toBeVisible({ timeout: 15_000 });
+    await expect(conflicts).toHaveCount(pending - index - 1, { timeout: 15_000 });
+  }
 
-  await page.getByRole("button", { name: "Ver consumo" }).click();
-  await expect(page.getByText(/starter/i)).toBeVisible({ timeout: 10_000 });
-
-  const audit = await api.get("/api/v1/audit", {
-    headers: { ...testHeaders, "x-test-role": "AUDITOR_READONLY" },
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByRole("button", { name: "Reanudar carga" }).click();
+  await expect(page.getByText(/Carga (completed|COMPLETED|completada)/i)).toBeVisible({
+    timeout: 20_000,
   });
-  expect(audit.ok()).toBeTruthy();
-  const auditJson = (await audit.json()) as { events: unknown[] };
-  expect(auditJson.events.length).toBeGreaterThan(0);
 
-  await page.reload();
+  // --- Órdenes: bandeja, detalle, diagnóstico y evidencia -----------------
+  await page.goto(`${server.url}/#/ordenes`);
+  await expect(page.getByRole("heading", { name: "Órdenes" }).first()).toBeVisible();
+
+  await page.getByRole("button", { name: "+ Nueva orden" }).click();
   const workOrderForm = page.locator("form").filter({ hasText: "Recibir orden" });
   const customerSelect = workOrderForm.locator("select").first();
   await customerSelect.selectOption({ value: customerId });
   const equipmentSelect = workOrderForm.locator("select").nth(1);
   await expect(equipmentSelect.locator("option")).not.toHaveCount(0);
   await equipmentSelect.selectOption({ value: equipmentId });
-  const equipmentValue = await equipmentSelect.inputValue();
-  expect(equipmentValue).toBe(equipmentId);
-  await page.getByRole("button", { name: "Recibir orden" }).click();
-  await expect(page.getByText("Orden de servicio")).toBeVisible({ timeout: 15_000 });
-
-  const workOrderMatch = await page
-    .locator("section")
-    .filter({ hasText: "Orden de servicio" })
-    .textContent();
-  const idFromFolio = workOrderMatch?.includes("OS-2026");
-
-  await page.getByRole("button", { name: "Guardar diagnóstico" }).click();
-  await expect(page.getByText(/Diagnóstico|DIAGNOSED|guardado/i).first()).toBeVisible({
+  await expect(equipmentSelect).toHaveValue(equipmentId);
+  await workOrderForm.getByRole("button", { name: "Recibir orden" }).click();
+  await expect(page.getByRole("heading", { name: "Orden de servicio" })).toBeVisible({
     timeout: 15_000,
   });
 
-  expect(idFromFolio).toBeTruthy();
+  const workOrderSection = page.locator("section").filter({ hasText: "Orden de servicio" });
+  await expect(workOrderSection.getByText(/OS-2026/)).toBeVisible();
+
+  const diagnosis = page.locator('textarea[aria-label="Diagnóstico"]');
+  await diagnosis.fill("Falla intermitente de compressión en HVAC");
+  await page.getByRole("button", { name: "Guardar diagnóstico" }).click();
+  await expect(page.getByText("Diagnóstico guardado.")).toBeVisible({ timeout: 15_000 });
 
   const pngDir = await mkdtemp(path.join(os.tmpdir(), "ofi-png-"));
   const pngPath = path.join(pngDir, "foto.png");
-  await writeFile(
-    pngPath,
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]),
-  );
-  const workOrderSection = page.locator("section").filter({ hasText: "Orden de servicio" });
-  const photoInput = workOrderSection.locator('input[type="file"][name="file"]');
-  await photoInput.setInputFiles(pngPath);
-  await workOrderSection.getByRole("button", { name: "Subir adjunto" }).click();
-  await expect(page.getByText("Adjunto subido correctamente.")).toBeVisible({
-    timeout: 15_000,
+  const pngBuffer = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  await writeFile(pngPath, pngBuffer);
+  await page.locator('input[type="file"][accept*="image/png"]').setInputFiles({
+    name: "foto.png",
+    mimeType: "image/png",
+    buffer: pngBuffer,
   });
+  await expect(page.getByText(/Evidencia foto\.png cargada/)).toBeVisible({ timeout: 15_000 });
 
+  // --- Cola offline: el diagnóstico se guarda al reconectar ---------------
   await page.context().setOffline(true);
   const offlineNote = `offline-e2e-${Date.now()}`;
-  await page.locator('input[value*="Presión"]').fill(offlineNote);
+  await diagnosis.fill(offlineNote);
   await page.getByRole("button", { name: "Guardar diagnóstico" }).click();
   await expect(page.getByText(/cola|reconectar/i)).toBeVisible({ timeout: 10_000 });
 
@@ -204,6 +212,14 @@ test("pantalla servida: onboarding, Data Exodus, orden, cobro y auditoría", asy
   );
   expect(Number(rows[0]?.count ?? "0")).toBeGreaterThanOrEqual(1);
   expect(Number(rows[0]?.offline_count ?? "0")).toBeGreaterThanOrEqual(1);
+
+  // --- Bitácora vía API con rol de auditoría -------------------------------
+  const audit = await api.get("/api/v1/audit", {
+    headers: { ...testHeaders, "x-test-role": "AUDITOR_READONLY" },
+  });
+  expect(audit.ok()).toBeTruthy();
+  const auditJson = (await audit.json()) as { events: unknown[] };
+  expect(auditJson.events.length).toBeGreaterThan(0);
 
   await api.dispose();
 });

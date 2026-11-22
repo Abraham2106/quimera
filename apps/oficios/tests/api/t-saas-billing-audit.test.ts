@@ -228,7 +228,8 @@ describe("billing, auditoría y sondas", () => {
 
   it("T-SEC-011 el CI incluye verify, gitleaks y audit, y las imágenes no son root", async () => {
     const ci = await readFile(path.join(repoRoot, ".github/workflows/ci.yml"), "utf8");
-    expect(ci).toContain("pnpm spec:validate");
+    const verify = await readFile(path.join(repoRoot, "scripts/verify.mjs"), "utf8");
+    expect(verify).toContain("spec:validate");
     expect(ci).toContain("pnpm verify");
     expect(ci).toContain("gitleaks");
     expect(ci).toContain("pnpm audit --audit-level=high");
