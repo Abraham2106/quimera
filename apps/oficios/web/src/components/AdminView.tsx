@@ -46,21 +46,20 @@ export function AdminView(props: { readonly config: DevApiConfig; readonly readO
 
   return (
     <section className="space-y-5">
-      <div className="flex flex-wrap gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-2">
+      <div className="flex flex-wrap gap-1 border-b border-[var(--border-subtle)]">
         {tabs.map((item) => {
           const active = tab === item.id;
           return (
             <button
               key={item.id}
               type="button"
-              className={`touch rounded-lg px-4 text-sm font-medium transition-colors ${
-                active
-                  ? "bg-[var(--surface-rail)] text-white shadow-xs"
-                  : "text-[var(--ink-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink)]"
+              className={`touch relative px-4 text-sm ${
+                active ? "font-semibold text-[var(--accent)]" : "font-medium text-[var(--ink-muted)]"
               }`}
               onClick={() => setTab(item.id)}
             >
               {item.label}
+              {active ? <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[var(--accent)]" /> : null}
             </button>
           );
         })}
