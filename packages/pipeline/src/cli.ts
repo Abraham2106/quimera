@@ -34,7 +34,8 @@ const HELP = `Usage: quimera-pipeline <command> [options]
 Commands:
   validate  --manifest <path> [--registry <path>]  Validate DAG and contracts
   run       --manifest <path> --tenant <uuid> [--registry <path>] [--json]
-  resume    --run <uuid> --manifest <path> --tenant <uuid> [--registry <path>] [--json]
+  resume    --run <uuid> --manifest <path> --tenant <uuid> [--registry <path>]
+            [--actor <id> --rationale <texto>] [--json]
   status    --run <uuid> --tenant <uuid> [--json]
 
 Global:
@@ -181,11 +182,17 @@ export async function runCli(argv: string[]): Promise<number> {
           manifest: { type: "string" },
           tenant: { type: "string" },
           registry: { type: "string" },
+          actor: { type: "string" },
+          rationale: { type: "string" },
           json: { type: "boolean", default: false },
         },
       });
       if (!values.run || !values.manifest || !values.tenant) {
         printErr("resume requires --run, --manifest and --tenant");
+        return PIPELINE_EXIT_ERROR;
+      }
+      if (values.actor && !values.rationale) {
+        printErr("resume --actor requires --rationale");
         return PIPELINE_EXIT_ERROR;
       }
       const definition = await loadManifest(values.manifest);
@@ -196,6 +203,14 @@ export async function runCli(argv: string[]): Promise<number> {
         definition,
         registry,
         context: minimalContext(tenantId),
+        ...(values.actor
+          ? {
+              humanDecision: {
+                actorId: values.actor,
+                rationale: values.rationale!,
+              },
+            }
+          : {}),
       });
       if (json) printJson(outcome);
       else printErr(`resume ${outcome.runId} → ${outcome.status} (exit ${outcome.exitCode})`);
@@ -214,8 +229,9 @@ export async function runCli(argv: string[]): Promise<number> {
         printErr("status requires --run and --tenant");
         return PIPELINE_EXIT_ERROR;
       }
-      const run = await getExecutionRun(sql, values.tenant, values.run);
-      const checkpoints = await listCheckpoints(sql, values.run);
+      const tenantId = await resolveTenantId(sql, values.tenant);
+      const run = await getExecutionRun(sql, tenantId, values.run);
+      const checkpoints = await listCheckpoints(sql, tenantId, values.run);
       const payload = { run, checkpoints };
       if (json) printJson(payload);
       else {

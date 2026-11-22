@@ -23,6 +23,7 @@
     "@quimera/core": "workspace:*",
     "@quimera/data-exodus": "workspace:*",
     "postgres": "^3.4.7",
-    "yaml": "^2.8.1"
+    "yaml": "^2.8.1",
+    "zod": "^4.6.7"
   }
 }

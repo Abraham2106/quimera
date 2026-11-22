@@ -25,27 +25,36 @@ CREATE TABLE IF NOT EXISTS fob_fiscal_intents (
   status TEXT NOT NULL CHECK (status IN ('QUEUED', 'DOCUMENT_ASSIGNED', 'COMPLETED', 'REQUIRES_REVIEW', 'CANCELLED')),
   payload_snapshot JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (tenant_id, environment, operation_id, purpose)
+  UNIQUE (tenant_id, environment, operation_id, purpose),
+  UNIQUE (tenant_id, id)
 );
 
 CREATE TABLE IF NOT EXISTS fob_fiscal_documents (
   id UUID PRIMARY KEY,
   tenant_id UUID NOT NULL REFERENCES qum_tenants(id) ON DELETE RESTRICT,
-  intent_id UUID NOT NULL UNIQUE REFERENCES fob_fiscal_intents(id) ON DELETE RESTRICT,
+  intent_id UUID NOT NULL UNIQUE,
   clave CHAR(50) NOT NULL UNIQUE CHECK (clave ~ '^[0-9]{50}$'),
   consecutivo CHAR(20) NOT NULL CHECK (consecutivo ~ '^[0-9]{20}$'),
   delivery_state TEXT NOT NULL CHECK (delivery_state IN (
     'FIRMADO', 'PENDIENTE', 'ENVIADO', 'ACEPTADO', 'RECHAZADO', 'ALMACENADO', 'VENCIDO', 'INCIERTO'
   )),
-  unsigned_xml_artifact_id UUID REFERENCES qum_artifacts(id) ON DELETE RESTRICT,
-  signed_xml_artifact_id UUID REFERENCES qum_artifacts(id) ON DELETE RESTRICT,
-  response_artifact_id UUID REFERENCES qum_artifacts(id) ON DELETE RESTRICT,
+  unsigned_xml_artifact_id UUID,
+  signed_xml_artifact_id UUID,
+  response_artifact_id UUID,
   lease_owner TEXT,
   lease_expires_at TIMESTAMPTZ,
   attempts INTEGER NOT NULL DEFAULT 0,
   next_poll_at TIMESTAMPTZ,
   last_error_json JSONB,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  FOREIGN KEY (tenant_id, intent_id)
+    REFERENCES fob_fiscal_intents (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, unsigned_xml_artifact_id)
+    REFERENCES qum_artifacts (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, signed_xml_artifact_id)
+    REFERENCES qum_artifacts (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, response_artifact_id)
+    REFERENCES qum_artifacts (tenant_id, id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS fob_fiscal_documents_poll_idx

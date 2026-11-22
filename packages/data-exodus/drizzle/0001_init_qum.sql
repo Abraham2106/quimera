@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS qum_artifacts (
   byte_size BIGINT NOT NULL CHECK (byte_size >= 0),
   storage_uri TEXT NOT NULL,
   ingested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (tenant_id, sha256, artifact_kind)
+  UNIQUE (tenant_id, sha256, artifact_kind),
+  UNIQUE (tenant_id, id)
 );
 
 CREATE TABLE IF NOT EXISTS qum_import_batches (
@@ -57,7 +58,8 @@ CREATE TABLE IF NOT EXISTS qum_import_batches (
   skipped_empty INTEGER NOT NULL DEFAULT 0 CHECK (skipped_empty >= 0),
   started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   finished_at TIMESTAMPTZ,
-  UNIQUE (tenant_id, idempotency_key)
+  UNIQUE (tenant_id, idempotency_key),
+  UNIQUE (tenant_id, id)
 );
 
 CREATE TABLE IF NOT EXISTS qum_raw_records (
@@ -84,7 +86,8 @@ CREATE TABLE IF NOT EXISTS qum_entities (
   canonical_data JSONB NOT NULL,
   superseded_by_id UUID REFERENCES qum_entities(id) ON DELETE RESTRICT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (tenant_id, id)
 );
 
 CREATE TABLE IF NOT EXISTS qum_conflicts (
@@ -157,19 +160,25 @@ CREATE TABLE IF NOT EXISTS qum_execution_runs (
   metrics_json JSONB NOT NULL DEFAULT '{}'::jsonb,
   error_json JSONB,
   started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  finished_at TIMESTAMPTZ
+  finished_at TIMESTAMPTZ,
+  UNIQUE (tenant_id, id)
 );
 
 CREATE TABLE IF NOT EXISTS qum_checkpoints (
   id UUID PRIMARY KEY,
+  tenant_id UUID NOT NULL REFERENCES qum_tenants(id) ON DELETE RESTRICT,
   run_id UUID NOT NULL REFERENCES qum_execution_runs(id) ON DELETE RESTRICT,
   step_id TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('PENDING', 'RUNNING', 'COMPLETED', 'WAITING_FOR_APPROVAL', 'FAILED')),
   input_hash TEXT NOT NULL,
   output_ref JSONB,
   attempt_count INTEGER NOT NULL DEFAULT 0,
+  decision_json JSONB,
+  decision_consumed_at TIMESTAMPTZ,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (run_id, step_id)
+  UNIQUE (run_id, step_id),
+  FOREIGN KEY (tenant_id, run_id)
+    REFERENCES qum_execution_runs (tenant_id, id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS qum_raw_records_tenant_record_hash_idx ON qum_raw_records (tenant_id, record_hash);
@@ -205,7 +214,8 @@ BEGIN
     'qum_decisions',
     'qum_entity_relations',
     'qum_provenance_entries',
-    'qum_execution_runs'
+    'qum_execution_runs',
+    'qum_checkpoints'
   ]
   LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);

@@ -8,8 +8,11 @@ CREATE TABLE IF NOT EXISTS ofi_customers (
   tax_id TEXT,
   phone TEXT,
   email TEXT,
-  provenance_entity_id UUID REFERENCES qum_entities(id) ON DELETE RESTRICT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  provenance_entity_id UUID,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (tenant_id, id),
+  FOREIGN KEY (tenant_id, provenance_entity_id)
+    REFERENCES qum_entities (tenant_id, id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS ofi_customers_tenant_idx ON ofi_customers (tenant_id);
@@ -17,12 +20,17 @@ CREATE INDEX IF NOT EXISTS ofi_customers_tenant_idx ON ofi_customers (tenant_id)
 CREATE TABLE IF NOT EXISTS ofi_equipment (
   id UUID PRIMARY KEY,
   tenant_id UUID NOT NULL REFERENCES qum_tenants(id) ON DELETE RESTRICT,
-  customer_id UUID NOT NULL REFERENCES ofi_customers(id) ON DELETE RESTRICT,
+  customer_id UUID NOT NULL,
   trade_contract_id TEXT NOT NULL,
   serial_number TEXT,
   specs_json JSONB NOT NULL DEFAULT '{}'::jsonb,
-  provenance_entity_id UUID REFERENCES qum_entities(id) ON DELETE RESTRICT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  provenance_entity_id UUID,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (tenant_id, id),
+  FOREIGN KEY (tenant_id, customer_id)
+    REFERENCES ofi_customers (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, provenance_entity_id)
+    REFERENCES qum_entities (tenant_id, id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS ofi_equipment_tenant_customer_idx
@@ -31,8 +39,8 @@ CREATE INDEX IF NOT EXISTS ofi_equipment_tenant_customer_idx
 CREATE TABLE IF NOT EXISTS ofi_work_orders (
   id UUID PRIMARY KEY,
   tenant_id UUID NOT NULL REFERENCES qum_tenants(id) ON DELETE RESTRICT,
-  customer_id UUID NOT NULL REFERENCES ofi_customers(id) ON DELETE RESTRICT,
-  equipment_id UUID NOT NULL REFERENCES ofi_equipment(id) ON DELETE RESTRICT,
+  customer_id UUID NOT NULL,
+  equipment_id UUID NOT NULL,
   trade_contract_id TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN (
     'RECEIVED',
@@ -48,9 +56,16 @@ CREATE TABLE IF NOT EXISTS ofi_work_orders (
   currency_code TEXT,
   customer_authorized BOOLEAN NOT NULL DEFAULT false,
   version BIGINT NOT NULL DEFAULT 1 CHECK (version >= 1),
-  fiscal_intent_id UUID REFERENCES fob_fiscal_intents(id) ON DELETE RESTRICT,
+  fiscal_intent_id UUID,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  closed_at TIMESTAMPTZ
+  closed_at TIMESTAMPTZ,
+  UNIQUE (tenant_id, id),
+  FOREIGN KEY (tenant_id, customer_id)
+    REFERENCES ofi_customers (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, equipment_id)
+    REFERENCES ofi_equipment (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, fiscal_intent_id)
+    REFERENCES fob_fiscal_intents (tenant_id, id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS ofi_work_orders_tenant_status_idx
@@ -59,14 +74,18 @@ CREATE INDEX IF NOT EXISTS ofi_work_orders_tenant_status_idx
 CREATE TABLE IF NOT EXISTS ofi_work_order_events (
   id UUID PRIMARY KEY,
   tenant_id UUID NOT NULL REFERENCES qum_tenants(id) ON DELETE RESTRICT,
-  work_order_id UUID NOT NULL REFERENCES ofi_work_orders(id) ON DELETE RESTRICT,
+  work_order_id UUID NOT NULL,
   event_type TEXT NOT NULL,
   from_status TEXT,
   to_status TEXT,
   actor_id TEXT,
   payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
-  artifact_id UUID REFERENCES qum_artifacts(id) ON DELETE RESTRICT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  artifact_id UUID,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  FOREIGN KEY (tenant_id, work_order_id)
+    REFERENCES ofi_work_orders (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, artifact_id)
+    REFERENCES qum_artifacts (tenant_id, id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS ofi_work_order_events_work_order_idx

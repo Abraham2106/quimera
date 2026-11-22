@@ -12,12 +12,16 @@ CREATE TABLE IF NOT EXISTS ofi_migration_runs (
   mime_type TEXT NOT NULL,
   sha256 TEXT NOT NULL CHECK (sha256 ~ '^[a-f0-9]{64}$'),
   storage_uri TEXT NOT NULL,
-  artifact_id UUID NOT NULL REFERENCES qum_artifacts(id) ON DELETE RESTRICT,
-  batch_id UUID NOT NULL REFERENCES qum_import_batches(id) ON DELETE RESTRICT,
+  artifact_id UUID NOT NULL,
+  batch_id UUID NOT NULL,
   profile_json JSONB NOT NULL DEFAULT '{}'::jsonb,
   checkpoint_json JSONB,
   created_by TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  FOREIGN KEY (tenant_id, artifact_id)
+    REFERENCES qum_artifacts (tenant_id, id) ON DELETE RESTRICT,
+  FOREIGN KEY (tenant_id, batch_id)
+    REFERENCES qum_import_batches (tenant_id, id) ON DELETE RESTRICT
 );
 
 CREATE INDEX IF NOT EXISTS ofi_migration_runs_tenant_idx
@@ -26,10 +30,12 @@ CREATE INDEX IF NOT EXISTS ofi_migration_runs_tenant_idx
 CREATE TABLE IF NOT EXISTS ofi_client_mutations (
   tenant_id UUID NOT NULL REFERENCES qum_tenants(id) ON DELETE RESTRICT,
   client_mutation_id UUID NOT NULL,
-  work_order_id UUID NOT NULL REFERENCES ofi_work_orders(id) ON DELETE RESTRICT,
+  work_order_id UUID NOT NULL,
   response_json JSONB NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY (tenant_id, client_mutation_id)
+  PRIMARY KEY (tenant_id, client_mutation_id),
+  FOREIGN KEY (tenant_id, work_order_id)
+    REFERENCES ofi_work_orders (tenant_id, id) ON DELETE RESTRICT
 );
 
 DO $rls$

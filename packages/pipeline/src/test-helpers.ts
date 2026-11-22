@@ -9,6 +9,7 @@ import { createPipelineSql } from "./store/postgres.js";
 import type { RunContext, StepRegistry, StepRegistryEntry } from "./types.js";
 
 export const TEST_TENANT = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+export const TEST_TENANT_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 
 export function testSql(): Sql {
   return createPipelineSql();
@@ -17,38 +18,46 @@ export function testSql(): Sql {
 export async function ensureTestTenant(sql: Sql): Promise<void> {
   await sql`
     INSERT INTO qum_tenants (id, slug, display_name)
-    VALUES (
-      ${TEST_TENANT},
-      ${"pipeline-test"},
-      ${"Pipeline Test Tenant"}
-    )
+    VALUES
+      (${TEST_TENANT}, ${"pipeline-test"}, ${"Pipeline Test Tenant"}),
+      (${TEST_TENANT_B}, ${"pipeline-test-b"}, ${"Pipeline Test Tenant B"})
     ON CONFLICT (id) DO NOTHING
   `;
 }
 
 export async function cleanupPipelineRuns(sql: Sql): Promise<void> {
-  await sql.begin(async (tx) => {
-    await tx`SELECT set_config('app.current_tenant_id', ${TEST_TENANT}, true)`;
-    await tx`
-      DELETE FROM qum_checkpoints cp
-      USING qum_execution_runs er
-      WHERE cp.run_id = er.id AND er.tenant_id = ${TEST_TENANT}
-    `;
-    await tx`DELETE FROM qum_execution_runs WHERE tenant_id = ${TEST_TENANT}`;
-  });
+  for (const tenantId of [TEST_TENANT, TEST_TENANT_B]) {
+    await sql.begin(async (tx) => {
+      await tx`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`;
+      await tx`
+        DELETE FROM qum_checkpoints cp
+        USING qum_execution_runs er
+        WHERE cp.run_id = er.id AND er.tenant_id = ${tenantId}::uuid
+      `;
+      await tx`DELETE FROM qum_execution_runs WHERE tenant_id = ${tenantId}::uuid`;
+    });
+  }
 }
 
-export function testRunContext(): RunContext {
+export function testRunContext(tenantId = TEST_TENANT): RunContext {
   return {
-    tenantId: TEST_TENANT,
+    tenantId,
     correlationId: "test-correlation",
     stepContext: {
-      tenantId: TEST_TENANT,
+      tenantId,
       correlationId: "test-correlation",
       clock: new FixedClock(new Date("2026-01-01T00:00:00.000Z")),
       logger: new MemoryLogger(),
       artifacts: new InMemoryArtifactStore(),
     },
+  };
+}
+
+export function testHumanDecision(actorId = "operator@demo.cr") {
+  return {
+    actorId,
+    action: "APPROVE",
+    rationale: "Conflictos revisados y aprobados manualmente",
   };
 }
 

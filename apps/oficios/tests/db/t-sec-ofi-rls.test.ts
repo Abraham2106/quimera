@@ -207,6 +207,42 @@ describe.sequential("T-SEC-001 — RLS en tablas ofi_*", () => {
     expect(crossOrders.some((row) => row.id === workOrderId)).toBe(false);
   });
 
+  it("FK compuestas impiden referenciar entidades de otro tenant", async (ctx) => {
+    if (!client) {
+      ctx.skip();
+      return;
+    }
+    const { customerId, workOrderId } = await seedTenantBWorkshop(client);
+
+    await expect(
+      withOfiTenantTransaction(client, TENANT_A, async (tx) => {
+        await tx`
+          INSERT INTO ofi_equipment (id, tenant_id, customer_id, trade_contract_id)
+          VALUES (
+            ${randomUUID()}::uuid,
+            ${TENANT_A}::uuid,
+            ${customerId}::uuid,
+            ${HVAC_REFRIGERATION_V1_CONTRACT_ID}
+          )
+        `;
+      }),
+    ).rejects.toMatchObject({ code: "23503" });
+
+    await expect(
+      withOfiTenantTransaction(client, TENANT_A, async (tx) => {
+        await tx`
+          INSERT INTO ofi_diagnoses (id, tenant_id, work_order_id, notes)
+          VALUES (
+            ${randomUUID()}::uuid,
+            ${TENANT_A}::uuid,
+            ${workOrderId}::uuid,
+            'intento cross-tenant'
+          )
+        `;
+      }),
+    ).rejects.toMatchObject({ code: "23503" });
+  });
+
   it("consulta sin app.current_tenant_id no devuelve filas", async (ctx) => {
     if (!client) {
       ctx.skip();

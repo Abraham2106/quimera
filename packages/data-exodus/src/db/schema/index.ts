@@ -84,6 +84,7 @@ export const qumArtifacts = pgTable(
       table.sha256,
       table.artifactKind,
     ),
+    unique("qum_artifacts_tenant_id").on(table.tenantId, table.id),
     check("qum_artifacts_sha256_check", sql`${table.sha256} ~ '^[a-f0-9]{64}$'`),
     check("qum_artifacts_byte_size_check", sql`${table.byteSize} >= 0`),
     check(
@@ -125,6 +126,7 @@ export const qumImportBatches = pgTable(
       table.tenantId,
       table.idempotencyKey,
     ),
+    unique("qum_import_batches_tenant_id").on(table.tenantId, table.id),
     check(
       "qum_import_batches_status_check",
       sql`${table.status} IN ('PENDING', 'RUNNING', 'COMPLETED', 'FAILED', 'CANCELLED')`,
@@ -199,6 +201,7 @@ export const qumEntities = pgTable(
       .defaultNow(),
   },
   (table) => [
+    unique("qum_entities_tenant_id").on(table.tenantId, table.id),
     foreignKey({
       name: "qum_entities_superseded_by_id_fkey",
       columns: [table.supersededById],
@@ -392,6 +395,7 @@ export const qumExecutionRuns = pgTable(
     finishedAt: timestamp("finished_at", { withTimezone: true }),
   },
   (table) => [
+    unique("qum_execution_runs_tenant_id").on(table.tenantId, table.id),
     check(
       "qum_execution_runs_status_check",
       sql`${table.status} IN ('RUNNING', 'WAITING_FOR_APPROVAL', 'COMPLETED', 'FAILED', 'CANCELLED')`,
@@ -403,6 +407,9 @@ export const qumCheckpoints = pgTable(
   "qum_checkpoints",
   {
     id: uuid("id").primaryKey(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => qumTenants.id, { onDelete: "restrict" }),
     runId: uuid("run_id")
       .notNull()
       .references(() => qumExecutionRuns.id, { onDelete: "restrict" }),
@@ -411,12 +418,19 @@ export const qumCheckpoints = pgTable(
     inputHash: text("input_hash").notNull(),
     outputRef: jsonb("output_ref"),
     attemptCount: integer("attempt_count").notNull().default(0),
+    decisionJson: jsonb("decision_json"),
+    decisionConsumedAt: timestamp("decision_consumed_at", { withTimezone: true }),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (table) => [
     unique("qum_checkpoints_run_step").on(table.runId, table.stepId),
+    foreignKey({
+      columns: [table.tenantId, table.runId],
+      foreignColumns: [qumExecutionRuns.tenantId, qumExecutionRuns.id],
+      name: "qum_checkpoints_tenant_run_fkey",
+    }),
     check(
       "qum_checkpoints_status_check",
       sql`${table.status} IN ('PENDING', 'RUNNING', 'COMPLETED', 'WAITING_FOR_APPROVAL', 'FAILED')`,

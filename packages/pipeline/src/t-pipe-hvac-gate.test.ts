@@ -14,6 +14,7 @@ import {
 import {
   cleanupPipelineRuns,
   ensureTestTenant,
+  testHumanDecision,
   testRunContext,
   testSql,
 } from "./test-helpers.js";
@@ -94,6 +95,7 @@ describe.sequential("T-PIPE — demo-hvac-1000 pausa el pipeline", () => {
       },
       registry: { "data-exodus.review": gate },
       context: testRunContext(),
+      humanDecision: testHumanDecision("reviewer@demo.cr"),
     });
     expect(completed.status).toBe("COMPLETED");
     expect(completed.exitCode).toBe(0);

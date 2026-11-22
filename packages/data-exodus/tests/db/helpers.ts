@@ -99,7 +99,7 @@ export async function rlsEnabledTables(client: Sql): Promise<
     WHERE n.nspname = 'public'
       AND c.relkind = 'r'
       AND c.relname LIKE 'qum_%'
-      AND c.relname NOT IN ('qum_tenants', 'qum_schema_versions', 'qum_checkpoints')
+      AND c.relname NOT IN ('qum_tenants', 'qum_schema_versions')
     ORDER BY c.relname
   `;
 }
