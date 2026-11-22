@@ -721,7 +721,7 @@ export function OrdersWorkspace(props: Props) {
                 {tab === "diag" ? (
                   <div className="grid gap-5 xl:grid-cols-2">
                     <form
-                      className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/45 p-4"
+                      className="min-w-0"
                       onSubmit={(event) => {
                         event.preventDefault();
                         void act(async () => {
@@ -774,7 +774,7 @@ export function OrdersWorkspace(props: Props) {
                       </div>
                     </form>
 
-                    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/45 p-4">
+                    <div className="min-w-0">
                       <p className="text-sm font-semibold text-[var(--ink)]">Evidencia (foto o PDF)</p>
                       <label className="mt-2.5 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--border-strong)] bg-white px-4 py-6 text-center transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-tint)]/30">
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent-tint)] text-[var(--accent)]">
@@ -832,7 +832,7 @@ export function OrdersWorkspace(props: Props) {
                     <CabysRepuestosSearch config={props.config} onPick={setCabysCode} />
 
                     <form
-                      className="rounded-xl border border-[var(--border-subtle)] bg-white p-4"
+                      className="min-w-0"
                       onSubmit={(event) => {
                         event.preventDefault();
                         if (priceMinor === null) {
@@ -906,7 +906,7 @@ export function OrdersWorkspace(props: Props) {
                     </form>
 
                     {workOrder.materials?.length ? (
-                      <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)] bg-white">
+                      <div className="overflow-x-auto border-t border-[var(--border-subtle)]">
                         <table className="w-full text-left text-sm">
                           <thead className="border-b border-[var(--border-subtle)] text-xs font-medium text-[var(--ink-muted)]">
                             <tr>
@@ -951,7 +951,7 @@ export function OrdersWorkspace(props: Props) {
 
                 {/* Tab 3: History & Provenance */}
                 {tab === "hist" ? (
-                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/45 p-4">
+                  <div className="min-w-0">
                     <ProvenanceDisclosure entries={provenance} loading={false} error={null} />
                   </div>
                 ) : null}

@@ -40,7 +40,7 @@ export function CabysRepuestosSearch(props: Props) {
   }
 
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-4">
+    <section className="min-w-0">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold text-[var(--ink)]">Repuestos</h3>
