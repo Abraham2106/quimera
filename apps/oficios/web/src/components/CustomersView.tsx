@@ -59,7 +59,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
           </div>
           {error ? <p className="mt-2 text-xs text-amber-800">{error}</p> : null}
         </div>
-        <ul className="max-h-[min(70vh,40rem)] divide-y divide-[var(--border-subtle)] overflow-y-auto">
+        <ul className="pane-scroll max-h-[min(70dvh,40rem)] divide-y divide-[var(--border-subtle)]">
           {shown.map((customer) => {
             const active = selected === customer.id;
             return (

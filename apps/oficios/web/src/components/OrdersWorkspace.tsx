@@ -302,7 +302,7 @@ export function OrdersWorkspace(props: Props) {
             </div>
           </div>
 
-          <ul ref={listRef} className="max-h-[min(70vh,40rem)] divide-y divide-[var(--border-subtle)] overflow-y-auto">
+          <ul ref={listRef} className="pane-scroll max-h-[min(70dvh,40rem)] divide-y divide-[var(--border-subtle)]">
             {listed.length === 0 ? (
               <li className="px-4 py-10 text-center text-sm text-[var(--ink-muted)]">
                 No hay órdenes para este filtro.

@@ -28,7 +28,7 @@ export function AppShell(props: Props) {
   const currentLabel = items.find((item) => item.id === props.section)?.label ?? "Órdenes";
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[252px_1fr]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[252px_1fr]">
       <aside className="hidden bg-[var(--surface-rail)] text-[var(--on-rail)] lg:flex lg:flex-col">
         <div className="border-b border-white/10 px-5 py-5">
           <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ export function AppShell(props: Props) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-col pb-20 lg:pb-0">
+      <div className="flex min-h-dvh flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/95 px-5 py-3 backdrop-blur">
           <div className="flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-rail)] text-xs font-bold text-white lg:hidden">
@@ -117,7 +117,7 @@ export function AppShell(props: Props) {
         </main>
 
         <nav
-          className="fixed inset-x-0 bottom-0 z-10 flex border-t border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[0_-4px_16px_rgba(26,21,17,0.08)] lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-10 flex border-t border-[var(--border-subtle)] bg-[var(--surface-card)] pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_16px_rgba(10,10,10,0.08)] lg:hidden"
           aria-label="Secciones móviles"
         >
           {items.map((item) => {

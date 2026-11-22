@@ -79,6 +79,15 @@
   color-scheme: light;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   background: var(--surface-canvas);
@@ -87,6 +96,20 @@ body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   caret-color: var(--accent);
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.pane-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 ::selection {
@@ -178,8 +201,10 @@ h2,
     transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
   }
 
-  .field:hover {
-    border-color: #6f6a64;
+  @media (hover: hover) and (pointer: fine) {
+    .field:hover {
+      border-color: #6f6a64;
+    }
   }
 
   .field:focus {
@@ -211,8 +236,14 @@ h2,
     cursor: pointer;
   }
 
-  .btn-primary:hover:not(:disabled) {
-    background: var(--accent-hover);
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(10, 10, 10, 0.04);
+    }
   }
 
   .btn-primary:active:not(:disabled),
@@ -241,9 +272,6 @@ h2,
     cursor: pointer;
   }
 
-  .btn-secondary:hover:not(:disabled) {
-    background: rgba(10, 10, 10, 0.04);
-  }
 }
 
 button:focus-visible,
@@ -253,6 +281,14 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
