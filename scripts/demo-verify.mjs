@@ -5,11 +5,21 @@ import path from "node:path";
 const root = path.resolve(import.meta.dirname, "..");
 const env = {
   ...process.env,
+  OPENSPEC_TELEMETRY: "0",
   QUIMERA_AI_ENABLED: "false",
+  QUIMERA_PASSPORT_MODE: "fixture",
+  NODE_ENV: process.env.NODE_ENV ?? "test",
+  OFICIOS_AUTH_MODE: process.env.OFICIOS_AUTH_MODE ?? "test-headers",
   DATABASE_URL:
     process.env.DATABASE_URL ??
     "postgres://quimera:quimera@127.0.0.1:5432/quimera",
 };
+
+// Same credential strip as `verify.mjs`: demo runs stay offline and never
+// inherit live BCCR/Hacienda secrets from the surrounding shell.
+for (const key of ["BCCR_SDDE_TOKEN", "HACIENDA_USERNAME", "HACIENDA_PASSWORD", "HACIENDA_P12_PIN"]) {
+  delete env[key];
+}
 
 function run(command, args) {
   const result = spawnSync(command, args, {

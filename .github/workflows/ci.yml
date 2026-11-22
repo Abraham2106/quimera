@@ -5,76 +5,78 @@ on:
     branches: [main, "cursor/**"]
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality:
-    runs-on: ubuntu-latest
+  verify:
+    name: verify (${{ matrix.os }}, node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
     env:
       DATABASE_URL: postgres://quimera:quimera@127.0.0.1:5432/quimera
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+      CI_POSTGRES_ADMIN_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      # package.json usa expansión `${VAR:-...}` en algunos scripts; bash la
+      # interpreta igual en Linux y en los runners de Windows.
+      npm_config_script_shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: 11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: 7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: 49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: "22"
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      # Los service containers no existen en Windows: aprovisionar PostgreSQL
+      # con la misma acción en ambos sistemas mantiene la matriz simétrica.
+      - name: Setup PostgreSQL
+        uses: 9a532808f26bd7aeb121293d7d2a06e3658237e3 # v1
+        with:
+          postgres-version: ${{ runner.os == 'Windows' && '17' || '16' }}
 
-      - name: Create application role
-        env:
-          CI_POSTGRES_ADMIN_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
-        run: node scripts/ci-prepare-role.mjs
+      - name: Set PostgreSQL password (Linux)
+        if: runner.os == 'Linux'
+        run: sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
-      - name: OpenSpec validate
-        run: pnpm spec:validate
+      - name: Set PostgreSQL password (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: psql -U postgres -d postgres -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Test
-        run: pnpm test
-
-      - name: Isolation
-        run: pnpm test:isolation
-
-      - name: Security
-        run: pnpm test:security
-
-      - name: Verify offline including demo
+      # `pnpm verify` agrupa spec:validate, typecheck, lint, tests, security,
+      # isolation y demo:verify; ejecutarlos por separado duplicaría los gates.
+      - name: Verify
         run: pnpm verify
-        env:
-          QUIMERA_AI_ENABLED: "false"
-
-      - name: Secret scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Audit
         run: pnpm audit --audit-level=high
+
+      - name: Secret scan (gitleaks)
+        uses: ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  gate:
+    name: gate
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All matrix checks passed
+        run: echo "verify passed on ubuntu/windows with Node 22 and 24"

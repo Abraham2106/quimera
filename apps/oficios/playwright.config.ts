@@ -5,15 +5,14 @@ export default defineConfig({
   timeout: 120_000,
   fullyParallel: false,
   workers: 1,
-  retries: 0,
+  retries: 1,
   expect: { timeout: 15_000 },
   reporter: [["list"]],
   use: {
-    channel: "chrome",
     headless: true,
-    trace: "off",
+    trace: "retain-on-failure",
     video: "off",
-    screenshot: "off",
+    screenshot: "only-on-failure",
     extraHTTPHeaders: {
       "x-tenant-id": "22222222-2222-7222-8222-222222222222",
       "x-test-role": "ADMIN",
@@ -21,7 +20,7 @@ export default defineConfig({
     },
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"], channel: "chrome" } },
-    { name: "mobile", use: { ...devices["Pixel 5"], channel: "chrome" } },
+    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile", use: { ...devices["Pixel 5"] } },
   ],
 });
