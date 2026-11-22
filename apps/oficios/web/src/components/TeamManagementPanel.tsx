@@ -51,7 +51,7 @@ export function TeamManagementPanel(props: Props) {
               key={member.userSub}
               className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 text-sm"
             >
-              <span className="num text-xs font-medium text-[var(--ink)]">
+              <span className="num min-w-0 truncate text-xs font-medium text-[var(--ink)]" title={member.userSub}>
                 {member.userSub} — <strong>{member.role}</strong>
               </span>
               {props.config.testRole === "ADMIN" ? (

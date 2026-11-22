@@ -59,21 +59,21 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
           </div>
           {error ? <p className="mt-2 text-xs text-amber-800">{error}</p> : null}
         </div>
-        <ul className="divide-y divide-[var(--border-subtle)]">
+        <ul className="max-h-[min(70vh,40rem)] divide-y divide-[var(--border-subtle)] overflow-y-auto">
           {shown.map((customer) => {
             const active = selected === customer.id;
             return (
               <li key={customer.id}>
                 <button
                   type="button"
-                  className={`touch relative flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors ${
+                  className={`touch relative flex w-full min-w-0 items-center justify-between px-4 py-3 text-left text-sm ${
                     active
                       ? "bg-[var(--accent-tint)]/75 font-semibold text-[var(--ink)]"
                       : "hover:bg-[var(--surface-subtle)]"
                   }`}
                   onClick={() => setSelected(customer.id)}
                 >
-                  <span className="truncate">{customer.legalName}</span>
+                  <span className="truncate" title={customer.legalName}>{customer.legalName}</span>
                 </button>
               </li>
             );
@@ -81,7 +81,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
         </ul>
       </section>
 
-      <section className="card p-5 sm:p-6">
+      <section className="card min-w-0 p-5 sm:p-6">
         {!current ? (
           <div className="flex flex-col items-center justify-center py-14 text-center text-[var(--ink-muted)]">
             <UsersIcon width={24} height={24} />
@@ -91,7 +91,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
           <div className="space-y-5">
             <div className="border-b border-[var(--border-subtle)] pb-4">
               <p className="text-sm text-[var(--ink-muted)]">Cliente</p>
-              <h3 className="mt-1 text-xl font-bold text-[var(--ink)]">{current.legalName}</h3>
+              <h3 className="mt-1 break-words text-xl font-medium text-[var(--ink)]">{current.legalName}</h3>
             </div>
 
             <div>
@@ -103,7 +103,8 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
                   {equipment.map((item) => (
                     <li
                       key={item.id}
-                      className="num rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2.5 text-sm font-medium text-[var(--ink)]"
+                      className="num min-w-0 truncate rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2.5 text-sm font-medium text-[var(--ink)]"
+                      title={item.serialNumber ?? item.id}
                     >
                       {item.serialNumber ?? item.id}
                     </li>

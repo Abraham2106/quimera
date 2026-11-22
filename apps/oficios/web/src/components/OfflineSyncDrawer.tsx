@@ -89,7 +89,7 @@ export function OfflineSyncDrawer(props: {
                   className="rounded-xl border border-[var(--border-subtle)] bg-white p-3.5 shadow-xs"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <p className="num text-xs font-semibold text-[var(--ink)]">
+                    <p className="num min-w-0 truncate text-xs font-semibold text-[var(--ink)]" title={row.workOrderId}>
                       {row.kind} · orden {row.workOrderId.slice(0, 8)}
                     </p>
                     {!conflicts.includes(row.clientMutationId) ? (

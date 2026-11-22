@@ -202,13 +202,13 @@ function AuditPanel(props: { readonly config: DevApiConfig }) {
                   <td className="num px-5 py-3 whitespace-nowrap text-xs text-[var(--ink-muted)]">
                     {new Date(event.createdAt).toLocaleString("es-CR", { timeZone: "America/Costa_Rica" })}
                   </td>
-                  <td className="num px-5 py-3 text-xs font-medium text-[var(--ink)]">{event.actorId}</td>
+                  <td className="num max-w-[14rem] truncate px-5 py-3 text-xs font-medium text-[var(--ink)]" title={event.actorId}>{event.actorId}</td>
                   <td className="px-5 py-3">
                     <span className="num rounded-full bg-[var(--surface-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--ink)]">
                       {event.action}
                     </span>
                   </td>
-                  <td className="num px-5 py-3 text-xs text-[var(--ink-muted)]">{event.resource}</td>
+                  <td className="num max-w-[18rem] truncate px-5 py-3 text-xs text-[var(--ink-muted)]" title={event.resource}>{event.resource}</td>
                 </tr>
               ))
             )}
