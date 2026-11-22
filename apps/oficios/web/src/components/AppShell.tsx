@@ -28,21 +28,19 @@ export function AppShell(props: Props) {
   const currentLabel = items.find((item) => item.id === props.section)?.label ?? "Órdenes";
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[252px_1fr]">
-      <aside className="hidden bg-[var(--surface-rail)] text-[var(--on-rail)] lg:flex lg:flex-col">
-        <div className="border-b border-white/10 px-5 py-5">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-sm font-bold text-[var(--ink)]">
-              OF
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold tracking-tight text-white">OficiOS</p>
-              <p className="truncate text-xs text-[var(--on-rail-muted)]">{props.role}</p>
-            </div>
+    <div className="min-h-dvh lg:grid lg:grid-cols-[236px_1fr]">
+      <aside className="hidden flex-col border-r border-[var(--border-subtle)] bg-[var(--surface-card)] lg:flex">
+        <div className="flex items-center gap-2.5 border-b border-[var(--border-subtle)] px-4 py-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--accent)] text-xs font-bold text-white">
+            OF
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold tracking-tight text-[var(--ink)]">OficiOS</p>
+            <p className="truncate text-[11px] text-[var(--ink-muted)]">{props.role}</p>
           </div>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 px-3 py-4" aria-label="Secciones">
+        <nav className="flex flex-1 flex-col gap-0.5 px-2 py-4" aria-label="Secciones">
           {items.map((item) => {
             const active = props.section === item.id;
             return (
@@ -50,13 +48,16 @@ export function AppShell(props: Props) {
                 key={item.id}
                 type="button"
                 aria-current={active ? "page" : undefined}
-                className={`touch flex items-center gap-3 rounded-xl px-3.5 text-left text-sm transition-[background-color,color] duration-150 ease-[var(--ease-out)] ${
+                className={`touch relative flex items-center gap-3 rounded-md px-3 text-left text-sm ${
                   active
-                    ? "bg-white font-semibold text-[var(--ink)]"
-                    : "text-[var(--on-rail-muted)] hover:bg-white/6 hover:text-white"
+                    ? "bg-[var(--surface-subtle)] font-semibold text-[var(--ink)]"
+                    : "text-[var(--ink-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink)]"
                 }`}
                 onClick={() => props.onSection(item.id)}
               >
+                {active ? (
+                  <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-r bg-[#2563eb]" aria-hidden="true" />
+                ) : null}
                 <NavIcon id={item.id} />
                 <span className="truncate">{item.label}</span>
               </button>
@@ -64,22 +65,24 @@ export function AppShell(props: Props) {
           })}
         </nav>
 
+        <div className="border-t border-[var(--border-subtle)] px-4 py-3">
+          <p className="text-xs font-semibold text-[var(--ink)]">Taller HVAC</p>
+          <p className="text-[11px] text-[var(--ink-muted)]">QUIMERA · es-CR</p>
+        </div>
       </aside>
 
-      <div className="flex min-h-dvh flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+      <div className="flex min-h-dvh flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-card)] px-5 py-3">
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-rail)] text-xs font-bold text-white lg:hidden">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--accent)] text-xs font-bold text-white lg:hidden">
               OF
             </span>
-            <div>
-              <h1 className="text-base font-semibold tracking-tight text-[var(--ink)] lg:sr-only">{currentLabel}</h1>
-            </div>
+            <h1 className="text-sm font-semibold text-[var(--ink)]">{currentLabel}</h1>
           </div>
 
           <button
             type="button"
-            className="touch px-1 text-sm font-medium text-[var(--ink)] transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97]"
+            className="touch px-1 text-xs font-medium text-[var(--ink-muted)] transition-colors duration-150 hover:text-[var(--ink)]"
             onClick={props.onOpenQueue}
           >
             <span>
@@ -89,7 +92,7 @@ export function AppShell(props: Props) {
           </button>
         </header>
 
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 sm:px-6 lg:px-7">
+        <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-5 sm:px-6 lg:px-7">
           {props.children}
         </main>
 
@@ -104,8 +107,10 @@ export function AppShell(props: Props) {
                 key={item.id}
                 type="button"
                 aria-current={active ? "page" : undefined}
-                className={`touch flex flex-1 flex-col items-center justify-center gap-1 px-1 py-2 text-xs ${
-                  active ? "font-semibold text-[var(--accent)]" : "text-[var(--ink-muted)]"
+                className={`touch flex flex-1 flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] ${
+                  active
+                    ? "font-semibold border-t-2 border-[#2563eb] text-[#2563eb]"
+                    : "text-[var(--ink-muted)]"
                 }`}
                 onClick={() => props.onSection(item.id)}
               >

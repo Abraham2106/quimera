@@ -130,8 +130,10 @@ export function OrdersWorkspace(props: Props) {
 
   const priceMinor = colonesToMinor(priceInput);
   const totals = priceMinor === null ? null : lineTotals(priceMinor, Number(quantity));
+  const devtools =
+    import.meta.env.DEV && new URLSearchParams(window.location.search).has("devtools");
   const [dataset, setDataset] = useState<"demo" | "worst" | "many">(() => {
-    if (!import.meta.env.DEV) return "demo";
+    if (!devtools) return "demo";
     const data = new URLSearchParams(window.location.search).get("data");
     if (data === "worst" || data === "many") return data;
     return "demo";
@@ -147,8 +149,7 @@ export function OrdersWorkspace(props: Props) {
     dataset === "many" && visible.length > 0
       ? Array.from({ length: 240 }, (_, index) => visible[index % visible.length]!)
       : visible;
-  const listRef = useRef<HTMLUListElement>(null);
-  const firstSelected = listed.findIndex((order) => order.id === selectedId);
+  const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     listRef.current?.querySelector("[data-selected='true']")?.scrollIntoView({ block: "nearest" });
   }, [selectedId, dataset]);
@@ -168,11 +169,13 @@ export function OrdersWorkspace(props: Props) {
     return serial ? `Serie ${serial}` : `Equipo ${equipmentId.slice(0, 8)}`;
   }
 
+  const hasDetail =
+    Boolean(workOrder) || showNew || Boolean(error) || Boolean(notice) || approvalRequired;
   const stepIndex = workOrder ? STEPS.findIndex((s) => s.status === workOrder.status) : -1;
   const budgetMinor =
     workOrder?.materials?.reduce((sum, line) => sum + Number(line.unitPriceMinor) * Number(line.quantity), 0) ?? 0;
 
-  async function act(run: () => Promise<void>, successMessage?: string) {
+  async function act(run: () => Promise<unknown>, successMessage?: string) {
     if (props.readOnly) return;
     setBusy(true);
     setError(null);
@@ -193,111 +196,240 @@ export function OrdersWorkspace(props: Props) {
     }
   }
 
+  function exportCsv() {
+    const header = "Folio,Cliente,Equipo,Serie,Estado,Factura";
+    const rows = listed.map((order) =>
+      [
+        formatOrdenFolio(order.id),
+        names.get(order.customerId) ?? order.customerLegalName ?? "Cliente",
+        order.equipmentId,
+        order.equipmentSerial ?? "",
+        statusLabel(order.status),
+        order.fiscalIntentId ?? "",
+      ]
+        .map((cell) => `"${String(cell).replaceAll('"', '""')}"`)
+        .join(","),
+    );
+    const url = URL.createObjectURL(new Blob([[header, ...rows].join("\n")], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ordenes-oficios.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const [sortKey, setSortKey] = useState<"folio" | "cliente" | "estado">("folio");
+  const sorted = useMemo(() => {
+    const rows = [...listed];
+    rows.sort((a, b) => {
+      const av =
+        sortKey === "folio"
+          ? formatOrdenFolio(a.id)
+          : sortKey === "cliente"
+            ? (names.get(a.customerId) ?? a.customerLegalName ?? "")
+            : statusLabel(a.status);
+      const bv =
+        sortKey === "folio"
+          ? formatOrdenFolio(b.id)
+          : sortKey === "cliente"
+            ? (names.get(b.customerId) ?? b.customerLegalName ?? "")
+            : statusLabel(b.status);
+      return av.localeCompare(bv, "es-CR");
+    });
+    return rows;
+  }, [listed, names, sortKey]);
+
+  const kpis = [
+    { label: "Total órdenes", value: orders.length, sub: "en el tenant activo" },
+    {
+      label: "En curso",
+      value: orders.filter((o) => !["CLOSED", "CANCELLED"].includes(o.status)).length,
+      sub: "abiertas ahora",
+    },
+    {
+      label: "Sin aprobación",
+      value: orders.filter((o) => o.status === "QUOTED" && !o.customerAuthorized).length,
+      sub: "compuerta pendiente",
+    },
+    {
+      label: "Cerradas",
+      value: orders.filter((o) => o.status === "CLOSED").length,
+      sub: "comprobante encolado",
+    },
+  ];
+
   return (
-    <div>
-      <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:items-start">
-        {/* Left inbox column */}
-        <section className="card overflow-hidden">
-          <div className="border-b border-[var(--border-subtle)] p-4">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="sr-only">Órdenes</h2>
-              <button
-                type="button"
-                className="touch btn-primary ml-auto text-xs"
-                disabled={props.readOnly}
-                onClick={() => setShowNew((open) => !open)}
-              >
-                + Nueva orden
-              </button>
-            </div>
+    <div className="workbench">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs text-[var(--ink-muted)]">
+            Home / <span className="font-medium text-[var(--ink)]">Orden de servicio</span>
+          </p>
+          <h1 className="display mt-1 text-2xl">Orden de servicio</h1>
+        </div>
+        <button
+          id="nueva-orden"
+          type="button"
+          className="touch btn-primary text-sm"
+          disabled={props.readOnly}
+          onClick={() => setShowNew((open) => !open)}
+        >
+          + Nueva orden
+        </button>
+      </div>
 
-            <div className="relative mt-3">
-              <SearchIcon
-                width={16}
-                height={16}
-                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[var(--ink-muted)]"
-              />
-              <input
-                className="field pl-9"
-                placeholder="Folio, cliente o serie"
-                value={query}
-                enterKeyHint="search"
-                autoCapitalize="none"
-                autoCorrect="off"
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
+      <section id="indicadores" className="grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Indicadores">
+        {kpis.map((kpi) => (
+          <article key={kpi.label} className="card p-4">
+            <p className="text-xs font-medium text-[var(--ink-muted)]">{kpi.label}</p>
+            <p className="num mt-2 text-3xl font-semibold text-[var(--ink)]">{kpi.value}</p>
+            <p className="mt-1 text-xs text-[var(--ink-muted)]">{kpi.sub}</p>
+          </article>
+        ))}
+      </section>
 
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {(
-                [
-                  ["ALL", "Todas"],
-                  ["OPEN", "En curso"],
-                  ["APPROVAL", "Sin aprobación"],
-                  ["READY", "Listas para cerrar"],
-                  ["CLOSED", "Cerradas"],
-                ] as const
-              ).map(([id, label]) => {
-                const active = filter === id;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    className={`touch px-1 text-sm ${
-                      active ? "font-semibold text-[var(--ink)]" : "text-[var(--ink-muted)]"
-                    }`}
-                    onClick={() => setFilter(id)}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+      <section className="card mt-5 p-3" aria-label="Filtros de órdenes">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[240px] flex-1">
+            <SearchIcon
+              width={16}
+              height={16}
+              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[var(--ink-muted)]"
+            />
+            <input
+              className="field pl-9"
+              placeholder="Buscar por folio, cliente o serie"
+              value={query}
+              enterKeyHint="search"
+              autoCapitalize="none"
+              autoCorrect="off"
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
+          <select
+            className="field w-auto min-w-[140px]"
+            aria-label="Estado"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="ALL">Estado: Todas</option>
+            <option value="OPEN">En curso</option>
+            <option value="APPROVAL">Sin aprobación</option>
+            <option value="READY">Listas para cerrar</option>
+            <option value="CLOSED">Cerradas</option>
+          </select>
+          <select
+            className="field w-auto min-w-[130px]"
+            aria-label="Ordenar por"
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
+          >
+            <option value="folio">Ordenar: Folio</option>
+            <option value="cliente">Ordenar: Cliente</option>
+            <option value="estado">Ordenar: Estado</option>
+          </select>
+          <button
+            type="button"
+            className="touch btn-secondary"
+            onClick={() => {
+              setFilter("ALL");
+              setQuery("");
+            }}
+          >
+            Limpiar
+          </button>
+          <button type="button" className="touch btn-secondary ml-auto" onClick={exportCsv}>
+            Exportar
+          </button>
+        </div>
+      </section>
 
-          <ul ref={listRef} className="pane-scroll max-h-[min(70dvh,40rem)] divide-y divide-[var(--border-subtle)]">
-            {listed.length === 0 ? (
-              <li className="px-4 py-10 text-center text-sm text-[var(--ink-muted)]">
-                No hay órdenes para este filtro.
-              </li>
-            ) : (
-              listed.map((order, index) => {
-                const selected = index === firstSelected;
-                const customerName = displayName(
-                  order.id,
-                  names.get(order.customerId) ?? order.customerLegalName ?? "Cliente",
-                );
-                return (
-                  <li key={`${order.id}-${index}`} className="order-row" data-selected={selected ? "true" : undefined}>
-                    <button
-                      type="button"
-                      className={`touch relative flex w-full min-w-0 flex-col gap-1.5 px-4 py-3.5 text-left ${
-                        selected
-                          ? "bg-[var(--p-surface)]"
-                          : "bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)]"
-                      }`}
-                      aria-current={selected ? "true" : undefined}
-                      onClick={() => void openOrder(order.id)}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="num text-sm font-bold text-[var(--ink)]">
-                          {formatOrdenFolio(order.id)}
-                        </span>
-                        <span className="text-xs text-[var(--ink-muted)]">{statusLabel(order.status)}</span>
-                      </div>
-                      <span className="truncate text-sm font-medium text-[var(--ink)]">{customerName}</span>
-                      <span className="num truncate text-xs text-[var(--ink-muted)]" title={displaySerial(order.id, order.equipmentSerial, order.equipmentId)}>
-                        {displaySerial(order.id, order.equipmentSerial, order.equipmentId)}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })
-            )}
-          </ul>
+      <div
+        className={`mt-5 grid gap-6 ${
+          hasDetail ? "xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]" : "grid-cols-1"
+        }`}
+      >
+        <section className="card min-w-0 overflow-hidden" aria-label="Órdenes de servicio">
+          <div ref={listRef} className="pane-scroll max-h-[min(72dvh,46rem)] overflow-auto">
+            <table className="wo-table w-full">
+              <thead>
+                <tr>
+                  <th className="w-10" scope="col">
+                    <input type="checkbox" aria-label="Seleccionar todo" disabled />
+                  </th>
+                  <th scope="col">FOLIO</th>
+                  <th scope="col">CLIENTE</th>
+                  <th scope="col">SERIE</th>
+                  <th scope="col">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-16 text-center text-sm text-[var(--ink-muted)]">
+                      No hay órdenes para este filtro.
+                    </td>
+                  </tr>
+                ) : (
+                  sorted.map((order, index) => {
+                    const selected = order.id === selectedId;
+                    const chip =
+                      order.status === "CLOSED"
+                        ? "pill-done"
+                        : order.status === "QUOTED" && !order.customerAuthorized
+                          ? "pill-warn"
+                          : "pill-now";
+                    return (
+                      <tr
+                        key={`${order.id}-${index}`}
+                        className="wo-row"
+                        data-selected={selected ? "true" : undefined}
+                        aria-selected={selected}
+                        tabIndex={0}
+                        onClick={() => void openOrder(order.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            void openOrder(order.id);
+                          }
+                        }}
+                      >
+                        <td>
+                          <input
+                            type="checkbox"
+                            aria-label={`Seleccionar ${formatOrdenFolio(order.id)}`}
+                            disabled
+                            onClick={(event) => event.stopPropagation()}
+                          />
+                        </td>
+                        <td className="num font-semibold">{formatOrdenFolio(order.id)}</td>
+                        <td className="truncate font-medium">
+                          {displayName(
+                            order.id,
+                            names.get(order.customerId) ?? order.customerLegalName ?? "Cliente",
+                          )}
+                        </td>
+                        <td className="num max-w-[11rem] truncate" title={displaySerial(order.id, order.equipmentSerial, order.equipmentId)}>
+                          {order.equipmentSerial ?? order.equipmentId.slice(0, 8)}
+                        </td>
+                        <td>
+                          <span className={`status-chip ${chip}`}>
+                            <span className="status-dot" aria-hidden="true" />
+                            {STEPS.find((step) => step.status === order.status)?.short ??
+                              statusLabel(order.status)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         {/* Right detail workspace */}
+        {hasDetail ? (
         <section className="space-y-4">
           {showNew ? (
             <form
@@ -500,40 +632,25 @@ export function OrdersWorkspace(props: Props) {
                 </header>
 
                 <div className="mt-6">
-                  <div
-                    className="stage-rail"
-                    aria-hidden="true"
-                  >
-                    <span
-                      style={{
-                        ["--stage" as string]: Math.min(
-                          1,
-                          (Math.max(stepIndex, 0) + 0.08) / (STEPS.length - 1),
-                        ),
-                      }}
-                    />
-                  </div>
-                  <ol className="mt-3 grid grid-cols-4 gap-x-2 gap-y-2 sm:grid-cols-7">
-                    {STEPS.map((step, index) => {
-                      const done = index < stepIndex;
-                      const current = index === stepIndex;
-                      return (
-                        <li
-                          key={step.status}
-                          className={`text-xs leading-tight ${
-                            current
-                              ? "font-medium text-[var(--accent)]"
-                              : done
-                                ? "text-[var(--ink)]"
-                                : "text-[var(--ink-muted)]"
+                  <ol className="flex items-center gap-1" aria-label="Etapas de la orden">
+                    {STEPS.map((step, index) => (
+                      <li key={step.status} className="flex-1" title={statusLabel(step.status)}>
+                        <span
+                          className={`block h-1.5 rounded-full ${
+                            index <= stepIndex ? "bg-[#2563eb]" : "bg-[var(--surface-muted)]"
                           }`}
-                          title={statusLabel(step.status)}
-                        >
-                          {step.short}
-                        </li>
-                      );
-                    })}
+                        />
+                      </li>
+                    ))}
                   </ol>
+                  <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs">
+                    <span className="font-semibold text-[var(--ink)]">
+                      {stepIndex >= 0
+                        ? `Paso ${stepIndex + 1} de ${STEPS.length} · ${STEPS[stepIndex]?.short}`
+                        : "Sin etapa"}
+                    </span>
+                    <span className="text-[var(--ink-muted)]">{statusLabel(workOrder.status)}</span>
+                  </div>
                 </div>
               </div>
 
@@ -853,11 +970,14 @@ export function OrdersWorkspace(props: Props) {
               </div>
             </div>
           ) : (
-            <p className="px-6 py-20 text-center text-sm text-[var(--ink-muted)]">Seleccione una orden.</p>
+            <div className="card flex min-h-[18rem] items-center justify-center px-6 py-16 text-center">
+              <p className="text-base font-semibold text-[var(--ink)]">Seleccione una orden.</p>
+            </div>
           )}
         </section>
+        ) : null}
       </div>
-      {import.meta.env.DEV ? (
+      {devtools ? (
         <div
           className="mx-auto mt-4 flex w-fit rounded-full bg-neutral-200 p-1 text-xs text-neutral-900"
           style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}

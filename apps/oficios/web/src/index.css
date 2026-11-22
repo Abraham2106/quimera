@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* El hover de Tailwind v4 solo mira (hover: hover). Un Android con puntero grueso
-   igual deja el :hover pegado después del toque. Las dos condiciones lo evitan. */
+/* Hover solo con puntero fino: evita el :hover pegado en táctil. */
 @custom-variant hover {
   @media (hover: hover) and (pointer: fine) {
     &:hover {
@@ -11,10 +10,10 @@
 }
 
 /*
-  Taste deal, primera mano, oficio workshop:
-  paleta putty-black-teal (piedra cálida del papel de orden, teal del metal HVAC).
-  Tipo Red Hat Display / Red Hat Text, autoalojado. Radio soft.
-  Modo operar: la vía de etapas es el único gesto propio.
+  Referencias de interfaz: MotoServ (jerarquía de cabecera + KPIs + tabla densa),
+  Vendoo (bandeja de tarjetas a la izquierda), vista de equipo (detalle de 3 columnas
+  con checklist, alertas y notas) y Operations Control (tabla de resultados).
+  Fuentes autoalojadas; sin CDN (OpenSpec oficios-ui-experience).
 */
 @font-face {
   font-family: "Red Hat Display";
@@ -50,47 +49,39 @@
 }
 
 :root {
-  --p-bg: #f3f1ec;
-  --p-surface: #e7e4de;
-  --p-ink: #1a1a1a;
-  --p-muted: #5e5a55;
-  --p-accent: #1a1a1a;
-  --p-accent-ink: #ffffff;
-  --p-inv-bg: #0a0a0a;
-  --p-inv-ink: #dedad3;
-  --p-inv-muted: #84827e;
-  --surface-canvas: var(--p-bg);
-  --surface-card: #fffcf8;
-  --surface-subtle: var(--p-surface);
-  --surface-muted: #c9c3ba;
-  --surface-rail: var(--p-inv-bg);
-  --surface-rail-elevated: #151515;
-  --border-subtle: rgba(10, 10, 10, 0.12);
-  --border-strong: rgba(10, 10, 10, 0.28);
-  --accent: var(--p-accent);
+  --surface-canvas: #f6f7f9;
+  --surface-card: #ffffff;
+  --surface-subtle: #f3f4f6;
+  --surface-muted: #e5e7eb;
+  --surface-rail: #ffffff;
+  --surface-rail-elevated: #f9fafb;
+  --border-subtle: #e5e7eb;
+  --border-strong: #d1d5db;
+  --accent: #111827;
   --accent-hover: #000000;
-  --accent-tint: #e7e4de;
-  --ink: var(--p-ink);
-  --ink-muted: var(--p-muted);
-  --on-rail: var(--p-inv-ink);
-  --on-rail-muted: var(--p-inv-muted);
-  --status-done: #e4f0e8;
-  --status-done-ink: #1d5c3a;
-  --status-done-border: #9ec7b0;
-  --status-now: #e4f2f5;
-  --status-now-ink: #1b5566;
-  --status-now-border: #a9cdd6;
-  --status-warn: #f6ead0;
-  --status-warn-ink: #7a4e10;
-  --status-warn-border: #e0c48a;
-  --status-warn-action: #7a4e10;
-  --status-warn-action-hover: #5e3b0c;
-  --focus: #1a1a1a;
+  --accent-tint: #eef2ff;
+  --ink: #111827;
+  --ink-muted: #6b7280;
+  --on-rail: #111827;
+  --on-rail-muted: #6b7280;
+  --status-done: #ecfdf5;
+  --status-done-ink: #047857;
+  --status-done-border: #a7f3d0;
+  --status-now: #eff6ff;
+  --status-now-ink: #1d4ed8;
+  --status-now-border: #bfdbfe;
+  --status-warn: #fffbeb;
+  --status-warn-ink: #b45309;
+  --status-warn-border: #fde68a;
+  --status-warn-action: #d97706;
+  --status-warn-action-hover: #b45309;
+  --focus: #2563eb;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-  --font-display: "Red Hat Display", "Red Hat Text", system-ui, sans-serif;
+  --font-display: "Red Hat Display", system-ui, sans-serif;
   --font-text: "Red Hat Text", system-ui, sans-serif;
+  --font-tabular: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "Red Hat Text", monospace;
   color-scheme: light;
 }
 
@@ -110,7 +101,7 @@ body {
   background: var(--surface-canvas);
   color: var(--ink);
   font-family: var(--font-text);
-  font-weight: 400;
+  font-size: 0.875rem;
   -webkit-font-smoothing: antialiased;
   caret-color: var(--accent);
 }
@@ -124,18 +115,22 @@ a,
   -webkit-touch-callout: none;
 }
 
+.workbench {
+  width: 100%;
+}
+
 .pane-scroll {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
 ::selection {
-  background: #b7d5de;
+  background: #dbeafe;
   color: var(--ink);
 }
 
 * {
-  scrollbar-color: #8d877e transparent;
+  scrollbar-color: #cbd5e1 transparent;
   scrollbar-width: thin;
 }
 
@@ -145,26 +140,22 @@ a,
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #8d877e;
+  background: #cbd5e1;
   border: 2px solid transparent;
   border-radius: 999px;
   background-clip: content-box;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
 }
 
 h1,
 h2,
 .display {
   font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: -0.03em;
+  font-weight: 600;
+  letter-spacing: -0.025em;
 }
 
 .num {
-  font-family: var(--font-text);
+  font-family: var(--font-tabular);
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
 }
@@ -174,16 +165,80 @@ h2,
   min-width: 44px;
 }
 
-.order-row {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 4.75rem;
+/* Tabla de órdenes: una fila por orden, foco en la seleccionada. */
+.wo-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8125rem;
+}
+
+.wo-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.wo-table td {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 9px 12px;
+  color: var(--ink);
+  white-space: nowrap;
+  max-width: 17rem;
+}
+
+.wo-table tbody tr {
+  cursor: pointer;
+  transition: background-color 120ms var(--ease-out);
+}
+
+.wo-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.wo-table tbody tr[data-selected="true"] {
+  background: var(--accent-tint);
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+
+.wo-table input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #2563eb;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  padding: 2px 9px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
 }
 
 .stage-rail {
   position: relative;
   height: 4px;
   border-radius: 999px;
-  background: #b7b1a7;
+  background: var(--surface-muted);
   overflow: hidden;
 }
 
@@ -191,7 +246,7 @@ h2,
   display: block;
   height: 100%;
   width: 100%;
-  background: var(--accent);
+  background: #2563eb;
   transform: scaleX(var(--stage, 0));
   transform-origin: left center;
   transition: transform 280ms var(--ease-out);
@@ -217,32 +272,32 @@ h2,
 
 @layer components {
   .card {
-    border-radius: 16px;
+    border-radius: 8px;
     border: 1px solid var(--border-subtle);
     background: var(--surface-card);
-    box-shadow: none;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
   }
 
   .field {
     width: 100%;
-    border-radius: 10px;
+    border-radius: 6px;
     border: 1px solid var(--border-strong);
-    background: #fffcf8;
-    padding: 10px 12px;
-    font-size: 0.875rem;
+    background: #ffffff;
+    padding: 9px 11px;
+    font-size: 0.8125rem;
     color: var(--ink);
     transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .field:hover {
-      border-color: #6f6a64;
+      border-color: #9ca3af;
     }
   }
 
   .field:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.12);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     outline: none;
   }
 
@@ -254,6 +309,14 @@ h2,
   .btn-primary,
   .btn-secondary,
   .btn-warn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
     transition:
       background-color 160ms var(--ease-out),
       border-color 160ms var(--ease-out),
@@ -261,32 +324,16 @@ h2,
   }
 
   .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border-radius: 999px;
     background: var(--accent);
-    padding: 0 18px;
-    font-family: var(--font-text);
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--p-accent-ink);
-    cursor: pointer;
+    padding: 0 16px;
+    color: #ffffff;
+    border: 1px solid var(--accent);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .btn-primary:hover:not(:disabled) {
-      background: var(--accent-hover);
-    }
-
-    .btn-secondary:hover:not(:disabled) {
-      background: rgba(10, 10, 10, 0.04);
-    }
-
-    .btn-warn:hover:not(:disabled) {
-      background: var(--status-warn-action-hover);
-    }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-secondary:hover:not(:disabled) { background: var(--surface-subtle); }
+    .btn-warn:hover:not(:disabled) { background: var(--status-warn-action-hover); }
   }
 
   .btn-primary:active:not(:disabled),
@@ -298,37 +345,22 @@ h2,
   .btn-primary:disabled,
   .btn-secondary:disabled,
   .btn-warn:disabled {
-    opacity: 0.48;
+    opacity: 0.45;
     cursor: not-allowed;
   }
 
   .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    border-radius: 999px;
     border: 1px solid var(--border-strong);
-    background: transparent;
-    padding: 0 16px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    background: #ffffff;
+    padding: 0 14px;
     color: var(--ink);
-    cursor: pointer;
   }
 
   .btn-warn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border-radius: 999px;
     background: var(--status-warn-action);
-    padding: 0 18px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #fff;
-    cursor: pointer;
+    padding: 0 16px;
+    color: #ffffff;
+    border: 1px solid var(--status-warn-action);
   }
 
   .pill-done,
@@ -337,6 +369,7 @@ h2,
   .pill-idle {
     border-width: 1px;
     border-style: solid;
+    border-radius: 999px;
   }
 
   .pill-done {
@@ -359,13 +392,13 @@ h2,
 
   .pill-idle {
     border-color: var(--border-subtle);
-    background: var(--surface-muted);
+    background: var(--surface-subtle);
     color: var(--ink);
   }
 
   .banner-done,
   .banner-warn {
-    border-radius: 12px;
+    border-radius: 6px;
     border-width: 1px;
     border-style: solid;
   }
@@ -383,17 +416,17 @@ h2,
   }
 
   .skeleton {
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--surface-muted);
   }
-
 }
 
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }

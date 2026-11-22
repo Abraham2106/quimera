@@ -30,6 +30,10 @@ export default tseslint.config(
       "**/node_modules/**",
       "**/.turbo/**",
       "**/coverage/**",
+      // Recursos de herramientas/skills vendored, no código del producto.
+      ".agents/**",
+      ".cursor/**",
+      ".taste-skill/**",
     ],
   },
   eslint.configs.recommended,

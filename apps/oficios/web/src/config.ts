@@ -34,7 +34,11 @@ export function loadDevApiConfig(): DevApiConfig {
     readonly VITE_LABEL_EQUIPO?: string;
   };
 
-  const roleRaw = fromEnv.VITE_TEST_ROLE ?? "OPERATOR";
+  const mockAdmin =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("mock");
+  const roleRaw =
+    readSearchParam("role") || (mockAdmin ? "ADMIN" : fromEnv.VITE_TEST_ROLE || "OPERATOR");
   const testRole =
     roleRaw === "ADMIN" || roleRaw === "AUDITOR_READONLY" ? roleRaw : "OPERATOR";
 

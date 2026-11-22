@@ -79,7 +79,6 @@ export function AdminView(props: { readonly config: DevApiConfig; readonly readO
 }
 
 function PlanPanel(props: { readonly config: DevApiConfig }) {
-  const [billing, setBilling] = useState<Billing>(null);
   const [summary, setSummary] = useState<string | null>(null);
   const [warn, setWarn] = useState(false);
 
@@ -88,16 +87,13 @@ function PlanPanel(props: { readonly config: DevApiConfig }) {
     const json = (await response.json()) as { billing?: Billing; error?: { message?: string; code?: string } };
     if (response.status === 402 || json.error?.code === "ERR_QUOTA_EXCEEDED") {
       setWarn(true);
-      setBilling(null);
       setSummary(json.error?.message ?? "El plan alcanzó un límite. Los comprobantes ya encolados siguen su curso.");
       return;
     }
     if (!response.ok || !json.billing) {
-      setBilling(null);
       setSummary(json.error?.message ?? "Sin suscripción.");
       return;
     }
-    setBilling(json.billing);
     const ratio = json.billing.limits.maxSeats === 0 ? 0 : json.billing.usage.seats / json.billing.limits.maxSeats;
     setWarn(ratio >= 0.8);
     setSummary(
