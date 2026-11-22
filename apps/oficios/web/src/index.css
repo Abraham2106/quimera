@@ -71,7 +71,9 @@
   --status-warn: #f6ead0;
   --status-warn-ink: #7a4e10;
   --focus: #1b5566;
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --font-display: "Red Hat Display", "Red Hat Text", system-ui, sans-serif;
   --font-text: "Red Hat Text", system-ui, sans-serif;
   color-scheme: light;
@@ -127,9 +129,29 @@ h2,
 .stage-rail > span {
   display: block;
   height: 100%;
+  width: 100%;
   background: var(--accent);
+  transform: scaleX(var(--stage, 0));
   transform-origin: left center;
-  transition: width 280ms var(--ease-out);
+  transition: transform 280ms var(--ease-out);
+}
+
+.drawer-scrim {
+  animation: scrim-in 200ms var(--ease-out);
+}
+
+.drawer-panel {
+  animation: drawer-in 320ms var(--ease-drawer);
+}
+
+@keyframes scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 @layer components {

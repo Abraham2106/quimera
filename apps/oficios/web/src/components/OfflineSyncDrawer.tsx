@@ -35,10 +35,10 @@ export function OfflineSyncDrawer(props: {
   if (!props.open) return null;
 
   return (
-    <div className="fixed inset-0 z-30 flex justify-end bg-[#1a1511]/40 backdrop-blur-[1px]">
+    <div className="drawer-scrim fixed inset-0 z-30 flex justify-end bg-[#0a0a0a]/40">
       <div className="flex-1" onClick={props.onClose} aria-hidden="true" />
       <aside
-        className="flex h-full w-full max-w-md flex-col border-l border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-2xl"
+        className="drawer-panel flex h-full w-full max-w-md flex-col border-l border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[0_16px_40px_-24px_rgba(10,10,10,0.6)]"
         role="dialog"
         aria-label="Cola sin conexión"
       >

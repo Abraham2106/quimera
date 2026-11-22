@@ -162,6 +162,34 @@ export function OrdersWorkspace(props: Props) {
 
   const priceMinor = colonesToMinor(priceInput);
   const totals = priceMinor === null ? null : lineTotals(priceMinor, Number(quantity));
+  const [dataset, setDataset] = useState<"demo" | "worst">(() =>
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get("data") === "worst"
+      ? "worst"
+      : "demo",
+  );
+  function chooseDataset(next: "demo" | "worst") {
+    const url = new URL(window.location.href);
+    if (next === "worst") url.searchParams.set("data", "worst");
+    else url.searchParams.delete("data");
+    window.history.replaceState(null, "", url);
+    setDataset(next);
+  }
+
+  function displayName(orderId: string, fallback: string): string {
+    if (dataset !== "worst") return fallback;
+    const index = visible.findIndex((order) => order.id === orderId);
+    if (index === 0) return "Aleksandra Wiśniewska-Kowalczyk · Refrigeración del Pacífico Central S.A.";
+    if (index === 1) return "Jo";
+    return fallback;
+  }
+
+  function displaySerial(orderId: string, serial: string | null | undefined, equipmentId: string): string {
+    if (dataset === "worst" && visible[0]?.id === orderId) {
+      return "CR-HVAC-2026-0042-CUBIERTA-NORTE-TORRE-B";
+    }
+    return serial ? `Serie ${serial}` : `Equipo ${equipmentId.slice(0, 8)}`;
+  }
+
   const stepIndex = workOrder ? STEPS.findIndex((s) => s.status === workOrder.status) : -1;
   const budgetMinor =
     workOrder?.materials?.reduce((sum, line) => sum + Number(line.unitPriceMinor) * Number(line.quantity), 0) ?? 0;
@@ -272,12 +300,15 @@ export function OrdersWorkspace(props: Props) {
             ) : (
               visible.map((order) => {
                 const selected = selectedId === order.id;
-                const customerName = names.get(order.customerId) ?? order.customerLegalName ?? "Cliente";
+                const customerName = displayName(
+                  order.id,
+                  names.get(order.customerId) ?? order.customerLegalName ?? "Cliente",
+                );
                 return (
                   <li key={order.id}>
                     <button
                       type="button"
-                      className={`touch relative flex w-full flex-col gap-1.5 px-4 py-3.5 text-left transition-colors ${
+                      className={`touch relative flex w-full min-w-0 flex-col gap-1.5 px-4 py-3.5 text-left ${
                         selected
                           ? "bg-[var(--accent-tint)]/75"
                           : "bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)]"
@@ -295,8 +326,8 @@ export function OrdersWorkspace(props: Props) {
                         </span>
                       </div>
                       <span className="truncate text-sm font-medium text-[var(--ink)]">{customerName}</span>
-                      <span className="num truncate text-xs text-[var(--ink-muted)]">
-                        {order.equipmentSerial ? `Serie ${order.equipmentSerial}` : `Equipo ${order.equipmentId.slice(0, 8)}`}
+                      <span className="num truncate text-xs text-[var(--ink-muted)]" title={displaySerial(order.id, order.equipmentSerial, order.equipmentId)}>
+                        {displaySerial(order.id, order.equipmentSerial, order.equipmentId)}
                       </span>
                     </button>
                   </li>
@@ -413,7 +444,7 @@ export function OrdersWorkspace(props: Props) {
               {/* Top work order header + primary action */}
               <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)]/55 px-5 py-4 sm:px-6">
                 <header className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
+                  <div className="min-w-0 max-w-full">
                     <p className="text-sm text-[var(--ink-muted)]">Orden de servicio</p>
                     <h2 className="display num mt-1 text-4xl text-[var(--ink)]">
                       {formatOrdenFolio(workOrder.id)}
@@ -421,8 +452,8 @@ export function OrdersWorkspace(props: Props) {
                     <p className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusPillClasses(workOrder.status)}`}>
                       {statusLabel(workOrder.status)}
                     </p>
-                    <p className="mt-0.5 text-sm text-[var(--ink-muted)]">
-                      {names.get(workOrder.customerId) ?? workOrder.customerLegalName ?? workOrder.customerId}
+                    <p className="mt-2 max-w-xl truncate text-sm text-[var(--ink)]" title={displayName(workOrder.id, names.get(workOrder.customerId) ?? workOrder.customerLegalName ?? workOrder.customerId)}>
+                      {displayName(workOrder.id, names.get(workOrder.customerId) ?? workOrder.customerLegalName ?? workOrder.customerId)}
                     </p>
                   </div>
 
@@ -522,7 +553,10 @@ export function OrdersWorkspace(props: Props) {
                   >
                     <span
                       style={{
-                        width: `${Math.min(100, ((Math.max(stepIndex, 0) + 0.08) / (STEPS.length - 1)) * 100)}%`,
+                        ["--stage" as string]: Math.min(
+                          1,
+                          (Math.max(stepIndex, 0) + 0.08) / (STEPS.length - 1),
+                        ),
                       }}
                     />
                   </div>
@@ -554,7 +588,7 @@ export function OrdersWorkspace(props: Props) {
               <div className="p-5 sm:p-6">
                 {/* Summary metadata tiles */}
                 <dl className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                  <div className="min-w-0 border-t border-[var(--border-subtle)] pt-3">
                     <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Estado
                     </dt>
@@ -562,7 +596,7 @@ export function OrdersWorkspace(props: Props) {
                       {statusLabel(workOrder.status)}
                     </dd>
                   </div>
-                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                  <div className="min-w-0 border-t border-[var(--border-subtle)] pt-3">
                     <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Cliente
                     </dt>
@@ -570,15 +604,15 @@ export function OrdersWorkspace(props: Props) {
                       {names.get(workOrder.customerId) ?? workOrder.customerLegalName ?? workOrder.customerId}
                     </dd>
                   </div>
-                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                  <div className="min-w-0 border-t border-[var(--border-subtle)] pt-3">
                     <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Equipo
                     </dt>
-                    <dd className="num mt-1 break-all text-sm font-semibold text-[var(--ink)]">
-                      {workOrder.equipmentSerial ?? workOrder.equipmentId}
+                    <dd className="num mt-1 truncate text-sm font-semibold text-[var(--ink)]" title={displaySerial(workOrder.id, workOrder.equipmentSerial, workOrder.equipmentId)}>
+                      {displaySerial(workOrder.id, workOrder.equipmentSerial, workOrder.equipmentId)}
                     </dd>
                   </div>
-                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                  <div className="min-w-0 border-t border-[var(--border-subtle)] pt-3">
                     <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Presupuesto
                     </dt>
@@ -586,7 +620,7 @@ export function OrdersWorkspace(props: Props) {
                       {workOrder.materials?.length ? formatColones(budgetMinor) : "Aún no generado"}
                     </dd>
                   </div>
-                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                  <div className="min-w-0 border-t border-[var(--border-subtle)] pt-3">
                     <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Aprobación del cliente
                     </dt>
@@ -601,7 +635,7 @@ export function OrdersWorkspace(props: Props) {
                       )}
                     </dd>
                   </div>
-                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                  <div className="min-w-0 border-t border-[var(--border-subtle)] pt-3">
                     <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Factura
                     </dt>
@@ -913,6 +947,27 @@ export function OrdersWorkspace(props: Props) {
           )}
         </section>
       </div>
+      {import.meta.env.DEV ? (
+        <div
+          className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 rounded-full bg-neutral-200 p-1 text-xs text-neutral-900 shadow-sm lg:bottom-4"
+          style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}
+        >
+          <button
+            type="button"
+            className={`rounded-full px-3 py-1 ${dataset === "demo" ? "bg-white" : ""}`}
+            onClick={() => chooseDataset("demo")}
+          >
+            Demo data
+          </button>
+          <button
+            type="button"
+            className={`rounded-full px-3 py-1 ${dataset === "worst" ? "bg-white" : ""}`}
+            onClick={() => chooseDataset("worst")}
+          >
+            Worst case
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
