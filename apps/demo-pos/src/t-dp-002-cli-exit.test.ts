@@ -16,7 +16,9 @@ function runCli(mode: "buggy" | "outbox"): {
   stderr: string;
 } {
   const tsxBin = path.resolve(packageRoot, "../../../node_modules/.bin/tsx");
-  const result = spawnSync(tsxBin, [cliEntry, "--mode", mode], {
+  const isWindows = process.platform === "win32";
+  const result = spawnSync(isWindows ? `${tsxBin}.cmd` : tsxBin, [cliEntry, "--mode", mode], {
+    shell: isWindows,
     cwd: path.join(packageRoot, ".."),
     env: { ...process.env, DATABASE_URL: DEFAULT_DATABASE_URL },
     encoding: "utf8",

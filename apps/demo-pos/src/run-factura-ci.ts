@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+import { pathToFileURL } from "node:url";
 
 import { runScenarioSuite, startSimulator } from "@quimera/factura-ci";
 import type { Sql } from "postgres";
@@ -77,8 +78,8 @@ async function main(): Promise<void> {
 }
 
 const isDirectRun =
-  import.meta.url === `file://${process.argv[1]?.replace(/\\/g, "/")}` ||
-  process.argv[1]?.endsWith("/run-factura-ci.ts");
+  Boolean(process.argv[1]) &&
+  import.meta.url === pathToFileURL(process.argv[1]!).href;
 
 if (isDirectRun) {
   main().catch((err) => {

@@ -19,7 +19,8 @@ export async function collectMigrationPaths(repoRoot = root) {
     const dir = path.join(repoRoot, relativeDir);
     const names = (await readdir(dir)).filter((name) => name.endsWith(".sql")).sort();
     for (const name of names) {
-      files.push(path.join(relativeDir, name));
+      // Rutas relativas POSIX estables en todos los SO (la matriz CI incluye Windows).
+      files.push(path.join(relativeDir, name).split(path.sep).join("/"));
     }
   }
   return files;

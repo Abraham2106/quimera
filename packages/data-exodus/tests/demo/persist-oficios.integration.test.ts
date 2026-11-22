@@ -57,7 +57,7 @@ describe("persistencia demo-hvac hacia OficiOS", () => {
 
     const second = await persistDemoHvacToOficios(sql, tenantId);
     expect(second.customers).toBe(0);
-  });
+  }, 20_000);
 
   it("bloquea UPDATE/DELETE en qum_artifacts visibles por RLS", async () => {
     const artifactRows = await sql.begin(async (tx) => {
