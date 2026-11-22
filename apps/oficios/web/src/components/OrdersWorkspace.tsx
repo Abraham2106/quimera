@@ -971,7 +971,7 @@ export function OrdersWorkspace(props: Props) {
       </div>
       {import.meta.env.DEV ? (
         <div
-          className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 rounded-full bg-neutral-200 p-1 text-xs text-neutral-900 shadow-sm lg:bottom-4"
+          className="z-40 mx-auto mt-4 flex w-fit rounded-full bg-neutral-200 p-1 text-xs text-neutral-900 lg:fixed lg:bottom-4 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2"
           style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}
         >
           <button

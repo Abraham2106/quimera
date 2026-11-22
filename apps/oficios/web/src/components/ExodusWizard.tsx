@@ -26,6 +26,7 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
   const [needsReview, setNeedsReview] = useState<NeedsReview[]>([]);
   const [conflicts, setConflicts] = useState<ConflictRow[]>([]);
   const [message, setMessage] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   return (
     <section className="card p-5 sm:p-6">
@@ -94,12 +95,17 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
           <p className="mt-1 text-xs text-[var(--ink-muted)]">
             Cada columna ambigua quedará marcada como NEEDS_REVIEW para confirmación humana.
           </p>
-          <input
-            name="file"
-            type="file"
-            accept=".csv,.xlsx,.xml,text/csv"
-            className="mt-4 max-w-full text-sm text-[var(--ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--surface-rail)] file:px-3.5 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#322923]"
-          />
+          <label className="touch btn-secondary mt-4 cursor-pointer">
+            Elegir archivo
+            <input
+              name="file"
+              type="file"
+              accept=".csv,.xlsx,.xml,text/csv"
+              className="sr-only"
+              onChange={(event) => setFileName(event.target.files?.[0]?.name ?? null)}
+            />
+          </label>
+          <p className="mt-2 text-sm text-[var(--ink-muted)]">{fileName ?? "Ningún archivo elegido"}</p>
           <button type="submit" className="touch btn-primary mt-5">
             Subir
           </button>
