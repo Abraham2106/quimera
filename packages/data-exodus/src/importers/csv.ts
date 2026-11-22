@@ -21,6 +21,7 @@ import { FsArtifactStore } from "../storage/fs-artifact-store.js";
 import { quimeraError } from "../storage/path-guards.js";
 import { decodeCsvBytes, detectDelimiter, looksBinary } from "./csv-decode.js";
 import { assertCountInvariant, parseCsvRows } from "./csv-parse-rows.js";
+import { toPlainJson } from "./safe-object.js";
 import type {
   CsvDelimiter,
   CsvImportRequest,
@@ -254,7 +255,7 @@ export class CsvSourceImporter implements SourceImporterPort {
             artifactId,
             sourceLocator: row.sourceLocator,
             recordHash: row.recordHash,
-            rawPayload: row.rawPayload,
+            rawPayload: toPlainJson(row.rawPayload),
             parseStatus: row.parseStatus,
             parseError: row.parseError ?? null,
           })),

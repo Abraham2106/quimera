@@ -9,7 +9,7 @@ import type {
   QuimeraError,
   QuimeraWarning,
 } from "@quimera/core";
-import { canonicalizeJsonValue, sha256CanonicalJson } from "@quimera/core";
+import { sha256CanonicalJson } from "@quimera/core";
 import type { Sql } from "postgres";
 
 import {
@@ -23,6 +23,12 @@ import {
 import { FsArtifactStore } from "../storage/fs-artifact-store.js";
 import { quimeraError } from "../storage/path-guards.js";
 import { assertCountInvariant } from "./csv-parse-rows.js";
+import {
+  assertSafeObjectKey,
+  createSafeRecord,
+  sha256SafeCanonicalJson,
+  toPlainJson,
+} from "./safe-object.js";
 import type {
   ImportCounts,
   SourceImporterPort,
@@ -37,8 +43,12 @@ const ZIP_EOCD_SIGNATURE = 0x06054b50;
 /** Default QR-SEC-003 limits for XLSX (zip) decompression. */
 export const XLSX_MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024;
 export const XLSX_MAX_COMPRESSION_RATIO = 50;
+/** Topes de iteración: una celda solitaria muy lejana no debe expandir la hoja. */
+export const XLSX_MAX_COLUMNS = 1_024;
+export const XLSX_MAX_ROWS_PER_SHEET = 100_000;
 
 const WARN_XLSX_UNCACHED_FORMULA = "WARN_XLSX_UNCACHED_FORMULA";
+const WARN_XLSX_ROW_LIMIT = "WARN_XLSX_ROW_LIMIT";
 
 export type XlsxImportRequest = SourceImportRequest & {
   /** When omitted, every worksheet in the workbook is imported. */
@@ -306,9 +316,18 @@ function headerFromRow(
 ): string[] {
   const row = worksheet.getRow(rowNumber);
   const headers: string[] = [];
-  row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+  row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+    if (colNumber > XLSX_MAX_COLUMNS) {
+      return;
+    }
     const label = String(cell.value ?? "").trim();
-    headers[colNumber - 1] = label.length > 0 ? label : `col_${colNumber - 1}`;
+    let safeLabel = label.length > 0 ? label : `col_${colNumber - 1}`;
+    try {
+      assertSafeObjectKey(safeLabel);
+    } catch {
+      safeLabel = `col_${colNumber - 1}`;
+    }
+    headers[colNumber - 1] = safeLabel;
   });
   return headers;
 }
@@ -319,10 +338,13 @@ function buildRowFields(
   columnNames: string[] | undefined,
 ): Record<string, unknown> {
   const row = worksheet.getRow(rowNumber);
-  const fields: Record<string, unknown> = {};
+  const fields = createSafeRecord<unknown>();
   const formulas: Record<string, string> = {};
 
   row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+    if (colNumber > XLSX_MAX_COLUMNS) {
+      return;
+    }
     const key = columnNames?.[colNumber - 1] ?? `col_${colNumber - 1}`;
     const extracted = extractCell(cell);
     fields[key] = extracted.value;
@@ -344,6 +366,9 @@ function collectUncachedFormulaCells(
   const row = worksheet.getRow(rowNumber);
   const hits: Array<{ column: string; formula: string }> = [];
   row.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+    if (colNumber > XLSX_MAX_COLUMNS) {
+      return;
+    }
     const extracted = extractCell(cell);
     if (extracted.uncachedFormula && extracted.formula) {
       const column = columnNames?.[colNumber - 1] ?? `col_${colNumber - 1}`;
@@ -391,6 +416,16 @@ export function parseXlsxWorkbook(
     }
   };
 
+  const warnRowLimit = (context: Record<string, unknown>) => {
+    if (!warnings.some((w) => w.code === WARN_XLSX_ROW_LIMIT)) {
+      warnings.push({
+        code: WARN_XLSX_ROW_LIMIT,
+        message: "Worksheet row iteration limit reached; remaining rows were not imported",
+        context,
+      });
+    }
+  };
+
   const rows: ParsedXlsxRow[] = [];
   const targets = options.sheets?.length
     ? options.sheets
@@ -405,14 +440,23 @@ export function parseXlsxWorkbook(
     const headerRowNumber = resolveHeaderRowNumber(worksheet, options.hasHeader);
     const columnNames = options.hasHeader ? headerFromRow(worksheet, headerRowNumber) : undefined;
     const dataStart = options.hasHeader ? headerRowNumber + 1 : 1;
+    let emitted = 0;
 
-    worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+    worksheet.eachRow({ includeEmpty: false }, (_row, rowNumber) => {
       if (rowNumber < dataStart) {
         return;
       }
+      if (emitted >= XLSX_MAX_ROWS_PER_SHEET) {
+        warnRowLimit({ sheet: sheetName, rowNumber, limit: XLSX_MAX_ROWS_PER_SHEET });
+        return;
+      }
+      emitted += 1;
 
       const fields = buildRowFields(worksheet, rowNumber, columnNames);
-      const fieldValues = { ...fields };
+      const fieldValues = createSafeRecord<unknown>();
+      for (const [key, value] of Object.entries(fields)) {
+        fieldValues[key] = value;
+      }
       delete fieldValues.__formulas;
 
       const uncached = collectUncachedFormulaCells(worksheet, rowNumber, columnNames);
@@ -427,18 +471,17 @@ export function parseXlsxWorkbook(
       const sourceLocator = `xlsx:${sheetName}!row:${rowNumber}`;
 
       if (rowIsEmpty(fieldValues)) {
-        const rawPayload: Record<string, unknown> = {
-          sheet: sheetName,
-          rowNumber,
-          fields: fieldValues,
-        };
+        const rawPayload = createSafeRecord<unknown>();
+        rawPayload.sheet = sheetName;
+        rawPayload.rowNumber = rowNumber;
+        rawPayload.fields = fieldValues;
         rows.push({
           rowNumber,
           sheetName,
           sourceLocator,
           parseStatus: "SKIPPED",
           rawPayload,
-          recordHash: sha256CanonicalJson({
+          recordHash: sha256SafeCanonicalJson({
             sheet: sheetName,
             rowNumber,
             parseStatus: "SKIPPED",
@@ -447,11 +490,10 @@ export function parseXlsxWorkbook(
         return;
       }
 
-      const rawPayload: Record<string, unknown> = {
-        sheet: sheetName,
-        rowNumber,
-        fields: fieldValues,
-      };
+      const rawPayload = createSafeRecord<unknown>();
+      rawPayload.sheet = sheetName;
+      rawPayload.rowNumber = rowNumber;
+      rawPayload.fields = fieldValues;
       if (fields.__formulas && typeof fields.__formulas === "object") {
         rawPayload.formulas = fields.__formulas;
       }
@@ -462,7 +504,7 @@ export function parseXlsxWorkbook(
         sourceLocator,
         parseStatus: "OK",
         rawPayload,
-        recordHash: sha256CanonicalJson(canonicalizeJsonValue(rawPayload)),
+        recordHash: sha256SafeCanonicalJson(rawPayload),
       });
     });
   }
@@ -662,7 +704,7 @@ export class XlsxSourceImporter implements SourceImporterPort {
             artifactId,
             sourceLocator: row.sourceLocator,
             recordHash: row.recordHash,
-            rawPayload: row.rawPayload,
+            rawPayload: toPlainJson(row.rawPayload),
             parseStatus: row.parseStatus,
             parseError: null,
           })),

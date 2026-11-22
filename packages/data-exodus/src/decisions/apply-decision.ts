@@ -4,7 +4,10 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import type { ResolutionAction } from "./types.js";
 
 import type { QuimeraDb } from "../db/connection.js";
-import { createDecisionsRepository } from "../db/repositories/decisions.js";
+import {
+  createDecisionsRepository,
+  type Decision,
+} from "../db/repositories/decisions.js";
 import { qumConflicts, qumDecisions, qumEntities } from "../db/schema/index.js";
 import { DataExodusError } from "./errors.js";
 import type { ApplyDecisionOptions, ApplyDecisionResult, ConflictRow } from "./types.js";
@@ -20,12 +23,28 @@ function conflictStatusForAction(action: ResolutionAction): string {
 }
 
 async function loadConflict(db: QuimeraDb, tenantId: string, conflictId: string) {
+  // El gate se evalúa bajo TRANSACTION + FOR UPDATE para que dos decisiones
+  // concurrentes no puedan considerar el mismo conflicto como OPEN.
   const rows = await db
     .select()
     .from(qumConflicts)
     .where(and(eq(qumConflicts.tenantId, tenantId), eq(qumConflicts.id, conflictId)))
-    .limit(1);
+    .limit(1)
+    .for("update");
   return rows[0];
+}
+
+function isUniqueDecisionViolation(err: unknown): boolean {
+  if (!err || typeof err !== "object") {
+    return false;
+  }
+  const code = "code" in err ? String(err.code) : "";
+  const message = err instanceof Error ? err.message : "";
+  return (
+    code === "23505" ||
+    message.includes("qum_decisions_one_active_per_conflict") ||
+    message.includes("duplicate key")
+  );
 }
 
 /**
@@ -41,7 +60,7 @@ export async function applyDecision(
 ): Promise<ApplyDecisionResult> {
   if (rationale.trim().length < 3) {
     throw new DataExodusError(
-      "ERR_DECISION_INVALID_SUPERSEDES",
+      "ERR_DECISION_INVALID_RATIONALE",
       "rationale must be at least 3 characters",
     );
   }
@@ -88,17 +107,31 @@ export async function applyDecision(
 
   const candidateIds = (fresh.candidateEntityIds as string[]) ?? [];
 
-  const decision = await decisionsRepo.insert({
-    id: randomUUID(),
-    tenantId: conflict.tenantId,
-    conflictId: conflict.id,
-    action,
-    actorType: options.actorType ?? "HUMAN",
-    actorId,
-    rationale: rationale.trim(),
-    payloadJson: options.payload ?? {},
-    supersedesDecisionId: options.supersedesDecisionId ?? null,
-  });
+  let decision: Decision;
+  try {
+    decision = await decisionsRepo.insert({
+      id: randomUUID(),
+      tenantId: conflict.tenantId,
+      conflictId: conflict.id,
+      action,
+      actorType: options.actorType ?? "HUMAN",
+      actorId,
+      rationale: rationale.trim(),
+      payloadJson: options.payload ?? {},
+      supersedesDecisionId: options.supersedesDecisionId ?? null,
+    });
+  } catch (err: unknown) {
+    // El índice único parcial es el último cerrojo si dos transacciones
+    // llegan aquí simultáneamente.
+    if (isUniqueDecisionViolation(err)) {
+      throw new DataExodusError(
+        "ERR_CONFLICT_ALREADY_RESOLVED",
+        `Conflict ${conflict.id} already has an active decision`,
+        { details: { conflictId: conflict.id } },
+      );
+    }
+    throw err;
+  }
 
   const nextStatus = conflictStatusForAction(action);
   await db

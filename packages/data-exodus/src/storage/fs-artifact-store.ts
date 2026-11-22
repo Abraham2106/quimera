@@ -1,6 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
+import { createReadStream } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { Readable } from "node:stream";
 import type {
   ArtifactStorePort,
   ArtifactStorePutInput,
@@ -17,6 +19,23 @@ import {
   resolveCasFilePath,
 } from "./path-guards.js";
 
+const SHA256_HEX = /^[a-f0-9]{64}$/;
+const MAX_ARTIFACT_BYTES = 50 * 1024 * 1024;
+const ALLOWED_MIME = new Set([
+  "text/csv",
+  "text/plain",
+  "text/xml",
+  "application/xml",
+  "application/json",
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/x-sqlite3",
+  "application/octet-stream",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
 function ok<T>(data: T): OperationResult<T> {
   return { ok: true, data, warnings: [] };
 }
@@ -25,8 +44,25 @@ function fail(error: QuimeraError): OperationResult<never> {
   return { ok: false, error, warnings: [] };
 }
 
-function sha256Hex(bytes: Uint8Array): string {
-  return createHash("sha256").update(bytes).digest("hex");
+function errorCode(err: unknown): string {
+  return err && typeof err === "object" && "code" in err ? String(err.code) : "";
+}
+
+/** Hash en streaming: nunca exige cargar el objeto completo en memoria. */
+async function sha256Readable(readable: AsyncIterable<Uint8Array>): Promise<string> {
+  const hash = createHash("sha256");
+  for await (const chunk of readable) {
+    hash.update(chunk);
+  }
+  return hash.digest("hex");
+}
+
+function sha256Bytes(bytes: Uint8Array): Promise<string> {
+  return sha256Readable(Readable.from([bytes]));
+}
+
+function sha256File(filePath: string): Promise<string> {
+  return sha256Readable(createReadStream(filePath) as AsyncIterable<Uint8Array>);
 }
 
 function buildStorageUri(sha256: string): string {
@@ -36,9 +72,11 @@ function buildStorageUri(sha256: string): string {
 
 export class FsArtifactStore implements ArtifactStorePort {
   private readonly rootDir: string;
+  private readonly tenantIndexDir: string;
 
   constructor(rootDir: string) {
     this.rootDir = path.resolve(rootDir);
+    this.tenantIndexDir = path.join(this.rootDir, "_tenants");
   }
 
   async put(
@@ -51,8 +89,28 @@ export class FsArtifactStore implements ArtifactStorePort {
         ),
       );
     }
+    if (!ALLOWED_MIME.has(input.mimeType)) {
+      return fail(
+        quimeraError(
+          "ERR_ARTIFACT_STORE",
+          "VALIDATION",
+          `mime no permitido: ${input.mimeType}`,
+          false,
+        ),
+      );
+    }
+    if (input.bytes.byteLength > MAX_ARTIFACT_BYTES) {
+      return fail(
+        quimeraError(
+          "ERR_ARTIFACT_STORE",
+          "VALIDATION",
+          `el artefacto supera ${MAX_ARTIFACT_BYTES} bytes`,
+          false,
+        ),
+      );
+    }
 
-    const sha256 = sha256Hex(input.bytes);
+    const sha256 = await sha256Bytes(input.bytes);
     let filePath: string;
     try {
       filePath = resolveCasFilePath(this.rootDir, sha256);
@@ -66,7 +124,7 @@ export class FsArtifactStore implements ArtifactStorePort {
     const exists = await this.pathExists(filePath);
 
     if (!exists) {
-      const writeResult = await this.writeAtomic(filePath, input.bytes);
+      const writeResult = await this.writeAtomic(filePath, input.bytes, sha256);
       if (!writeResult.ok) {
         return writeResult;
       }
@@ -76,6 +134,7 @@ export class FsArtifactStore implements ArtifactStorePort {
         return fail(integrity.error);
       }
     }
+    await this.recordTenant(sha256, input.tenantId);
 
     const artifact: EvidenceArtifact = {
       id: randomUUID(),
@@ -114,13 +173,23 @@ export class FsArtifactStore implements ArtifactStorePort {
       const buf = await fs.readFile(filePath);
       bytes = new Uint8Array(buf);
     } catch (err: unknown) {
-      const code = err && typeof err === "object" && "code" in err ? err.code : undefined;
+      const code = errorCode(err);
       if (code === "ENOENT") {
         return fail(
           quimeraError(
             "ERR_ARTIFACT_STORE",
             "STORAGE",
             `artifact not found: ${storageUri}`,
+            false,
+          ),
+        );
+      }
+      if (code === "EPERM" || code === "EACCES") {
+        return fail(
+          quimeraError(
+            "ERR_ARTIFACT_STORE",
+            "STORAGE",
+            `permission denied reading artifact: ${storageUri}`,
             false,
           ),
         );
@@ -135,7 +204,7 @@ export class FsArtifactStore implements ArtifactStorePort {
       );
     }
 
-    const digest = sha256Hex(bytes);
+    const digest = await sha256Bytes(bytes);
     if (digest !== parsed.sha256) {
       return fail(
         quimeraError(
@@ -150,8 +219,13 @@ export class FsArtifactStore implements ArtifactStorePort {
     return ok(bytes);
   }
 
-  async existsBySha256(_tenantId: string, sha256: string): Promise<boolean> {
-    if (!/^[a-f0-9]{64}$/.test(sha256)) {
+  async existsBySha256(tenantId: string, sha256: string): Promise<boolean> {
+    if (!SHA256_HEX.test(sha256)) {
+      return false;
+    }
+    // El CAS es global por contenido, pero la pertenencia es por tenant.
+    const tenants = await this.tenantsFor(sha256);
+    if (!tenants.has(tenantId)) {
       return false;
     }
     let filePath: string;
@@ -161,6 +235,34 @@ export class FsArtifactStore implements ArtifactStorePort {
       return false;
     }
     return this.pathExists(filePath);
+  }
+
+  private async tenantsFor(sha256: string): Promise<Set<string>> {
+    try {
+      const text = await fs.readFile(path.join(this.tenantIndexDir, sha256), "utf8");
+      return new Set(text.split("\n").map((s) => s.trim()).filter((s) => s.length > 0));
+    } catch {
+      return new Set();
+    }
+  }
+
+  private async recordTenant(sha256: string, tenantId: string): Promise<void> {
+    try {
+      await fs.mkdir(this.tenantIndexDir, { recursive: true });
+      const indexPath = path.join(this.tenantIndexDir, sha256);
+      let current = "";
+      try {
+        current = await fs.readFile(indexPath, "utf8");
+      } catch {
+        // primer tenant de este objeto
+      }
+      if (current.split("\n").includes(tenantId)) {
+        return;
+      }
+      await fs.appendFile(indexPath, `${tenantId}\n`, "utf8");
+    } catch {
+      // índice best-effort: no debe impedir el put del artefacto
+    }
   }
 
   private async pathExists(filePath: string): Promise<boolean> {
@@ -177,8 +279,7 @@ export class FsArtifactStore implements ArtifactStorePort {
     expectedSha256: string,
   ): Promise<OperationResult<void>> {
     try {
-      const buf = await fs.readFile(filePath);
-      const digest = sha256Hex(new Uint8Array(buf));
+      const digest = await sha256File(filePath);
       if (digest !== expectedSha256) {
         return fail(
           quimeraError(
@@ -190,13 +291,16 @@ export class FsArtifactStore implements ArtifactStorePort {
         );
       }
       return ok(undefined);
-    } catch {
+    } catch (err: unknown) {
+      const code = errorCode(err);
       return fail(
         quimeraError(
           "ERR_ARTIFACT_STORE",
           "STORAGE",
-          `failed to verify existing CAS object at ${filePath}`,
-          true,
+          code === "EPERM" || code === "EACCES"
+            ? `permission denied verifying CAS object at ${filePath}`
+            : `failed to verify existing CAS object at ${filePath}`,
+          code === "EPERM" || code === "EACCES" ? false : true,
         ),
       );
     }
@@ -205,6 +309,7 @@ export class FsArtifactStore implements ArtifactStorePort {
   private async writeAtomic(
     filePath: string,
     bytes: Uint8Array,
+    expectedSha256: string,
   ): Promise<OperationResult<void>> {
     const dir = path.dirname(filePath);
     try {
@@ -224,8 +329,23 @@ export class FsArtifactStore implements ArtifactStorePort {
       await fs.rename(tempPath, filePath);
       await fs.chmod(filePath, 0o444);
       return ok(undefined);
-    } catch {
-      await fs.rm(tempPath, { force: true });
+    } catch (err: unknown) {
+      await fs.rm(tempPath, { force: true }).catch(() => undefined);
+      const code = errorCode(err);
+      if (code === "EEXIST") {
+        // Otro escritor ganó la carrera: si el objeto es íntegro, es idempotente.
+        return this.verifyFileIntegrity(filePath, expectedSha256);
+      }
+      if (code === "EPERM" || code === "EACCES") {
+        return fail(
+          quimeraError(
+            "ERR_ARTIFACT_STORE",
+            "STORAGE",
+            `permission denied writing CAS object at ${filePath}`,
+            false,
+          ),
+        );
+      }
       return fail(
         quimeraError(
           "ERR_ARTIFACT_STORE",

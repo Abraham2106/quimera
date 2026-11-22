@@ -114,6 +114,12 @@ CREATE TABLE IF NOT EXISTS qum_decisions (
   decided_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Gate concurrente: solo una decisión raíz (activa) por conflicto; las enmiendas
+-- (supersedes_decision_id NOT NULL) quedan fuera del índice.
+CREATE UNIQUE INDEX IF NOT EXISTS qum_decisions_one_active_per_conflict
+  ON qum_decisions (tenant_id, conflict_id)
+  WHERE supersedes_decision_id IS NULL;
+
 CREATE TABLE IF NOT EXISTS qum_entity_relations (
   id UUID PRIMARY KEY,
   tenant_id UUID NOT NULL REFERENCES qum_tenants(id) ON DELETE RESTRICT,

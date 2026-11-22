@@ -9,6 +9,10 @@ export class ResumeArtifactHashError extends Error {
   }
 }
 
+function resumeError(code: string, message: string): Error & { code: string } {
+  return Object.assign(new Error(message), { code });
+}
+
 export type ResumableCheckpoint<T> = {
   readonly artifactSha256: string;
   readonly completed: number;
@@ -43,12 +47,30 @@ export function runResumableBatch<T>(options: {
       "Input artifact SHA-256 changed since checkpoint; aborting resume",
     );
   }
+
+  const ratio = options.interruptAfterRatio;
+  if (ratio !== undefined && !Number.isFinite(ratio)) {
+    throw resumeError(
+      "ERR_RESUME_INVALID_RATIO",
+      "interruptAfterRatio must be a finite number",
+    );
+  }
+
+  if (prior && (!Number.isInteger(prior.completed) || prior.completed < 0)) {
+    throw resumeError("ERR_RESUME_CHECKPOINT_RANGE", "Invalid checkpoint.completed");
+  }
+  if (prior && prior.outputs.length !== prior.completed) {
+    throw resumeError(
+      "ERR_RESUME_OUTPUTS_MISMATCH",
+      `checkpoint.outputs.length (${prior.outputs.length}) !== checkpoint.completed (${prior.completed})`,
+    );
+  }
+
   const start = prior?.completed ?? 0;
   if (start < 0 || start > options.items.length) {
-    throw new Error("ERR_RESUME_CHECKPOINT_RANGE");
+    throw resumeError("ERR_RESUME_CHECKPOINT_RANGE", "checkpoint.completed out of range");
   }
   const outputs: T[] = [...(prior?.outputs ?? [])];
-  const ratio = options.interruptAfterRatio;
   const interruptAt =
     ratio === undefined ? options.items.length : Math.floor(options.items.length * ratio);
   const limit = Math.max(interruptAt, start);

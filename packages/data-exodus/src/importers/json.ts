@@ -6,7 +6,6 @@ import type {
   OperationResult,
   QuimeraError,
 } from "@quimera/core";
-import { canonicalizeJsonValue, sha256CanonicalJson } from "@quimera/core";
 import type { Sql } from "postgres";
 
 import {
@@ -21,6 +20,13 @@ import { FsArtifactStore } from "../storage/fs-artifact-store.js";
 import { quimeraError } from "../storage/path-guards.js";
 import { looksBinary } from "./csv-decode.js";
 import { assertCountInvariant } from "./csv-parse-rows.js";
+import {
+  assertSafeObjectKey,
+  canonicalizeSafeJsonValue,
+  createSafeRecord,
+  sha256SafeCanonicalJson,
+  toPlainJson,
+} from "./safe-object.js";
 import type {
   ImportCounts,
   SourceImporterPort,
@@ -66,7 +72,7 @@ function buildIdempotencyKey(
   sourceId: string,
   artifactSha256: string,
 ): string {
-  return sha256CanonicalJson({ tenantId, sourceId, artifactSha256, kind: "json" });
+  return sha256SafeCanonicalJson({ tenantId, sourceId, artifactSha256, kind: "json" });
 }
 
 function mapBatchCounts(
@@ -93,17 +99,16 @@ export function parseJsonRows(elements: unknown[]): { rows: ParsedJsonRow[]; cou
     const element = elements[i];
 
     if (element === null || element === undefined) {
-      const rawPayload: Record<string, unknown> = {
-        index,
-        kind: "json",
-        fields: {},
-      };
+      const rawPayload = createSafeRecord<unknown>();
+      rawPayload.index = index;
+      rawPayload.kind = "json";
+      rawPayload.fields = createSafeRecord();
       rows.push({
         index,
         sourceLocator: `json:index:${index}`,
         parseStatus: "SKIPPED",
         rawPayload,
-        recordHash: sha256CanonicalJson({
+        recordHash: sha256SafeCanonicalJson({
           index,
           parseStatus: "SKIPPED",
         }),
@@ -114,43 +119,63 @@ export function parseJsonRows(elements: unknown[]): { rows: ParsedJsonRow[]; cou
 
     if (typeof element !== "object" || Array.isArray(element)) {
       const message = "JSON array element must be a plain object";
-      const rawPayload: Record<string, unknown> = {
-        index,
-        kind: "json",
-        fields: {},
-        parseError: message,
-        rawValue: canonicalizeJsonValue(element),
-      };
+      const rawPayload = createSafeRecord<unknown>();
+      rawPayload.index = index;
+      rawPayload.kind = "json";
+      rawPayload.fields = createSafeRecord();
+      rawPayload.parseError = message;
+      rawPayload.rawValue = canonicalizeSafeJsonValue(element);
       rows.push({
         index,
         sourceLocator: `json:index:${index}`,
         parseStatus: "ERROR",
         parseError: message,
         rawPayload,
-        recordHash: sha256CanonicalJson({
+        recordHash: sha256SafeCanonicalJson({
           index,
           parseStatus: "ERROR",
-          rawValue: canonicalizeJsonValue(element),
+          rawValue: canonicalizeSafeJsonValue(element),
         }),
       });
       parseErrors += 1;
       continue;
     }
 
-    const fields = jsonObjectToFields(element as Record<string, unknown>);
-    const rawPayload: Record<string, unknown> = {
-      index,
-      kind: "json",
-      fields,
-    };
-    rows.push({
-      index,
-      sourceLocator: `json:index:${index}`,
-      parseStatus: "OK",
-      rawPayload,
-      recordHash: sha256CanonicalJson(canonicalizeJsonValue(rawPayload)),
-    });
-    parsedOk += 1;
+    try {
+      const fields = jsonObjectToFields(element as Record<string, unknown>);
+      const rawPayload = createSafeRecord<unknown>();
+      rawPayload.index = index;
+      rawPayload.kind = "json";
+      rawPayload.fields = fields;
+      rows.push({
+        index,
+        sourceLocator: `json:index:${index}`,
+        parseStatus: "OK",
+        rawPayload,
+        recordHash: sha256SafeCanonicalJson(rawPayload),
+      });
+      parsedOk += 1;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      const rawPayload = createSafeRecord<unknown>();
+      rawPayload.index = index;
+      rawPayload.kind = "json";
+      rawPayload.fields = createSafeRecord();
+      rawPayload.parseError = message;
+      rows.push({
+        index,
+        sourceLocator: `json:index:${index}`,
+        parseStatus: "ERROR",
+        parseError: message,
+        rawPayload,
+        recordHash: sha256SafeCanonicalJson({
+          index,
+          parseStatus: "ERROR",
+          parseError: message,
+        }),
+      });
+      parseErrors += 1;
+    }
   }
 
   const totalRowsSeen = rows.length;
@@ -163,8 +188,9 @@ export function parseJsonRows(elements: unknown[]): { rows: ParsedJsonRow[]; cou
 }
 
 function jsonObjectToFields(obj: Record<string, unknown>): Record<string, unknown> {
-  const fields: Record<string, unknown> = {};
+  const fields = createSafeRecord<unknown>();
   for (const [key, value] of Object.entries(obj)) {
+    assertSafeObjectKey(key);
     fields[key] = jsonFieldValue(value);
   }
   return fields;
@@ -181,7 +207,7 @@ function jsonFieldValue(value: unknown): unknown {
     return String(value);
   }
   if (typeof value === "object") {
-    return canonicalizeJsonValue(value);
+    return canonicalizeSafeJsonValue(value);
   }
   return value;
 }
@@ -374,7 +400,7 @@ export class JsonSourceImporter implements SourceImporterPort {
             artifactId,
             sourceLocator: row.sourceLocator,
             recordHash: row.recordHash,
-            rawPayload: row.rawPayload,
+            rawPayload: toPlainJson(row.rawPayload),
             parseStatus: row.parseStatus,
             parseError: row.parseError ?? null,
           })),
