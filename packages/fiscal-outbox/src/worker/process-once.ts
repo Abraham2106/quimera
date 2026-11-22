@@ -14,7 +14,9 @@ import { signedXmlMustExistBeforePost } from "../vault/certificate-policy.js";
 import { PgDocumentStore } from "../store/pg-document-store.js";
 import { rowToStoredDocument } from "../store/row-map.js";
 import { claimNextDocument, isPostDispatched, releaseDocumentLease } from "./claim.js";
+import { assertFencedUpdate } from "./fencing.js";
 import {
+  markPostDispatchedAtomically,
   markPostDispatchedExtras,
   patchFiscalDocumentAttempts,
   transitionFiscalDocument,
@@ -29,11 +31,16 @@ import type {
 
 const GET_BACKOFF_MS = 5_000;
 
-function scopedStore(client: Sql, claim: ClaimedFiscalDocument): PgDocumentStore {
+function scopedStore(
+  client: Sql,
+  claim: ClaimedFiscalDocument,
+  workerId: string,
+): PgDocumentStore {
   return new PgDocumentStore(client, {
     tenantId: claim.tenant_id,
     issuerId: claim.issuer_id,
     environment: claim.environment,
+    leaseOwner: workerId,
   });
 }
 
@@ -46,11 +53,39 @@ function toHaciendaPayload(
   return response;
 }
 
+/** Relee bajo FOR UPDATE y comprueba el fencing token antes de cualquier reconciliación. */
+async function reloadClaimForUpdate(
+  client: Sql,
+  claim: ClaimedFiscalDocument,
+  workerId: string,
+): Promise<ClaimedFiscalDocument> {
+  const rows = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
+    tx<ClaimedFiscalDocument[]>`
+      SELECT
+        d.id, d.tenant_id, d.intent_id, d.clave, d.consecutivo, d.delivery_state,
+        d.attempts, d.last_error_json, d.updated_at, d.lease_owner, d.lease_expires_at,
+        d.next_poll_at, d.signed_xml_artifact_id,
+        i.issuer_id, i.environment
+      FROM fob_fiscal_documents AS d
+      INNER JOIN fob_fiscal_intents AS i ON i.id = d.intent_id
+      WHERE d.id = ${claim.id}::uuid
+        AND d.lease_owner = ${workerId}
+      FOR UPDATE OF d
+    `,
+  );
+  const latest = rows[0];
+  if (!latest) {
+    throw new Error("ERR_FOB_FENCE: el lease ya no pertenece a este worker");
+  }
+  return latest;
+}
+
 async function applySendResult(
   client: Sql,
   claim: ClaimedFiscalDocument,
   currentState: FobDeliveryState,
   sendResult: SendResult,
+  workerId: string,
   extras?: Record<string, unknown>,
 ): Promise<FobDeliveryState> {
   if (sendResult.type === "ambiguous") {
@@ -60,6 +95,7 @@ async function applySendResult(
       "INCIERTO",
       sendResult.error.message,
       { ...markPostDispatchedExtras(), ...extras },
+      workerId,
     );
     return "INCIERTO";
   }
@@ -77,11 +113,11 @@ async function applySendResult(
         : undefined;
 
   if (currentState === "INCIERTO") {
-    await transitionFiscalDocument(client, claim, target, reason, extras);
+    await transitionFiscalDocument(client, claim, target, reason, extras, workerId);
     return target;
   }
 
-  const store = scopedStore(client, claim);
+  const store = scopedStore(client, claim, workerId);
   await store.transition(
     claim.clave,
     currentState as DeliveryState,
@@ -100,18 +136,22 @@ async function applySendResult(
           ${claim.environment} AS environment
         FROM fob_fiscal_documents
         WHERE id = ${claim.id}::uuid
+          AND lease_owner = ${workerId}
+        FOR UPDATE
       `,
     );
     const latest = refreshed[0];
-    if (latest) {
-      await patchFiscalDocumentAttempts(
-        client,
-        latest,
-        latest.attempts,
-        null,
-        extras,
-      );
+    if (!latest) {
+      throw new Error("ERR_FOB_FENCE: el lease ya no pertenece a este worker");
     }
+    await patchFiscalDocumentAttempts(
+      client,
+      latest,
+      latest.attempts,
+      null,
+      extras,
+      workerId,
+    );
   }
 
   return target;
@@ -122,15 +162,22 @@ async function reconcileByClave(
   claim: ClaimedFiscalDocument,
   options: ProcessOnceOptions,
 ): Promise<void> {
-  const result = await options.transport.getByClave(claim.clave);
+  const locked = await reloadClaimForUpdate(client, claim, options.workerId);
+  const result = await options.transport.getByClave(locked.clave, options.signal);
   const classified = classifySendResult(
     result.error ?? null,
     result.httpStatus,
     toHaciendaPayload(result.response),
   );
-  const state = claim.delivery_state as FobDeliveryState;
-  const nextState = await applySendResult(client, claim, state, classified);
-  await persistTerminalResponse(client, claim, nextState, result.responseXml);
+  const state = locked.delivery_state as FobDeliveryState;
+  const nextState = await applySendResult(
+    client,
+    locked,
+    state,
+    classified,
+    options.workerId,
+  );
+  await persistTerminalResponse(client, locked, nextState, result.responseXml, options.workerId);
 
   const terminal = nextState === "ACEPTADO" || nextState === "RECHAZADO";
   const nextPollAt = terminal
@@ -139,27 +186,35 @@ async function reconcileByClave(
 
   await patchFiscalDocumentAttempts(
     client,
-    { ...claim, delivery_state: nextState as typeof claim.delivery_state },
-    claim.attempts + 1,
+    { ...locked, delivery_state: nextState as typeof locked.delivery_state },
+    locked.attempts + 1,
     nextPollAt,
-    isPostDispatched(claim.last_error_json) || state === "INCIERTO"
+    isPostDispatched(locked.last_error_json) || state === "INCIERTO"
       ? markPostDispatchedExtras()
       : undefined,
+    options.workerId,
   );
 }
 
 async function readSignedArtifactId(
   client: Sql,
   claim: ClaimedFiscalDocument,
+  workerId: string,
 ): Promise<string | null> {
   const rows = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
     tx<{ signed_xml_artifact_id: string | null }[]>`
       SELECT signed_xml_artifact_id
       FROM fob_fiscal_documents
       WHERE id = ${claim.id}::uuid
+        AND lease_owner = ${workerId}
+      FOR UPDATE
     `,
   );
-  return rows[0]?.signed_xml_artifact_id ?? claim.signed_xml_artifact_id;
+  const row = rows[0];
+  if (!row) {
+    throw new Error("ERR_FOB_FENCE: el lease ya no pertenece a este worker");
+  }
+  return row.signed_xml_artifact_id ?? claim.signed_xml_artifact_id;
 }
 
 async function persistXmlArtifact(
@@ -196,6 +251,7 @@ async function persistTerminalResponse(
   claim: ClaimedFiscalDocument,
   state: FobDeliveryState,
   responseXml: string | undefined,
+  workerId: string,
 ): Promise<void> {
   if (!responseXml || (state !== "ACEPTADO" && state !== "RECHAZADO")) {
     return;
@@ -208,11 +264,13 @@ async function persistTerminalResponse(
     responseXml,
   );
   await withFobTenantTransaction(client, claim.tenant_id, async (tx) => {
-    await tx`
+    const result = await tx`
       UPDATE fob_fiscal_documents
       SET response_artifact_id = ${artifactId}::uuid
       WHERE id = ${claim.id}::uuid
+        AND lease_owner = ${workerId}
     `;
+    assertFencedUpdate(result, claim.id);
   });
 }
 
@@ -221,23 +279,24 @@ async function dispatchPost(
   claim: ClaimedFiscalDocument,
   options: ProcessOnceOptions,
 ): Promise<void> {
+  const workerId = options.workerId;
   const doc = rowToStoredDocument(claim);
   const deadline = evaluateDeadline(doc, options.now?.());
   if (deadline.expired && deadline.state === "VENCIDO") {
-    const store = scopedStore(client, claim);
+    const store = scopedStore(client, claim, workerId);
     if (isValidTransition(doc.state, "VENCIDO")) {
       await store.transition(claim.clave, doc.state, "VENCIDO", "deadline expired");
     }
     return;
   }
 
-  const store = scopedStore(client, claim);
+  const store = scopedStore(client, claim, workerId);
 
   if (doc.state === "FIRMADO") {
     await store.transition(claim.clave, "FIRMADO", "PENDIENTE", "worker: pre-POST");
   }
 
-  let signedArtifactId = await readSignedArtifactId(client, claim);
+  let signedArtifactId = await readSignedArtifactId(client, claim, workerId);
   if (!signedArtifactId && options.signXml) {
     const signedXml = await options.signXml(doc.xml);
     signedArtifactId = await persistXmlArtifact(
@@ -248,18 +307,24 @@ async function dispatchPost(
       signedXml,
     );
     await withFobTenantTransaction(client, claim.tenant_id, async (tx) => {
-      await tx`
+      const result = await tx`
         UPDATE fob_fiscal_documents
         SET signed_xml_artifact_id = ${signedArtifactId}::uuid
         WHERE id = ${claim.id}::uuid
+          AND lease_owner = ${workerId}
       `;
+      assertFencedUpdate(result, claim.id);
     });
   }
   signedXmlMustExistBeforePost(signedArtifactId);
 
+  // Latch atómico ANTES del POST: si el proceso muere, el próximo ciclo sólo hace GET.
+  await markPostDispatchedAtomically(client, claim.tenant_id, claim.id, workerId);
+
   const result = await options.transport.postDocument({
     clave: claim.clave,
     xml: doc.xml,
+    signal: options.signal,
   });
   const classified = classifySendResult(
     result.error ?? null,
@@ -267,30 +332,8 @@ async function dispatchPost(
     toHaciendaPayload(result.response),
   );
 
-  const refreshed = await withFobTenantTransaction(client, claim.tenant_id, async (tx) =>
-    tx<ClaimedFiscalDocument[]>`
-      SELECT
-        d.id,
-        d.tenant_id,
-        d.intent_id,
-        d.clave,
-        d.consecutivo,
-        d.delivery_state,
-        d.attempts,
-        d.last_error_json,
-        d.updated_at,
-        d.lease_owner,
-        d.lease_expires_at,
-        d.next_poll_at,
-        d.signed_xml_artifact_id,
-        i.issuer_id,
-        i.environment
-      FROM fob_fiscal_documents AS d
-      INNER JOIN fob_fiscal_intents AS i ON i.id = d.intent_id
-      WHERE d.id = ${claim.id}::uuid
-    `,
-  );
-  const current = refreshed[0] ?? claim;
+  const refreshed = await reloadClaimForUpdate(client, claim, workerId);
+  const current = refreshed;
   const fromState = current.delivery_state as FobDeliveryState;
 
   const nextState = await applySendResult(
@@ -298,9 +341,10 @@ async function dispatchPost(
     current,
     fromState,
     classified,
+    workerId,
     classified.type === "ambiguous" ? markPostDispatchedExtras() : undefined,
   );
-  await persistTerminalResponse(client, current, nextState, result.responseXml);
+  await persistTerminalResponse(client, current, nextState, result.responseXml, workerId);
 
   const clock = options.now?.() ?? new Date();
   const nextPollAt =
@@ -313,6 +357,7 @@ async function dispatchPost(
     current.attempts + 1,
     nextPollAt,
     classified.type === "ambiguous" ? markPostDispatchedExtras() : undefined,
+    workerId,
   );
 }
 
@@ -352,6 +397,6 @@ export async function processOnce(
     await reconcileByClave(client, claim, options);
     return { processed: true, documentId: claim.id, clave: claim.clave, action: "get" };
   } finally {
-    await releaseDocumentLease(client, options.tenantId, claim.id);
+    await releaseDocumentLease(client, options.tenantId, claim.id, options.workerId);
   }
 }

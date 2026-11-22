@@ -26,7 +26,11 @@ export class LoopbackRecepcionTransport implements FiscalOutboxTransport {
     return this.options.baseUrl.replace(/\/$/, "");
   }
 
-  async postDocument(input: { clave: string; xml: string }): Promise<TransportCallResult> {
+  async postDocument(input: {
+    clave: string;
+    xml: string;
+    signal?: AbortSignal;
+  }): Promise<TransportCallResult> {
     const signed = await this.sign(input.xml);
     const fetchFn = this.options.fetchFn ?? fetch;
     const url = `${this.base()}/recepcion`;
@@ -38,6 +42,7 @@ export class LoopbackRecepcionTransport implements FiscalOutboxTransport {
           "Content-Type": "application/json",
         },
         redirect: "error",
+        signal: input.signal,
         body: JSON.stringify({
           clave: input.clave,
           fecha: new Date().toISOString(),
@@ -67,7 +72,7 @@ export class LoopbackRecepcionTransport implements FiscalOutboxTransport {
     }
   }
 
-  async getByClave(clave: string): Promise<TransportCallResult> {
+  async getByClave(clave: string, signal?: AbortSignal): Promise<TransportCallResult> {
     const fetchFn = this.options.fetchFn ?? fetch;
     const url = `${this.base()}/recepcion/${encodeURIComponent(clave)}`;
     try {
@@ -75,6 +80,7 @@ export class LoopbackRecepcionTransport implements FiscalOutboxTransport {
         method: "GET",
         headers: { Accept: "application/json" },
         redirect: "error",
+        signal,
       });
       const data = (await response.json()) as Record<string, unknown>;
       if (!response.ok) {

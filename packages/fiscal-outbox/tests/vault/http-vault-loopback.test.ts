@@ -60,7 +60,7 @@ describe("HttpKeyProvider — loopback stub", () => {
       new LocalFiscalVault(new LoopbackHttpKeyProvider(handlers)),
     );
     const secret = Buffer.from("secreto-fiscal");
-    const sealed = await vault.seal("11111111-1111-4111-8111-111111111111", "pin", secret);
+    const sealed = await vault.seal("11111111-1111-4111-8111-111111111111", "pin", "sandbox", secret);
     expect(sealed.ciphertext).not.toContain(secret.toString("utf8"));
     expect(Buffer.compare(await vault.open(sealed), secret)).toBe(0);
   });
@@ -75,7 +75,7 @@ describe("HttpKeyProvider — loopback stub", () => {
 
     const vault = createFiscalCredentialVault({ kind: "http" });
     const plain = randomBytes(16);
-    const sealed = await vault.seal("22222222-2222-4222-8222-222222222222", "p12", plain);
+    const sealed = await vault.seal("22222222-2222-4222-8222-222222222222", "p12", "sandbox", plain);
     expect((await vault.open(sealed)).equals(plain)).toBe(true);
 
     if (prevKind === undefined) delete process.env.FISCAL_VAULT;
@@ -89,7 +89,7 @@ describe("HttpKeyProvider — loopback stub", () => {
   it("LoopbackHttpKeyProvider alimenta LocalFiscalVault", async () => {
     const vault = asFiscalCredentialVault(new LocalFiscalVault(new LoopbackHttpKeyProvider(handlers)));
     const data = Buffer.from([0x30, 0x01, 0x02]);
-    const sealed = await vault.seal("33333333-3333-4333-8333-333333333333", "idp_password", data);
+    const sealed = await vault.seal("33333333-3333-4333-8333-333333333333", "idp_password", "sandbox", data);
     expect((await vault.open(sealed)).equals(data)).toBe(true);
   });
 });

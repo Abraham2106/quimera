@@ -13,10 +13,10 @@ describe("bóveda fiscal local", () => {
     const { asFiscalCredentialVault } = await import("../../src/vault/port.js");
     const vault = asFiscalCredentialVault(new LocalFiscalVault(new LocalKeyProvider(randomBytes(32))));
     const p12 = Buffer.from([0x30, 0x82, 0x01, 0x00, 0x01]);
-    const sealed = await vault.seal("11111111-1111-4111-8111-111111111111", "p12", p12);
+    const sealed = await vault.seal("11111111-1111-4111-8111-111111111111", "p12", "sandbox", p12);
     expect(sealed.ciphertext).not.toContain(p12.toString("base64"));
     expect(Buffer.compare(await vault.open(sealed), p12)).toBe(0);
-    const pin = await vault.seal("11111111-1111-4111-8111-111111111111", "pin", Buffer.from("4321"));
+    const pin = await vault.seal("11111111-1111-4111-8111-111111111111", "pin", "sandbox", Buffer.from("4321"));
     expect((await vault.open(pin)).toString()).toBe("4321");
   });
 

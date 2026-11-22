@@ -8,15 +8,18 @@ if (!tenantId) {
 }
 
 const client = createPostgresClient();
+const shutdown = new AbortController();
 let stop = false;
 process.once("SIGTERM", () => {
   stop = true;
+  shutdown.abort();
 });
 
 const code = await runFiscalWorker({
   client,
   tenantId,
   shouldStop: () => stop,
+  signal: shutdown.signal,
 });
 
 await client.end({ timeout: 5 });

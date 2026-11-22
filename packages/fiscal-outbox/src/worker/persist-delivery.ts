@@ -6,6 +6,7 @@ import {
 import type { Sql, TransactionSql } from "postgres";
 
 import { withFobTenantTransaction } from "../db/connection.js";
+import { assertFencedUpdate } from "./fencing.js";
 import {
   deliveryJsonEnvelope,
   rowToStoredDocument,
@@ -42,6 +43,7 @@ export async function transitionFiscalDocument(
   to: FobDeliveryState,
   reason?: string,
   extras?: Record<string, unknown>,
+  workerId?: string,
 ): Promise<StoredDocument> {
   const doc = rowToStoredDocument(row);
   const fromFob = row.delivery_state as FobDeliveryState;
@@ -79,14 +81,16 @@ export async function transitionFiscalDocument(
   );
 
   await withFobTenantTransaction(client, row.tenant_id, async (tx) => {
-    await tx`
+    const result = await tx`
       UPDATE fob_fiscal_documents
       SET
         delivery_state = ${to},
         last_error_json = ${tx.json(merged as never)},
         updated_at = now()
       WHERE id = ${row.id}::uuid
+        AND (${workerId ?? null}::text IS NULL OR lease_owner = ${workerId ?? null})
     `;
+    assertFencedUpdate(result, row.id);
   });
 
   return next;
@@ -98,6 +102,7 @@ export async function patchFiscalDocumentAttempts(
   attempts: number,
   nextPollAt: Date | null,
   extras?: Record<string, unknown>,
+  workerId?: string,
 ): Promise<void> {
   const doc = rowToStoredDocument(row);
   const merged = mergeLastErrorJson(
@@ -108,7 +113,7 @@ export async function patchFiscalDocumentAttempts(
   );
 
   await withFobTenantTransaction(client, row.tenant_id, async (tx) => {
-    await tx`
+    const result = await tx`
       UPDATE fob_fiscal_documents
       SET
         attempts = ${attempts},
@@ -116,10 +121,36 @@ export async function patchFiscalDocumentAttempts(
         last_error_json = ${tx.json(merged as never)},
         updated_at = now()
       WHERE id = ${row.id}::uuid
+        AND (${workerId ?? null}::text IS NULL OR lease_owner = ${workerId ?? null})
     `;
+    assertFencedUpdate(result, row.id);
   });
 }
 
 export function markPostDispatchedExtras(): Record<string, unknown> {
   return { [POST_DISPATCHED_JSON_KEY]: true };
+}
+
+/**
+ * Marca atómicamente que el POST ya fue despachado, ANTES de llamar al transporte.
+ * Si el proceso muere, el siguiente ciclo sólo hará GET por clave.
+ */
+export async function markPostDispatchedAtomically(
+  client: FobWriteClient,
+  tenantId: string,
+  documentId: string,
+  workerId: string,
+): Promise<void> {
+  await withFobTenantTransaction(client, tenantId, async (tx) => {
+    const result = await tx`
+      UPDATE fob_fiscal_documents
+      SET
+        last_error_json = COALESCE(last_error_json, '{}'::jsonb)
+          || ${tx.json(markPostDispatchedExtras() as never)}::jsonb,
+        updated_at = now()
+      WHERE id = ${documentId}::uuid
+        AND lease_owner = ${workerId}
+    `;
+    assertFencedUpdate(result, documentId);
+  });
 }

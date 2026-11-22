@@ -30,7 +30,11 @@ export class HaciendaSdkTransport implements FiscalOutboxTransport {
     return signXml(xml, this.options.p12, this.options.pin);
   }
 
-  async postDocument(input: { clave: string; xml: string }): Promise<TransportCallResult> {
+  async postDocument(input: {
+    clave: string;
+    xml: string;
+    signal?: AbortSignal;
+  }): Promise<TransportCallResult> {
     const signed = await this.sign(input.xml);
     try {
       const submitted = await submitDocument(this.options.httpClient, {

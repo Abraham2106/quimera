@@ -46,6 +46,7 @@ export async function claimNextDocument(
         updated_at = now()
       FROM picked
       WHERE d.id = picked.id
+        AND (d.lease_owner IS NULL OR d.lease_owner = ${options.workerId})
       RETURNING
         d.id,
         d.tenant_id,
@@ -65,23 +66,26 @@ export async function claimNextDocument(
     `,
   );
 
-  const row = rows[0];
-  if (!row) {
-    return null;
-  }
-  return row;
+  return rows[0] ?? null;
 }
 
+/** Libera el lease únicamente si todavía lo posee el worker que llama (fencing token). */
 export async function releaseDocumentLease(
   client: Sql,
   tenantId: string,
   documentId: string,
+  workerId: string,
 ): Promise<void> {
   await withFobTenantTransaction(client, tenantId, async (tx) => {
-    await tx`
+    const result = await tx`
       UPDATE fob_fiscal_documents
       SET lease_owner = NULL, lease_expires_at = NULL
       WHERE id = ${documentId}::uuid
+        AND lease_owner = ${workerId}
     `;
+    if (Number(result.count ?? 0) === 0) {
+      // Un worker más reciente ya tomó el lease: no debemos liberarlo.
+      return;
+    }
   });
 }

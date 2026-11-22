@@ -19,6 +19,7 @@ export type RunFiscalWorkerOptions = {
   readonly vault?: FiscalCredentialVaultPort;
   readonly workerId?: string;
   readonly idleBackoffMs?: number;
+  readonly signal?: AbortSignal;
 };
 
 export async function runFiscalWorker(options: RunFiscalWorkerOptions): Promise<number> {
@@ -52,13 +53,15 @@ export async function runFiscalWorker(options: RunFiscalWorkerOptions): Promise<
   return runWorkerUntilStop({
     shouldStop: options.shouldStop,
     idleBackoffMs: options.idleBackoffMs,
-    processOnce: async () => {
+    signal: options.signal,
+    processOnce: async (signal) => {
       try {
         const result = await processOnce(options.client, {
           workerId,
           tenantId: options.tenantId,
           transport: transportBundle.transport,
           signXml: transportBundle.signXml,
+          signal,
         });
         if (result.processed) {
           writeWorkerLog({
@@ -77,7 +80,7 @@ export async function runFiscalWorker(options: RunFiscalWorkerOptions): Promise<
       }
     },
     releaseLease: async (documentId) => {
-      await releaseDocumentLease(options.client, options.tenantId, documentId);
+      await releaseDocumentLease(options.client, options.tenantId, documentId, workerId);
       writeWorkerLog({ event: "worker.lease.released", documentId });
     },
   });
