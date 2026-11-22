@@ -22,8 +22,10 @@ export {
   FiscalOutboxDbError,
   INIT_FOB_MIGRATION_SQL_PATH,
   FOB_RLS_MIGRATION_SQL_PATH,
+  FOB_FISCAL_CREDENTIALS_MIGRATION_SQL_PATH,
   applyFobMigration,
   applyFobRlsMigration,
+  applyFobFiscalCredentialsMigration,
   dropFobObjects,
 } from "./db/index.js";
 
@@ -37,6 +39,16 @@ export {
   type FiscalIntentRecord,
   type FiscalEnvironment,
   type FiscalIntentStatus,
+  upsertFiscalCredentials,
+  listFiscalCredentialMetadata,
+  loadSealedCredential,
+  productionCertificateIsValid,
+  promoteIssuerToProduction,
+  readIssuerActiveEnvironment,
+  type FiscalCredentialEnvironment,
+  type FiscalCredentialUploadInput,
+  type FiscalCredentialUploadResult,
+  type StoredFiscalCredentialMeta,
 } from "./store/index.js";
 
 export {
@@ -61,6 +73,23 @@ export {
   type FiscalSecretKind,
   type SealedSecret,
 } from "./vault/port.js";
+
+export {
+  createFiscalCredentialVault,
+  resolveFiscalVaultKind,
+  createEphemeralLocalVault,
+  type FiscalVaultKind,
+  type CreateFiscalCredentialVaultOptions,
+} from "./vault/create-fiscal-vault.js";
+
+export {
+  HttpKeyProvider,
+  LoopbackHttpKeyProvider,
+  createLoopbackVaultHttpHandlers,
+  type HttpKeyProviderOptions,
+} from "./vault/http-key-provider.js";
+
+export { HttpFiscalVault } from "./vault/http-fiscal-vault.js";
 
 export {
   assessPkcs12Upload,

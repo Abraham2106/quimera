@@ -108,8 +108,8 @@ export function createApp(options: CreateAppOptions = {}): Hono<OficiosAppEnv> {
   app.route("/api/v1/migrations", createMigrationRoutes());
   app.route("/api/v1/customers", createCustomersRoutes());
   app.route("/api/v1/catalog", createCatalogRoutes());
-  app.route("/api/v1/fiscal", createFiscalCredentialsRoutes());
   app.get("/api/v1/billing/usage", createBillingUsageRoute());
+  app.route("/api/v1/fiscal/credentials", createFiscalCredentialsRoutes());
   app.get("/api/v1/audit", async (c) => {
     if (c.get("role") !== "ADMIN" && c.get("role") !== "AUDITOR_READONLY") {
       const { status, body } = errorResponse(403, "ERR_FORBIDDEN", "SECURITY", "La bitácora no está disponible para este rol.");

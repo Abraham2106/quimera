@@ -119,6 +119,28 @@ export async function createWorkOrder(
   return json.workOrder;
 }
 
+export async function uploadWorkOrderAttachment(
+  config: DevApiConfig,
+  workOrderId: string,
+  file: File,
+): Promise<{ attachmentId: string }> {
+  const form = new FormData();
+  form.set("file", file);
+  const res = await fetch(
+    `${config.apiBase}/api/v1/work-orders/${encodeURIComponent(workOrderId)}/attachments`,
+    {
+      method: "POST",
+      headers: headers(config),
+      body: form,
+    },
+  );
+  if (!res.ok) {
+    throw await parseError(res);
+  }
+  const json = (await res.json()) as { attachmentId: string };
+  return { attachmentId: json.attachmentId };
+}
+
 export async function saveDiagnosis(
   config: DevApiConfig,
   workOrderId: string,

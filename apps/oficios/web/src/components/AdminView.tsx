@@ -196,20 +196,47 @@ function AuditPanel(props: { readonly config: DevApiConfig }) {
   );
 }
 
+type FiscalCredential = {
+  readonly issuerId: string;
+  readonly environment: string;
+  readonly kind: string;
+  readonly certNotAfter: string | null;
+  readonly updatedAt: string;
+};
+
+function toBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  }
+  return btoa(binary);
+}
+
 function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: boolean }) {
   const [pin, setPin] = useState("");
+  const [issuerId, setIssuerId] = useState("");
+  const [idpUsername, setIdpUsername] = useState("");
+  const [idpPassword, setIdpPassword] = useState("");
+  const [certNotAfter, setCertNotAfter] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [fingerprint, setFingerprint] = useState<string | null>(null);
+  const [credentials, setCredentials] = useState<readonly FiscalCredential[]>([]);
   const [certificateName, setCertificateName] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetch(`${props.config.apiBase}/api/v1/fiscal/credentials`, { headers: headers(props.config) }).then(
-      async (response) => {
-        const json = (await response.json()) as { fingerprint?: string | null; environment?: string; note?: string };
-        if (json.fingerprint) setFingerprint(json.fingerprint);
-        if (json.note) setMessage(`${json.environment ?? "sandbox"}. ${json.note}`);
-      },
-    );
+    void fetch(`${props.config.apiBase}/api/v1/fiscal/credentials`, { headers: headers(props.config) })
+      .then(async (response) => {
+        const json = (await response.json()) as {
+          credentials?: FiscalCredential[];
+          error?: { message?: string };
+        };
+        if (!response.ok) {
+          setMessage(json.error?.message ?? "No se pudieron consultar las credenciales fiscales.");
+          return;
+        }
+        setCredentials(json.credentials ?? []);
+      })
+      .catch(() => setMessage("No se pudieron consultar las credenciales fiscales."));
   }, [props.config]);
 
   return (
@@ -224,38 +251,63 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
         <span className="text-xs text-[var(--ink-muted)]">sandbox</span>
       </div>
 
-      {fingerprint ? (
-        <p className="banner-done num mt-4 px-4 py-2.5 text-xs font-semibold">
-          Huella {fingerprint} · sandbox
-        </p>
+      {credentials.length > 0 ? (
+        <ul className="mt-4 space-y-1 text-xs text-[var(--ink-muted)]">
+          {credentials.map((item) => (
+            <li key={`${item.issuerId}-${item.environment}`}>
+              Emisor {item.issuerId} · {item.environment}
+              {item.certNotAfter ? ` · vence ${item.certNotAfter.slice(0, 10)}` : ""}
+            </li>
+          ))}
+        </ul>
       ) : null}
 
       <form
         className="mt-4 grid max-w-lg gap-3"
         onSubmit={(event) => {
           event.preventDefault();
-          const input = event.currentTarget.elements.namedItem("file");
-          const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined;
-          if (!file) return;
-          const body = new FormData();
-          body.set("file", file);
-          body.set("pin", pin);
-          void fetch(`${props.config.apiBase}/api/v1/fiscal/credentials`, {
-            method: "POST",
-            headers: headers(props.config),
-            body,
-          }).then(async (response) => {
-            const json = (await response.json()) as { fingerprint?: string; error?: { message?: string } };
+          void (async () => {
+            const input = event.currentTarget.elements.namedItem("file");
+            const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined;
+            if (!file) return;
+            const issuer = issuerId.trim();
+            const username = idpUsername.trim();
+            const expires = certNotAfter.trim();
+            if (!issuer || !username || !idpPassword || pin.trim().length < 4 || !expires) {
+              setMessage("Complete emisor, usuario y contraseña IDP, PIN y vencimiento del certificado.");
+              return;
+            }
+            const response = await fetch(`${props.config.apiBase}/api/v1/fiscal/credentials`, {
+              method: "POST",
+              headers: headers(props.config, true),
+              body: JSON.stringify({
+                issuerId: issuer,
+                environment: "sandbox",
+                p12Base64: toBase64(new Uint8Array(await file.arrayBuffer())),
+                pin,
+                idpUsername: username,
+                idpPassword,
+                certNotAfter: expires,
+              }),
+            });
+            const json = (await response.json()) as { error?: { message?: string } };
             setPin("");
+            setIdpPassword("");
             setCertificateName(null);
             if (input instanceof HTMLInputElement) input.value = "";
             if (!response.ok) {
               setMessage(json.error?.message ?? "No se pudo guardar el certificado.");
               return;
             }
-            setFingerprint(json.fingerprint ?? null);
             setMessage("Certificado recibido en sandbox. No se muestra el PIN ni el archivo.");
-          });
+            const refreshed = await fetch(`${props.config.apiBase}/api/v1/fiscal/credentials`, {
+              headers: headers(props.config),
+            });
+            if (refreshed.ok) {
+              const list = (await refreshed.json()) as { credentials?: FiscalCredential[] };
+              setCredentials(list.credentials ?? []);
+            }
+          })();
         }}
       >
         <div className="text-xs font-medium text-[var(--ink)]">
@@ -278,6 +330,16 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
           </div>
         </div>
         <label className="text-xs font-medium text-[var(--ink)]">
+          Emisor (RUC)
+          <input
+            className="field mt-1"
+            value={issuerId}
+            onChange={(e) => setIssuerId(e.target.value)}
+            disabled={props.readOnly}
+            placeholder="123456789001"
+          />
+        </label>
+        <label className="text-xs font-medium text-[var(--ink)]">
           PIN del certificado
           <input
             type="password"
@@ -290,6 +352,37 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
             disabled={props.readOnly}
           />
         </label>
+        <label className="text-xs font-medium text-[var(--ink)]">
+          Usuario IDP
+          <input
+            className="field mt-1"
+            autoComplete="off"
+            value={idpUsername}
+            onChange={(e) => setIdpUsername(e.target.value)}
+            disabled={props.readOnly}
+          />
+        </label>
+        <label className="text-xs font-medium text-[var(--ink)]">
+          Contraseña IDP
+          <input
+            type="password"
+            className="field mt-1"
+            autoComplete="off"
+            value={idpPassword}
+            onChange={(e) => setIdpPassword(e.target.value)}
+            disabled={props.readOnly}
+          />
+        </label>
+        <label className="text-xs font-medium text-[var(--ink)]">
+          Vencimiento del certificado
+          <input
+            type="date"
+            className="field mt-1"
+            value={certNotAfter}
+            onChange={(e) => setCertNotAfter(e.target.value)}
+            disabled={props.readOnly}
+          />
+        </label>
         <div className="flex flex-wrap gap-2.5 pt-1">
           <button type="submit" className="touch btn-primary" disabled={props.readOnly}>
             Cargar certificado
@@ -299,13 +392,25 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
             className="touch btn-secondary"
             disabled={props.readOnly}
             onClick={() => {
+              const issuer = issuerId.trim() || credentials[0]?.issuerId;
+              if (!issuer) {
+                setMessage("Indique el emisor a promover.");
+                return;
+              }
               void fetch(`${props.config.apiBase}/api/v1/fiscal/credentials/promote`, {
                 method: "POST",
                 headers: headers(props.config, true),
-                body: JSON.stringify({ adminConfirmed: true }),
+                body: JSON.stringify({ issuerId: issuer }),
               }).then(async (response) => {
-                const json = (await response.json()) as { error?: { message?: string }; environment?: string };
-                setMessage(json.error?.message ?? `Entorno ${json.environment ?? "production"}`);
+                const json = (await response.json()) as {
+                  error?: { message?: string };
+                  activeEnvironment?: string;
+                };
+                if (!response.ok) {
+                  setMessage(json.error?.message ?? "No se pudo promover el emisor.");
+                  return;
+                }
+                setMessage(`Entorno ${json.activeEnvironment ?? "production"}`);
               });
             }}
           >

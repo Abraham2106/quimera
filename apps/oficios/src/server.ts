@@ -2,7 +2,11 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 
 import { createApp } from "./api/app.js";
 import { otelExporterEndpoint } from "./api/logging/otel.js";
-import { isReservedHttpPath, resolveStaticAssetDir, serveStaticAsset } from "./static-assets.js";
+import {
+  isReservedHttpPath,
+  resolveStaticAssetDir,
+  serveStaticAsset,
+} from "./static-assets.js";
 
 export type StartedOficiosServer = {
   readonly url: string;
@@ -37,19 +41,25 @@ export async function startOficiosServer(options?: {
       const hostHeader = req.headers.host ?? `${host}:${port}`;
       const url = new URL(req.url ?? "/", `http://${hostHeader}`);
       const method = req.method ?? "GET";
-      if (staticDir && !isReservedHttpPath(url.pathname) && (method === "GET" || method === "HEAD")) {
+      if (
+        staticDir &&
+        !isReservedHttpPath(url.pathname) &&
+        (method === "GET" || method === "HEAD")
+      ) {
         const served = await serveStaticAsset(staticDir, url.pathname, method, res);
-        if (served) return;
+        if (served) {
+          return;
+        }
       }
       const body =
-        req.method === "GET" || req.method === "HEAD" ? undefined : await readBody(req);
+        method === "GET" || method === "HEAD" ? undefined : await readBody(req);
       const headers = new Headers();
       for (const [key, value] of Object.entries(req.headers)) {
         if (value === undefined) continue;
         headers.set(key, Array.isArray(value) ? value.join(", ") : value);
       }
       const response = await app.fetch(
-        new Request(url, { method: req.method, headers, body }),
+        new Request(url, { method, headers, body }),
       );
       res.statusCode = response.status;
       response.headers.forEach((value, key) => {

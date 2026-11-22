@@ -42,6 +42,8 @@ async function dropOfiObjects(client: Sql): Promise<void> {
 
 async function dropFobObjects(client: Sql): Promise<void> {
   for (const table of [
+    "fob_fiscal_credentials",
+    "fob_fiscal_issuer_config",
     "fob_fiscal_documents",
     "fob_fiscal_intents",
     "fob_fiscal_sequences",

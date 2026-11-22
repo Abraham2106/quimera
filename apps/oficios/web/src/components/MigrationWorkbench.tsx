@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import type { DevApiConfig } from "../config.js";
+import { appendDevAuthHeaders } from "../dev-auth-headers.js";
 
 type NeedsReview = {
   column: string;
@@ -19,7 +20,15 @@ async function send(config: DevApiConfig, path: string, init: RequestInit = {}):
   if (config.accessToken.trim()) {
     headers.set("authorization", `Bearer ${config.accessToken.trim()}`);
   }
-  return fetch(`${config.apiBase}${path}`, { ...init, headers });
+  const raw: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    raw[key] = value;
+  });
+  appendDevAuthHeaders(config, raw);
+  return fetch(`${config.apiBase}${path}`, {
+    ...init,
+    headers: raw,
+  });
 }
 
 export function MigrationWorkbench({ config }: { config: DevApiConfig }) {

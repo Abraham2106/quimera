@@ -1,102 +1,235 @@
-import { createHash } from "node:crypto";
-
 import { Hono } from "hono";
 
-import { assessPkcs12Upload, assertCanPromoteToProduction } from "@quimera/fiscal-outbox";
+import {
+  assessPkcs12Upload,
+  evaluatePromoteToProduction,
+  listFiscalCredentialMetadata,
+  productionCertificateIsValid,
+  promoteIssuerToProduction,
+  readIssuerActiveEnvironment,
+  redactFiscalSecrets,
+  upsertFiscalCredentials,
+  type FiscalCredentialEnvironment,
+} from "@quimera/fiscal-outbox";
 
 import { ERR_FORBIDDEN, ERR_VALIDATION, errorResponse } from "../errors.js";
 import type { OficiosAppEnv } from "../middleware/request-context.js";
+import { oficiosFiscalVault } from "../services/fiscal-vault.js";
 
-type StoredCertificate = {
-  readonly fingerprint: string;
-  readonly environment: "sandbox" | "production";
+type CredentialBody = {
+  readonly issuerId?: string;
+  readonly environment?: FiscalCredentialEnvironment;
+  readonly p12Base64?: string;
+  readonly pin?: string;
+  readonly idpUsername?: string;
+  readonly idpPassword?: string;
+  readonly certNotAfter?: string;
 };
 
-const certificates = new Map<string, StoredCertificate>();
+type PromoteBody = {
+  readonly issuerId?: string;
+};
 
-export function resetFiscalCredentialStore(): void {
-  certificates.clear();
+function sanitizeMessage(message: string): string {
+  return redactFiscalSecrets(message);
 }
 
 export function createFiscalCredentialsRoutes() {
   const app = new Hono<OficiosAppEnv>();
 
-  app.post("/credentials", async (c) => {
+  app.get("/", async (c) => {
     if (c.get("role") !== "ADMIN") {
       const { status, body } = errorResponse(
         403,
         ERR_FORBIDDEN,
         "SECURITY",
-        "Solo un ADMIN puede cargar credenciales fiscales.",
+        "Solo un ADMIN puede consultar credenciales fiscales.",
       );
       return c.json(body, status);
     }
-    const form = await c.req.formData();
-    const file = form.get("file");
-    const pin = form.get("pin");
-    if (!(file instanceof File) || typeof pin !== "string" || pin.trim().length < 4) {
-      const { status, body } = errorResponse(
-        400,
-        ERR_VALIDATION,
-        "VALIDATION",
-        "Adjunte un certificado .p12 y un PIN de al menos 4 caracteres.",
-      );
-      return c.json(body, status);
-    }
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const assessment = assessPkcs12Upload({
-      bytes,
-      notAfter: new Date(Date.now() + 400 * 24 * 60 * 60 * 1000),
-    });
-    if (!assessment.accepted) {
-      const { status, body } = errorResponse(
-        400,
-        ERR_VALIDATION,
-        "VALIDATION",
-        "El certificado no es un PKCS#12 válido.",
-      );
-      return c.json(body, status);
-    }
-    const fingerprint = createHash("sha256").update(bytes).digest("hex").slice(0, 16);
-    certificates.set(c.get("tenantId"), { fingerprint, environment: "sandbox" });
+    const rows = await listFiscalCredentialMetadata(c.get("sql"), c.get("tenantId"));
     return c.json({
       ok: true,
-      environment: "sandbox",
-      fingerprint,
-      expiresWithin30Days: assessment.expiresWithin30Days,
+      credentials: rows.map((row) => ({
+        issuerId: row.issuerId,
+        environment: row.environment,
+        kind: row.kind,
+        certNotAfter: row.certNotAfter?.toISOString() ?? null,
+        updatedAt: row.updatedAt.toISOString(),
+      })),
     });
   });
 
-  app.post("/credentials/promote", async (c) => {
+  app.post("/", async (c) => {
     if (c.get("role") !== "ADMIN") {
       const { status, body } = errorResponse(
         403,
         ERR_FORBIDDEN,
         "SECURITY",
-        "Solo un ADMIN puede promover el emisor.",
+        "Solo un ADMIN puede cargar certificados fiscales.",
       );
       return c.json(body, status);
     }
-    const current = certificates.get(c.get("tenantId"));
-    const decision = assertCanPromoteToProduction({
-      sandboxAccepted: false,
-      productionCertificateValid: Boolean(current),
+
+    let payload: CredentialBody;
+    try {
+      payload = (await c.req.json()) as CredentialBody;
+    } catch {
+      const { status, body } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        "Cuerpo JSON inválido.",
+      );
+      return c.json(body, status);
+    }
+
+    const issuerId = payload.issuerId?.trim();
+    const environment = payload.environment;
+    const p12Base64 = payload.p12Base64?.trim();
+    const pin = payload.pin;
+    const idpUsername = payload.idpUsername?.trim();
+    const idpPassword = payload.idpPassword;
+    const certNotAfterRaw = payload.certNotAfter?.trim();
+
+    if (
+      !issuerId ||
+      (environment !== "sandbox" && environment !== "production") ||
+      !p12Base64 ||
+      !pin ||
+      !idpUsername ||
+      !idpPassword ||
+      !certNotAfterRaw
+    ) {
+      const { status, body } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        sanitizeMessage("Faltan issuerId, environment, p12Base64, pin, idpUsername, idpPassword o certNotAfter."),
+      );
+      return c.json(body, status);
+    }
+
+    let p12: Buffer;
+    try {
+      p12 = Buffer.from(p12Base64, "base64");
+    } catch {
+      const { status, body } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        "p12Base64 no es base64 válido.",
+      );
+      return c.json(body, status);
+    }
+
+    const certNotAfter = new Date(certNotAfterRaw);
+    if (Number.isNaN(certNotAfter.getTime())) {
+      const { status, body } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        "certNotAfter no es una fecha ISO válida.",
+      );
+      return c.json(body, status);
+    }
+
+    const assessed = assessPkcs12Upload({ bytes: p12, notAfter: certNotAfter });
+    if (!assessed.accepted) {
+      const { status, body } = errorResponse(
+        400,
+        assessed.reason ?? ERR_VALIDATION,
+        "VALIDATION",
+        sanitizeMessage(`Certificado rechazado: ${assessed.reason ?? "ERR_P12_INVALID"}`),
+      );
+      return c.json(body, status);
+    }
+
+    const result = await upsertFiscalCredentials(c.get("sql"), oficiosFiscalVault, {
+      tenantId: c.get("tenantId"),
+      issuerId,
+      environment,
+      p12,
+      pin,
+      idpUsername,
+      idpPassword,
+      certNotAfter,
+    });
+
+    return c.json({
+      ok: true,
+      issuerId: result.issuerId,
+      environment: result.environment,
+      certNotAfter: result.certNotAfter,
+      expiresWithin30Days: result.expiresWithin30Days,
+    });
+  });
+
+  app.post("/promote", async (c) => {
+    if (c.get("role") !== "ADMIN") {
+      const { status, body } = errorResponse(
+        403,
+        ERR_FORBIDDEN,
+        "SECURITY",
+        "Solo un ADMIN puede promover a producción.",
+      );
+      return c.json(body, status);
+    }
+
+    let payload: PromoteBody;
+    try {
+      payload = (await c.req.json()) as PromoteBody;
+    } catch {
+      const { status, body } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        "Cuerpo JSON inválido.",
+      );
+      return c.json(body, status);
+    }
+
+    const issuerId = payload.issuerId?.trim();
+    if (!issuerId) {
+      const { status, body } = errorResponse(
+        400,
+        ERR_VALIDATION,
+        "VALIDATION",
+        "issuerId es obligatorio.",
+      );
+      return c.json(body, status);
+    }
+
+    const productionCertificateValid = await productionCertificateIsValid(
+      c.get("sql"),
+      c.get("tenantId"),
+      issuerId,
+    );
+
+    const gate = await evaluatePromoteToProduction(c.get("sql"), {
+      tenantId: c.get("tenantId"),
+      issuerId,
+      productionCertificateValid,
       adminConfirmed: true,
     });
-    if (!decision.ok) {
-      const { status, body } = errorResponse(409, "ERR_QG07", "VALIDATION", decision.reason);
+
+    if (!gate.ok) {
+      const { status, body } = errorResponse(
+        409,
+        "ERR_PROMOTION_BLOCKED",
+        "CONFLICT",
+        gate.reason,
+      );
       return c.json(body, status);
     }
-    return c.json({ ok: true, environment: "production" });
-  });
 
-  app.get("/credentials", (c) => {
-    const current = certificates.get(c.get("tenantId"));
+    await promoteIssuerToProduction(c.get("sql"), c.get("tenantId"), issuerId);
+    const active = await readIssuerActiveEnvironment(c.get("sql"), c.get("tenantId"), issuerId);
+
     return c.json({
       ok: true,
-      environment: current?.environment ?? "sandbox",
-      fingerprint: current?.fingerprint ?? null,
-      note: "La verificación local no equivale a aceptación del Ministerio de Hacienda.",
+      issuerId,
+      activeEnvironment: active,
     });
   });
 

@@ -51,6 +51,7 @@ export type ProcessOnceResult =
   | { readonly processed: false }
   | {
       readonly processed: true;
+      readonly documentId: string;
       readonly clave: string;
       readonly action: "post" | "get" | "skip";
     };

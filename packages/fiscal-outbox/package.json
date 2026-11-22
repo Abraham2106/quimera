@@ -22,6 +22,7 @@
     "postgres": "^3.4.7"
   },
   "devDependencies": {
+    "@quimera/factura-ci": "workspace:*",
     "vitest": "^3.2.4"
   }
 }

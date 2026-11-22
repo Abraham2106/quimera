@@ -1,0 +1,47 @@
+# Staging local/cloud: Postgres 16 + API OficiOS + worker fiscal.
+# Uso: docker compose -f deploy/compose.staging.yml up -d
+# Migrar antes o después del arranque: pnpm db:migrate (con DATABASE_URL al servicio postgres).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ../docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-quimera.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quimera -d quimera"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  oficios-api:
+    build:
+      context: ..
+      dockerfile: deploy/oficios-api.Dockerfile
+    ports:
+      - "8787:8787"
+    environment:
+      DATABASE_URL: postgres://quimera:quimera@postgres:5432/quimera
+      OFICIOS_STATIC_DIR: /app/apps/oficios/web/dist
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  fiscal-outbox-worker:
+    build:
+      context: ..
+      dockerfile: deploy/fiscal-outbox-worker.Dockerfile
+    environment:
+      DATABASE_URL: postgres://quimera:quimera@postgres:5432/quimera
+      FISCAL_TRANSPORT: loopback
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy

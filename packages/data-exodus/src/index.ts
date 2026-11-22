@@ -68,3 +68,16 @@ export {
   type LoadDemoHvac1000Result,
   type PersistDemoHvacResult,
 } from "./demo/index.js";
+export { FsArtifactStore } from "./storage/fs-artifact-store.js";
+export {
+  FISCAL_RETENTION_DAYS,
+  MemoryObjectLockClient,
+  S3ArtifactStore,
+  type ArtifactQuarantine,
+  type ObjectLockClient,
+} from "./storage/s3-artifact-store.js";
+export {
+  createS3ArtifactStore,
+  type CreateS3ArtifactStoreOptions,
+} from "./storage/create-artifact-store.js";
+export { S3HttpObjectLockClient } from "./storage/s3-http-object-lock-client.js";

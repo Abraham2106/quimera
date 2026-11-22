@@ -18,31 +18,46 @@ const MIME_BY_EXT: Record<string, string> = {
   ".woff2": "font/woff2",
 };
 
+export function staticAssetRootCandidates(): { envDir: string | null; defaultDir: string } {
+  const envDir = process.env.OFICIOS_STATIC_DIR?.trim() || null;
+  return { envDir, defaultDir: defaultDistDir };
+}
+
 export async function resolveStaticAssetDir(): Promise<string | null> {
-  const envDir = process.env.OFICIOS_STATIC_DIR?.trim();
-  if (envDir) return path.resolve(envDir);
+  const { envDir, defaultDir } = staticAssetRootCandidates();
+  if (envDir) {
+    return path.resolve(envDir);
+  }
   try {
-    await access(path.join(defaultDistDir, "index.html"));
-    return defaultDistDir;
+    await access(path.join(defaultDir, "index.html"));
+    return defaultDir;
   } catch {
     return null;
   }
 }
 
 export function isReservedHttpPath(pathname: string): boolean {
-  return pathname === "/healthz" || pathname === "/readyz" || pathname.startsWith("/api/") || pathname === "/api";
+  return (
+    pathname === "/healthz" ||
+    pathname === "/readyz" ||
+    pathname.startsWith("/api/") ||
+    pathname === "/api"
+  );
 }
 
 function contentTypeFor(filePath: string): string {
-  return MIME_BY_EXT[path.extname(filePath).toLowerCase()] ?? "application/octet-stream";
+  const ext = path.extname(filePath).toLowerCase();
+  return MIME_BY_EXT[ext] ?? "application/octet-stream";
 }
 
 function resolveSafeFile(staticDir: string, urlPath: string): string | null {
   const decoded = decodeURIComponent(urlPath.split("?")[0] ?? "/");
   const relative = decoded === "/" ? "index.html" : decoded.replace(/^\//, "");
   const candidate = path.resolve(staticDir, relative);
-  const root = path.resolve(staticDir);
-  if (candidate !== root && !candidate.startsWith(`${root}${path.sep}`)) return null;
+  const normalizedRoot = path.resolve(staticDir);
+  if (candidate !== normalizedRoot && !candidate.startsWith(`${normalizedRoot}${path.sep}`)) {
+    return null;
+  }
   return candidate;
 }
 
@@ -53,12 +68,19 @@ export async function serveStaticAsset(
   res: ServerResponse,
 ): Promise<boolean> {
   const primary = resolveSafeFile(staticDir, urlPath);
-  if (!primary) return false;
-  const tryPaths = [primary];
-  const base = path.basename(primary);
-  if (!path.extname(base) && primary !== path.join(staticDir, "index.html")) {
-    tryPaths.push(path.join(staticDir, "index.html"));
+  if (!primary) {
+    return false;
   }
+
+  const tryPaths: string[] = [primary];
+  if (method === "GET" || method === "HEAD") {
+    const base = path.basename(primary);
+    const hasExtension = path.extname(base).length > 0;
+    if (!hasExtension && primary !== path.join(staticDir, "index.html")) {
+      tryPaths.push(path.join(staticDir, "index.html"));
+    }
+  }
+
   for (const filePath of tryPaths) {
     try {
       const info = await stat(filePath);
@@ -71,10 +93,11 @@ export async function serveStaticAsset(
         res.end();
         return true;
       }
-      res.end(await readFile(filePath));
+      const body = await readFile(filePath);
+      res.end(body);
       return true;
     } catch {
-      // next candidate
+      // try next candidate
     }
   }
   return false;

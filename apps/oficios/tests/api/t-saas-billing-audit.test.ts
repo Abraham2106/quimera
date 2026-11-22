@@ -6,10 +6,11 @@ import type { Sql } from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../../src/api/app.js";
-import { signWebhookBody } from "../../src/api/billing/hmac.js";
+import { resetWebhookReplayStoreForTests } from "../../src/api/billing/webhook-replay.js";
 import { redactAuditText } from "../../src/api/services/audit-log.js";
 import { withOfiTenantTransaction } from "../../src/db/connection.js";
 import { TENANT_ID, apiTestHeaders, seedCustomerEquipment, setupApiDb } from "./helpers.js";
+import { signedBillingWebhookHeaders } from "./test-webhook.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -48,6 +49,7 @@ describe("billing, auditoría y sondas", () => {
 
   it("T-SEC-002 rechaza HMAC inválido y deduplica external_event_id", async () => {
     if (!dbAvailable) return;
+    resetWebhookReplayStoreForTests();
     const app = createApp({ sql: client });
     const payload = Buffer.from(
       JSON.stringify({
@@ -58,30 +60,50 @@ describe("billing, auditoría y sondas", () => {
         status: "active",
       }),
     );
+    const now = Math.floor(Date.now() / 1000);
+    const staleTs = now - 3600;
     const bad = await app.request("/api/v1/billing/webhooks", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-quimera-signature": "ab".repeat(32) },
+      headers: {
+        ...signedBillingWebhookHeaders(payload, "quimera-test-webhook-secret", now),
+        "x-quimera-signature": "ab".repeat(32),
+      },
       body: payload,
     });
     expect(bad.status).toBe(401);
+    const stale = await app.request("/api/v1/billing/webhooks", {
+      method: "POST",
+      headers: signedBillingWebhookHeaders(payload, "quimera-test-webhook-secret", staleTs),
+      body: payload,
+    });
+    expect(stale.status).toBe(401);
     const unchanged = await withOfiTenantTransaction(client, TENANT_ID, async (tx) =>
       tx<{ status: string }[]>`SELECT status FROM saas_subscriptions`,
     );
     expect(unchanged[0]?.status).toBe("trialing");
 
-    const signature = signWebhookBody(payload, "quimera-test-webhook-secret");
+    const firstHeaders = signedBillingWebhookHeaders(payload, "quimera-test-webhook-secret", now);
     const ok = await app.request("/api/v1/billing/webhooks", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-quimera-signature": signature },
+      headers: firstHeaders,
       body: payload,
     });
     expect(ok.status).toBe(200);
+
+    const replay = await app.request("/api/v1/billing/webhooks", {
+      method: "POST",
+      headers: firstHeaders,
+      body: payload,
+    });
+    expect(replay.status).toBe(401);
+
     const again = await app.request("/api/v1/billing/webhooks", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-quimera-signature": signature },
+      headers: signedBillingWebhookHeaders(payload, "quimera-test-webhook-secret", now + 1),
       body: payload,
     });
     const againJson = (await again.json()) as { duplicate: boolean; status: string };
+    expect(again.status).toBe(200);
     expect(againJson.duplicate).toBe(true);
     expect(againJson.status).toBe("active");
     const events = await withOfiTenantTransaction(client, TENANT_ID, async (tx) =>
@@ -115,10 +137,7 @@ describe("billing, auditoría y sondas", () => {
     );
     const suspended = await app.request("/api/v1/billing/webhooks", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-quimera-signature": signWebhookBody(suspend, "quimera-test-webhook-secret"),
-      },
+      headers: signedBillingWebhookHeaders(suspend, "quimera-test-webhook-secret"),
       body: suspend,
     });
     expect(suspended.status).toBe(200);

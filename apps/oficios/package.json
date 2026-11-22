@@ -31,7 +31,7 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.55.1",
+    "@playwright/test": "^1.55.1",
     "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

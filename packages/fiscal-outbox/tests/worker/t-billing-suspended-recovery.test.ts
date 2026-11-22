@@ -23,6 +23,10 @@ describe("suscripción suspended no detiene un FiscalIntent encolado", () => {
       await tx`
         INSERT INTO saas_subscriptions (tenant_id, plan_code, status, current_period_end)
         VALUES (${TENANT_A}::uuid, 'starter', 'suspended', now() + interval '30 days')
+        ON CONFLICT (tenant_id) DO UPDATE SET
+          plan_code = EXCLUDED.plan_code,
+          status = EXCLUDED.status,
+          current_period_end = EXCLUDED.current_period_end
       `;
     });
     const doc = buildWorkerDoc(88);

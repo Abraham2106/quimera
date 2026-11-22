@@ -9,14 +9,15 @@ import {
 import { LocalFiscalVault, LocalKeyProvider, redactFiscalSecrets } from "../../src/vault/local-envelope.js";
 
 describe("bóveda fiscal local", () => {
-  it("cifra y recupera el .p12, el PIN y la contraseña IDP por tenant", () => {
-    const vault = new LocalFiscalVault(new LocalKeyProvider(randomBytes(32)));
+  it("cifra y recupera el .p12, el PIN y la contraseña IDP por tenant", async () => {
+    const { asFiscalCredentialVault } = await import("../../src/vault/port.js");
+    const vault = asFiscalCredentialVault(new LocalFiscalVault(new LocalKeyProvider(randomBytes(32))));
     const p12 = Buffer.from([0x30, 0x82, 0x01, 0x00, 0x01]);
-    const sealed = vault.seal("11111111-1111-4111-8111-111111111111", "p12", p12);
+    const sealed = await vault.seal("11111111-1111-4111-8111-111111111111", "p12", p12);
     expect(sealed.ciphertext).not.toContain(p12.toString("base64"));
-    expect(Buffer.compare(vault.open(sealed), p12)).toBe(0);
-    const pin = vault.seal("11111111-1111-4111-8111-111111111111", "pin", Buffer.from("4321"));
-    expect(vault.open(pin).toString()).toBe("4321");
+    expect(Buffer.compare(await vault.open(sealed), p12)).toBe(0);
+    const pin = await vault.seal("11111111-1111-4111-8111-111111111111", "pin", Buffer.from("4321"));
+    expect((await vault.open(pin)).toString()).toBe("4321");
   });
 
   it("rechaza un certificado vencido y avisa a 30 días", () => {
