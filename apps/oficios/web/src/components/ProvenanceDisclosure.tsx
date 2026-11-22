@@ -12,7 +12,7 @@ export function ProvenanceDisclosure({ entries, loading, error }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-white p-4">
+    <section>
       <button
         type="button"
         className="touch text-left text-sm font-semibold text-[var(--focus)] underline-offset-4 hover:underline"

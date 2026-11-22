@@ -108,11 +108,11 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
               {equipment.length === 0 ? (
                 <p className="mt-2 text-sm text-[var(--ink-muted)]">Sin equipos asociados.</p>
               ) : (
-                <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                <ul className="mt-2 divide-y divide-[var(--border-subtle)]">
                   {equipment.map((item) => (
                     <li
                       key={item.id}
-                      className="num min-w-0 truncate rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2.5 text-sm font-medium text-[var(--ink)]"
+                      className="num min-w-0 truncate py-2.5 text-sm font-medium text-[var(--ink)]"
                       title={item.serialNumber ?? item.id}
                     >
                       {item.serialNumber ?? item.id}
@@ -122,9 +122,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
               )}
             </div>
 
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/50 p-4">
-              <ProvenanceDisclosure entries={entries} loading={false} error={null} />
-            </div>
+            <ProvenanceDisclosure entries={entries} loading={false} error={null} />
           </div>
         )}
       </section>
