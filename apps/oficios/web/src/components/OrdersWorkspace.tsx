@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ApiRequestError,
@@ -179,6 +179,11 @@ export function OrdersWorkspace(props: Props) {
     dataset === "many" && visible.length > 0
       ? Array.from({ length: 240 }, (_, index) => visible[index % visible.length]!)
       : visible;
+  const listRef = useRef<HTMLUListElement>(null);
+  const firstSelected = listed.findIndex((order) => order.id === selectedId);
+  useEffect(() => {
+    listRef.current?.querySelector("[data-selected='true']")?.scrollIntoView({ block: "nearest" });
+  }, [selectedId, dataset]);
 
   function displayName(orderId: string, fallback: string): string {
     if (dataset !== "worst") return fallback;
@@ -297,20 +302,20 @@ export function OrdersWorkspace(props: Props) {
             </div>
           </div>
 
-          <ul className="max-h-[min(70vh,40rem)] divide-y divide-[var(--border-subtle)] overflow-y-auto">
+          <ul ref={listRef} className="max-h-[min(70vh,40rem)] divide-y divide-[var(--border-subtle)] overflow-y-auto">
             {listed.length === 0 ? (
               <li className="px-4 py-10 text-center text-sm text-[var(--ink-muted)]">
                 No hay órdenes para este filtro.
               </li>
             ) : (
               listed.map((order, index) => {
-                const selected = selectedId === order.id;
+                const selected = index === firstSelected;
                 const customerName = displayName(
                   order.id,
                   names.get(order.customerId) ?? order.customerLegalName ?? "Cliente",
                 );
                 return (
-                  <li key={`${order.id}-${index}`} className="order-row">
+                  <li key={`${order.id}-${index}`} className="order-row" data-selected={selected ? "true" : undefined}>
                     <button
                       type="button"
                       className={`touch relative flex w-full min-w-0 flex-col gap-1.5 px-4 py-3.5 text-left ${
