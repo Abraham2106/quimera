@@ -1,34 +1,79 @@
 @import "tailwindcss";
 
 /*
-  Paleta de campo inspirada en tableros de servicio en Dribbble:
-  - SwiftFix Plumbing (Tahrim Jim): riel carbón #1A1511, arena #D0BBA9, piedra #F4EFE8
-  - Loacl Home Service (Md Shamim Hossain): naranja acción #C2410C/#DF4B22, azul foco #1A53B9
-  - Dispatch KPI Dashboard (Andy Hamilton): salvia #1F6B52/#6BB29B y cian #0F6F93/#2DA3D9
+  Taste deal, primera mano, oficio workshop:
+  paleta putty-black-teal (piedra cálida del papel de orden, teal del metal HVAC).
+  Tipo Red Hat Display / Red Hat Text, autoalojado. Radio soft.
+  Modo operar: la vía de etapas es el único gesto propio.
 */
+@font-face {
+  font-family: "Red Hat Display";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/red-hat-display-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Red Hat Display";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/red-hat-display-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/red-hat-text-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/red-hat-text-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
-  --surface-canvas: #f4efe8;
-  --surface-card: #fffcf8;
-  --surface-subtle: #f7f3ec;
-  --surface-muted: #eae2d8;
-  --surface-rail: #1a1511;
-  --surface-rail-elevated: #28211b;
-  --border-subtle: #ded5c8;
-  --border-strong: #c8bcb0;
-  --accent: #c2410c;
-  --accent-hover: #9a3412;
-  --accent-tint: #fff1e8;
-  --ink: #1a1511;
-  --ink-muted: #5c554f;
-  --on-rail: #f8f4ee;
-  --on-rail-muted: #cbb9a8;
-  --status-done: #e3f3ec;
-  --status-done-ink: #165942;
-  --status-now: #e4f3fa;
-  --status-now-ink: #0d5e7d;
-  --status-warn: #fef3c7;
-  --status-warn-ink: #92400e;
-  --focus: #1a53b9;
+  --p-bg: #dedad3;
+  --p-surface: #d3cec6;
+  --p-ink: #0a0a0a;
+  --p-muted: #55514c;
+  --p-accent: #256f82;
+  --p-accent-ink: #ffffff;
+  --p-inv-bg: #0a0a0a;
+  --p-inv-ink: #dedad3;
+  --p-inv-muted: #84827e;
+  --surface-canvas: var(--p-bg);
+  --surface-card: #f4f1eb;
+  --surface-subtle: var(--p-surface);
+  --surface-muted: #c9c3ba;
+  --surface-rail: var(--p-inv-bg);
+  --surface-rail-elevated: #151515;
+  --border-subtle: rgba(10, 10, 10, 0.12);
+  --border-strong: rgba(10, 10, 10, 0.28);
+  --accent: var(--p-accent);
+  --accent-hover: #1b5566;
+  --accent-tint: #e5f1f4;
+  --ink: var(--p-ink);
+  --ink-muted: var(--p-muted);
+  --on-rail: var(--p-inv-ink);
+  --on-rail-muted: var(--p-inv-muted);
+  --status-done: #e4f0e8;
+  --status-done-ink: #1d5c3a;
+  --status-now: #e4f2f5;
+  --status-now-ink: #1b5566;
+  --status-warn: #f6ead0;
+  --status-warn-ink: #7a4e10;
+  --focus: #1b5566;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-display: "Red Hat Display", "Red Hat Text", system-ui, sans-serif;
+  --font-text: "Red Hat Text", system-ui, sans-serif;
   color-scheme: light;
 }
 
@@ -36,13 +81,34 @@ body {
   margin: 0;
   background: var(--surface-canvas);
   color: var(--ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-text);
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  caret-color: var(--accent);
+}
+
+::selection {
+  background: #b7d5de;
+  color: var(--ink);
+}
+
+* {
+  scrollbar-color: #8d877e transparent;
+  scrollbar-width: thin;
+}
+
+h1,
+h2,
+.display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .num {
-  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-text);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 .touch {
@@ -50,33 +116,57 @@ body {
   min-width: 44px;
 }
 
+.stage-rail {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: #b7b1a7;
+  overflow: hidden;
+}
+
+.stage-rail > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left center;
+  transition: width 280ms var(--ease-out);
+}
+
 @layer components {
   .card {
-    border-radius: 14px;
+    border-radius: 16px;
     border: 1px solid var(--border-subtle);
     background: var(--surface-card);
-    box-shadow: 0 1px 2px rgba(26, 21, 17, 0.04), 0 6px 18px -12px rgba(26, 21, 17, 0.12);
+    box-shadow: 0 10px 28px -22px rgba(10, 10, 10, 0.45);
   }
 
   .field {
     width: 100%;
     border-radius: 10px;
     border: 1px solid var(--border-strong);
-    background: #ffffff;
+    background: #fffcf8;
     padding: 10px 12px;
     font-size: 0.875rem;
     color: var(--ink);
-    transition: border-color 140ms ease, box-shadow 140ms ease;
+    transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
   }
 
   .field:hover {
-    border-color: #a99b8c;
+    border-color: #6f6a64;
   }
 
   .field:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.14);
+    box-shadow: 0 0 0 3px rgba(37, 111, 130, 0.18);
     outline: none;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    transition:
+      background-color 160ms var(--ease-out),
+      border-color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
   }
 
   .btn-primary {
@@ -84,14 +174,13 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 10px;
+    border-radius: 999px;
     background: var(--accent);
-    padding: 0 16px;
+    padding: 0 18px;
+    font-family: var(--font-text);
     font-size: 0.875rem;
-    font-weight: 600;
-    color: #ffffff;
-    box-shadow: 0 1px 2px rgba(26, 21, 17, 0.16);
-    transition: background-color 140ms ease, transform 120ms ease;
+    font-weight: 500;
+    color: var(--p-accent-ink);
     cursor: pointer;
   }
 
@@ -99,11 +188,13 @@ body {
     background: var(--accent-hover);
   }
 
-  .btn-primary:active:not(:disabled) {
-    transform: translateY(1px);
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled) {
+    transform: scale(0.97);
   }
 
-  .btn-primary:disabled {
+  .btn-primary:disabled,
+  .btn-secondary:disabled {
     opacity: 0.48;
     cursor: not-allowed;
   }
@@ -113,25 +204,18 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.45rem;
-    border-radius: 10px;
+    border-radius: 999px;
     border: 1px solid var(--border-strong);
-    background: #ffffff;
-    padding: 0 14px;
+    background: transparent;
+    padding: 0 16px;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--ink);
-    transition: background-color 140ms ease, border-color 140ms ease;
     cursor: pointer;
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background: var(--surface-subtle);
-    border-color: #a99b8c;
-  }
-
-  .btn-secondary:disabled {
-    opacity: 0.48;
-    cursor: not-allowed;
+    background: rgba(10, 10, 10, 0.04);
   }
 }
 
@@ -145,7 +229,9 @@ textarea:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
     transition: none !important;
     animation: none !important;

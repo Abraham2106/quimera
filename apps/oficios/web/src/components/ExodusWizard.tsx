@@ -148,9 +148,7 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
         <div className="space-y-4">
           {needsReview.length > 0 ? (
             <div className="rounded-xl border border-amber-300 bg-[var(--status-warn)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-amber-900">
-                Columnas marcadas como NEEDS_REVIEW
-              </p>
+              <p className="text-sm font-medium text-amber-950">Columnas marcadas como NEEDS_REVIEW</p>
               <ul className="mt-2 space-y-1 text-sm text-amber-950">
                 {needsReview.map((column) => (
                   <li key={column.column} className="num">

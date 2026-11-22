@@ -188,42 +188,12 @@ export function OrdersWorkspace(props: Props) {
   }
 
   return (
-    <div className="space-y-5">
-      {/* Operational KPI strip */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="card flex items-center justify-between px-4 py-3.5">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">En curso</p>
-            <p className="num mt-1 text-2xl font-bold text-[var(--ink)]">{counts.OPEN}</p>
-          </div>
-          <span className="h-2.5 w-2.5 rounded-full bg-[var(--status-now-ink)]" aria-hidden="true" />
-        </div>
-        <div className="card flex items-center justify-between px-4 py-3.5">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">Sin aprobación</p>
-            <p className="num mt-1 text-2xl font-bold text-[var(--status-warn-ink)]">{counts.APPROVAL}</p>
-          </div>
-          <span className="h-2.5 w-2.5 rounded-full bg-amber-500" aria-hidden="true" />
-        </div>
-        <div className="card flex items-center justify-between px-4 py-3.5">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
-              Listas para cerrar
-            </p>
-            <p className="num mt-1 text-2xl font-bold text-[var(--status-done-ink)]">{counts.READY}</p>
-          </div>
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-600" aria-hidden="true" />
-        </div>
-        <div className="card flex items-center justify-between px-4 py-3.5">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">Cerradas</p>
-            <p className="num mt-1 text-2xl font-bold text-[var(--ink-muted)]">{counts.CLOSED}</p>
-          </div>
-          <span className="h-2.5 w-2.5 rounded-full bg-[var(--border-strong)]" aria-hidden="true" />
-        </div>
-      </div>
+    <div className="space-y-6">
+      <p className="num text-sm text-[var(--ink-muted)]">
+        {counts.OPEN} en curso · {counts.APPROVAL} sin aprobación · {counts.READY} listas para cerrar · {counts.CLOSED} cerradas
+      </p>
 
-      <div className="grid gap-5 lg:grid-cols-[360px_1fr] lg:items-start">
+      <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:items-start">
         {/* Left inbox column */}
         <section className="card overflow-hidden">
           <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)]/75 p-4">
@@ -314,12 +284,6 @@ export function OrdersWorkspace(props: Props) {
                       }`}
                       onClick={() => void openOrder(order.id)}
                     >
-                      {selected ? (
-                        <span
-                          className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-[var(--accent)]"
-                          aria-hidden="true"
-                        />
-                      ) : null}
                       <div className="flex items-center justify-between gap-2">
                         <span className="num text-sm font-bold text-[var(--ink)]">
                           {formatOrdenFolio(order.id)}
@@ -450,18 +414,12 @@ export function OrdersWorkspace(props: Props) {
               <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)]/55 px-5 py-4 sm:px-6">
                 <header className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
-                        Orden de servicio
-                      </h2>
-                      <span
-                        className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusPillClasses(workOrder.status)}`}
-                      >
-                        {statusLabel(workOrder.status)}
-                      </span>
-                    </div>
-                    <p className="num mt-1 text-2xl font-bold tracking-tight text-[var(--ink)]">
+                    <p className="text-sm text-[var(--ink-muted)]">Orden de servicio</p>
+                    <h2 className="display num mt-1 text-4xl text-[var(--ink)]">
                       {formatOrdenFolio(workOrder.id)}
+                    </h2>
+                    <p className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusPillClasses(workOrder.status)}`}>
+                      {statusLabel(workOrder.status)}
                     </p>
                     <p className="mt-0.5 text-sm text-[var(--ink-muted)]">
                       {names.get(workOrder.customerId) ?? workOrder.customerLegalName ?? workOrder.customerId}
@@ -557,77 +515,79 @@ export function OrdersWorkspace(props: Props) {
                   </div>
                 </header>
 
-                {/* 7-stage visual stepper */}
-                <ol className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
-                  {STEPS.map((step, index) => {
-                    const done = index < stepIndex;
-                    const current = index === stepIndex;
-                    return (
-                      <li
-                        key={step.status}
-                        className={`flex flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2.5 text-center text-[11px] leading-tight transition-colors ${
-                          done
-                            ? "border-emerald-200 bg-[var(--status-done)] font-medium text-[var(--status-done-ink)]"
-                            : current
-                              ? "border-sky-300 bg-[var(--status-now)] font-semibold text-[var(--status-now-ink)] shadow-xs"
-                              : "border-[var(--border-subtle)] bg-white/80 text-[var(--ink-muted)]"
-                        }`}
-                      >
-                        <span
-                          className={`num flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
-                            done
-                              ? "bg-[var(--status-done-ink)] text-white"
-                              : current
-                                ? "bg-[var(--status-now-ink)] text-white"
-                                : "bg-[var(--surface-muted)] text-[var(--ink-muted)]"
+                <div className="mt-6">
+                  <div
+                    className="stage-rail"
+                    aria-hidden="true"
+                  >
+                    <span
+                      style={{
+                        width: `${Math.min(100, ((Math.max(stepIndex, 0) + 0.08) / (STEPS.length - 1)) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                  <ol className="mt-3 grid grid-cols-4 gap-x-2 gap-y-2 sm:grid-cols-7">
+                    {STEPS.map((step, index) => {
+                      const done = index < stepIndex;
+                      const current = index === stepIndex;
+                      return (
+                        <li
+                          key={step.status}
+                          className={`text-[11px] leading-tight ${
+                            current
+                              ? "font-medium text-[var(--accent)]"
+                              : done
+                                ? "text-[var(--ink)]"
+                                : "text-[var(--ink-muted)]"
                           }`}
+                          title={statusLabel(step.status)}
                         >
-                          {done ? <CheckIcon width={12} height={12} /> : index + 1}
-                        </span>
-                        <span title={statusLabel(step.status)}>{step.short}</span>
-                      </li>
-                    );
-                  })}
-                </ol>
+                          {done ? <CheckIcon width={12} height={12} className="mr-1 inline" /> : null}
+                          {step.short}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
               </div>
 
               <div className="p-5 sm:p-6">
                 {/* Summary metadata tiles */}
                 <dl className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/60 p-3.5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
+                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                    <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Estado
                     </dt>
                     <dd className="mt-1 text-sm font-semibold text-[var(--ink)]">
                       {statusLabel(workOrder.status)}
                     </dd>
                   </div>
-                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/60 p-3.5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
+                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                    <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Cliente
                     </dt>
                     <dd className="mt-1 text-sm font-semibold text-[var(--ink)]">
                       {names.get(workOrder.customerId) ?? workOrder.customerLegalName ?? workOrder.customerId}
                     </dd>
                   </div>
-                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/60 p-3.5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
+                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                    <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Equipo
                     </dt>
-                    <dd className="num mt-1 text-sm font-semibold text-[var(--ink)]">
+                    <dd className="num mt-1 break-all text-sm font-semibold text-[var(--ink)]">
                       {workOrder.equipmentSerial ?? workOrder.equipmentId}
                     </dd>
                   </div>
-                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/60 p-3.5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
+                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                    <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Presupuesto
                     </dt>
                     <dd className="num mt-1 text-sm font-semibold text-[var(--ink)]">
                       {workOrder.materials?.length ? formatColones(budgetMinor) : "Aún no generado"}
                     </dd>
                   </div>
-                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/60 p-3.5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
+                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                    <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Aprobación del cliente
                     </dt>
                     <dd className="mt-1 text-sm font-semibold text-[var(--ink)]">
@@ -641,8 +601,8 @@ export function OrdersWorkspace(props: Props) {
                       )}
                     </dd>
                   </div>
-                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]/60 p-3.5">
-                    <dt className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
+                  <div className="border-t border-[var(--border-subtle)] pt-3">
+                    <dt className="text-xs font-medium text-[var(--ink-muted)]">
                       Factura
                     </dt>
                     <dd className="num mt-1 text-sm font-semibold text-[var(--ink)]">
@@ -892,7 +852,7 @@ export function OrdersWorkspace(props: Props) {
                     {workOrder.materials?.length ? (
                       <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)] bg-white">
                         <table className="w-full text-left text-sm">
-                          <thead className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-xs uppercase tracking-wider text-[var(--ink-muted)]">
+                          <thead className="border-b border-[var(--border-subtle)] text-xs font-medium text-[var(--ink-muted)]">
                             <tr>
                               <th className="px-4 py-2.5 font-semibold">Código CAByS</th>
                               <th className="px-4 py-2.5 text-right font-semibold">Cant.</th>

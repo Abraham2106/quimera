@@ -181,7 +181,7 @@ function AuditPanel(props: { readonly config: DevApiConfig }) {
       {error ? <p className="p-5 text-sm text-amber-800">{error}</p> : null}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-xs uppercase tracking-wider text-[var(--ink-muted)]">
+          <thead className="border-b border-[var(--border-subtle)] text-xs font-medium text-[var(--ink-muted)]">
             <tr>
               <th className="px-5 py-3 font-semibold">Fecha</th>
               <th className="px-5 py-3 font-semibold">Actor</th>

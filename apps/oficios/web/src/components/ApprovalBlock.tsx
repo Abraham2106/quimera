@@ -21,9 +21,7 @@ export function ApprovalBlock({ visible, busy, onRegisterApproval }: Props) {
           <AlertTriangleIcon />
         </span>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-amber-900">
-            Compuerta de aprobación del cliente
-          </p>
+          <p className="text-sm font-medium text-amber-950">Aprobación del cliente</p>
           <p className="mt-0.5 text-sm text-amber-950">
             {"No se puede iniciar ni cerrar esta orden todavía: falta registrar la aprobación del presupuesto por parte del cliente"}
           </p>

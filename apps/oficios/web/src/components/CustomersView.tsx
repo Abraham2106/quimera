@@ -73,9 +73,6 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
                   }`}
                   onClick={() => setSelected(customer.id)}
                 >
-                  {active ? (
-                    <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-[var(--accent)]" />
-                  ) : null}
                   <span className="truncate">{customer.legalName}</span>
                 </button>
               </li>
@@ -93,9 +90,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
         ) : (
           <div className="space-y-5">
             <div className="border-b border-[var(--border-subtle)] pb-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
-                Cliente
-              </p>
+              <p className="text-sm text-[var(--ink-muted)]">Cliente</p>
               <h3 className="mt-1 text-xl font-bold text-[var(--ink)]">{current.legalName}</h3>
             </div>
 
