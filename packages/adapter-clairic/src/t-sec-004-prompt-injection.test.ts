@@ -4,7 +4,7 @@ import { PROMPT_INJECTION_FIXTURE } from "./constants.js";
 import { createClairicStubAdapter } from "./clairic-stub-adapter.js";
 
 describe("T-SEC-004 — prompt injection containment (QR-CLAI-004 / QR-SEC-004)", () => {
-  const adapter = createClairicStubAdapter();
+  const adapter = createClairicStubAdapter({ env: { QUIMERA_AI_ENABLED: "true" } });
 
   it("returns adversarial text only as extracted field data without mutating schema", async () => {
     const schema = {

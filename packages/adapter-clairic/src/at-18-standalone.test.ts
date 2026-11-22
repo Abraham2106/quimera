@@ -9,12 +9,12 @@ import {
 describe("AT-18 — adapter-clairic standalone smoke", () => {
   it("exports package id and stub provider", () => {
     expect(QUIMERA_ADAPTER_CLAIRIC_PACKAGE).toBe("@quimera/adapter-clairic");
-    const adapter = createClairicStubAdapter();
+    const adapter = createClairicStubAdapter({ env: { QUIMERA_AI_ENABLED: "true" } });
     expect(adapter.providerId).toBe(CLAIRIC_STUB_PROVIDER_ID);
   });
 
   it("extract succeeds without network for minimal schema", async () => {
-    const adapter = createClairicStubAdapter();
+    const adapter = createClairicStubAdapter({ env: { QUIMERA_AI_ENABLED: "true" } });
     const result = await adapter.extract<{ note: string }>({
       schema: {
         type: "object",

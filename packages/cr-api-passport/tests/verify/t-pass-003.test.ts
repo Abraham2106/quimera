@@ -39,4 +39,21 @@ describe("T-PASS-003 — detección de deriva contractual", () => {
     const report = await verifyPassport(passport!, { client });
     expect(report.status).toBe("PASS");
   });
+
+  it("omite credenciales en fixture pero las exige en live", async () => {
+    const passport = await getPassportById("cr.bccr.sdde");
+    expect(passport).toBeDefined();
+
+    const fixtureReport = await verifyPassport(passport!, {
+      mode: "fixture",
+      env: {},
+    });
+    expect(fixtureReport.status).toBe("PASS");
+
+    const liveReport = await verifyPassport(passport!, {
+      mode: "live",
+      env: {},
+    });
+    expect(liveReport.status).toBe("SKIPPED_MISSING_CREDENTIALS");
+  });
 });

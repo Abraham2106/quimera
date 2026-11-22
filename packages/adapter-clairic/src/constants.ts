@@ -3,6 +3,8 @@ export const CLAIRIC_STUB_PROVIDER_ID = "clairic-stub" as const;
 export const CLAIRIC_MODEL_ID = "clairic-stub-deterministic-v1" as const;
 
 export const ERR_CLAIRIC_PAYLOAD_LIMIT = "ERR_CLAIRIC_PAYLOAD_LIMIT" as const;
+export const ERR_CLAIRIC_AI_DISABLED = "ERR_CLAIRIC_AI_DISABLED" as const;
+export const W_AI_LOW_CONFIDENCE = "W_AI_LOW_CONFIDENCE" as const;
 
 export const MAX_CLAIRIC_IMAGES = 4;
 export const MAX_CLAIRIC_FILE_BYTES = 4 * 1024 * 1024;

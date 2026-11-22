@@ -4,11 +4,15 @@ import { z } from "../vendor/zod.js";
 import { getCapabilities, PASSPORT_MCP_TOOLS } from "../capabilities.js";
 import { loadAllPassports, getPassportById } from "../registry.js";
 import { PassportClient } from "../client/passport-client.js";
+import { normalizeMode } from "../client/types.js";
 import { verifyPassport } from "../verify/verify.js";
 
 function untrustedWrap(payload: unknown): { untrustedExternalData: true; data: unknown } {
   return { untrustedExternalData: true, data: payload };
 }
+
+/** Live verification is not exposed through MCP tool arguments. */
+export const PassportQueryModeSchema = z.enum(["fixture", "mock"]);
 
 export function createPassportMcpServer(): McpServer {
   const server = new McpServer({
@@ -16,7 +20,11 @@ export function createPassportMcpServer(): McpServer {
     version: "0.0.0",
   });
 
-  const mode = process.env.QUIMERA_PASSPORT_MODE ?? "fixture";
+  const configuredMode = process.env.QUIMERA_PASSPORT_MODE ?? "fixture";
+  const liveAllowed = process.env.QUIMERA_PASSPORT_ALLOW_LIVE === "1";
+  const mode = normalizeMode(
+    configuredMode === "live" && !liveAllowed ? "fixture" : configuredMode,
+  );
   const client = new PassportClient({ mode });
 
   server.registerTool(
@@ -81,7 +89,7 @@ export function createPassportMcpServer(): McpServer {
         passportId: z.string(),
         operation: z.string(),
         params: z.record(z.string(), z.string()).default({}),
-        mode: z.enum(["fixture", "mock", "live"]).optional(),
+        mode: PassportQueryModeSchema.optional(),
       },
     },
     async (args) => {
@@ -112,7 +120,7 @@ export function createPassportMcpServer(): McpServer {
       description: "Verify passport contract against fixtures or live",
       inputSchema: {
         passportId: z.string(),
-        mode: z.enum(["fixture", "mock", "live"]).optional(),
+        mode: PassportQueryModeSchema.optional(),
       },
     },
     async (args) => {

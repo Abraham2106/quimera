@@ -27,6 +27,10 @@ function schemaProperties(
   return properties as Record<string, JsonSchemaNode>;
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function stringFieldValue(fieldName: string, text: string): string {
   const lower = fieldName.toLowerCase();
   if (
@@ -39,7 +43,10 @@ function stringFieldValue(fieldName: string, text: string): string {
   ) {
     return text;
   }
-  const match = new RegExp(`${fieldName}\\s*[:=]\\s*([^\\n]+)`, "i").exec(text);
+  const match = new RegExp(
+    `${escapeRegExp(fieldName)}\\s*[:=]\\s*([^\\n]+)`,
+    "i",
+  ).exec(text);
   if (match?.[1]) {
     return match[1].trim();
   }
@@ -47,7 +54,10 @@ function stringFieldValue(fieldName: string, text: string): string {
 }
 
 function numberFieldValue(fieldName: string, text: string): number | null {
-  const pattern = new RegExp(`${fieldName}\\s*[:=]\\s*([0-9]+(?:\\.[0-9]+)?)`, "i");
+  const pattern = new RegExp(
+    `${escapeRegExp(fieldName)}\\s*[:=]\\s*([0-9]+(?:\\.[0-9]+)?)`,
+    "i",
+  );
   const match = pattern.exec(text);
   if (match?.[1]) {
     return Number(match[1]);

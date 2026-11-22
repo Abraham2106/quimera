@@ -1,5 +1,8 @@
 import type { ApiPassport } from "../schema/api-passport.js";
-import { validateAgainstJsonSchema } from "../schema/json-schema-validate.js";
+import {
+  validateAgainstJsonSchema,
+  type SchemaValidationIssue,
+} from "../schema/json-schema-validate.js";
 import { PASSPORT_ERROR_CODES, quimeraError } from "../errors.js";
 import { HostTokenBucket } from "./token-bucket.js";
 import { HostCircuitBreaker } from "./circuit-breaker.js";
@@ -15,6 +18,8 @@ import type { FetchFn, PassportMode, QueryResult } from "./types.js";
 import { normalizeMode } from "./types.js";
 
 const REDACT_FIELD_PATTERN = /identificacion|cédula|cedula|nombre|token|authorization/i;
+const DEFAULT_CIRCUIT_BREAKER_COOLDOWN_SEC = 60;
+const DEFAULT_FETCH_TIMEOUT_MS = 10_000;
 
 function redactForLog(value: unknown): string {
   const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -49,11 +54,24 @@ function parseRetryAfter(headers: Headers | Record<string, string>): number {
   return 60;
 }
 
+function responseIssues(
+  passport: ApiPassport,
+  operationName: string,
+  body: unknown,
+): SchemaValidationIssue[] {
+  const responseSchema = passport.operations[operationName]?.responses["200"];
+  if (responseSchema && "schema" in responseSchema && responseSchema.schema) {
+    return validateAgainstJsonSchema(body, responseSchema.schema);
+  }
+  return [];
+}
+
 export type PassportClientOptions = {
   readonly mode?: PassportMode | string;
   readonly env?: NodeJS.ProcessEnv;
   readonly fetch?: FetchFn;
   readonly clock?: () => number;
+  readonly fetchTimeoutMs?: number;
   readonly fixtureResolver?: (passportId: string, operation: string, params: Record<string, string>) => Promise<FixtureEnvelope>;
 };
 
@@ -66,6 +84,7 @@ export class PassportClient {
   private readonly breakers = new Map<string, HostCircuitBreaker>();
   private readonly cache: TtlCache<{ data: unknown; status: number }>;
   private readonly fixtureResolver: PassportClientOptions["fixtureResolver"];
+  private readonly fetchTimeoutMs: number;
   private httpCallCount = 0;
 
   constructor(options: PassportClientOptions = {}) {
@@ -74,6 +93,7 @@ export class PassportClient {
     this.clock = options.clock ?? (() => Date.now());
     this.cache = new TtlCache(this.clock);
     this.fixtureResolver = options.fixtureResolver;
+    this.fetchTimeoutMs = options.fetchTimeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
     this.fetchFn =
       options.fetch ??
       (async (url, init) => {
@@ -162,9 +182,28 @@ export class PassportClient {
       return { ok: false, error: authErr };
     }
 
-    const key = cacheKey({ passportId: passport.passportId, operation: operationName, params });
+    const key = cacheKey({
+      passportId: passport.passportId,
+      passportVersion: passport.passportVersion,
+      operation: operationName,
+      params,
+    });
     const cached = this.cache.get(key);
     if (cached) {
+      const issues = responseIssues(passport, operationName, cached.value.data);
+      if (issues.length > 0) {
+        this.cache.delete(key);
+        return {
+          ok: false,
+          error: quimeraError(
+            PASSPORT_ERROR_CODES.CONTRACT_DRIFT,
+            "CONTRACT",
+            "Cached response does not match passport contract",
+            false,
+            { drift: issues, fromCache: true },
+          ),
+        };
+      }
       return {
         ok: true,
         data: cached.value.data,
@@ -182,6 +221,9 @@ export class PassportClient {
 
     const host = passport.rateLimit.scopeHost;
     const breaker = this.breakerFor(host);
+    const cooldownSec =
+      passport.rateLimit.quimeraGuardrail.circuitBreakerCooldownSec ??
+      DEFAULT_CIRCUIT_BREAKER_COOLDOWN_SEC;
     if (breaker.isOpen()) {
       return {
         ok: false,
@@ -191,6 +233,19 @@ export class PassportClient {
           `Circuit breaker open for ${host}; retry in ${breaker.secondsRemaining()}s`,
           true,
           { host, retryInSec: breaker.secondsRemaining() },
+        ),
+      };
+    }
+    const wasHalfOpen = breaker.isHalfOpen();
+    if (wasHalfOpen && !breaker.tryHalfOpen()) {
+      return {
+        ok: false,
+        error: quimeraError(
+          PASSPORT_ERROR_CODES.RATE_LIMITED,
+          "EXTERNAL_API",
+          `Circuit breaker half-open trial already in flight for ${host}`,
+          true,
+          { host, halfOpen: true },
         ),
       };
     }
@@ -229,7 +284,11 @@ export class PassportClient {
         headers.Authorization = `Bearer ${token}`;
       }
       try {
-        const res = await this.fetchFn(url, { method: op.method, headers });
+        const res = await this.fetchFn(url, {
+          method: op.method,
+          headers,
+          signal: AbortSignal.timeout(this.fetchTimeoutMs),
+        });
         this.httpCallCount += 1;
         status = res.status;
         headerMap = res.headers;
@@ -243,6 +302,7 @@ export class PassportClient {
           body = null;
         }
       } catch {
+        breaker.recordFailure(cooldownSec);
         return {
           ok: false,
           error: quimeraError(
@@ -250,6 +310,7 @@ export class PassportClient {
             "EXTERNAL_API",
             "Upstream request failed",
             true,
+            { circuitBreakerCooldownSec: cooldownSec, retryInSec: breaker.secondsRemaining() },
           ),
         };
       }
@@ -294,6 +355,7 @@ export class PassportClient {
       };
     }
     if (status >= 500) {
+      breaker.recordFailure(cooldownSec);
       return {
         ok: false,
         error: quimeraError(
@@ -301,10 +363,11 @@ export class PassportClient {
           "EXTERNAL_API",
           `Upstream unavailable (HTTP ${status})`,
           true,
-          { status },
+          { status, circuitBreakerCooldownSec: cooldownSec, retryInSec: breaker.secondsRemaining() },
         ),
       };
     }
+    breaker.recordSuccess();
 
     if (status !== 200) {
       return {
@@ -319,25 +382,18 @@ export class PassportClient {
       };
     }
 
-    const responseSchema = op.responses["200"];
-    if (
-      responseSchema &&
-      "schema" in responseSchema &&
-      responseSchema.schema
-    ) {
-      const issues = validateAgainstJsonSchema(body, responseSchema.schema);
-      if (issues.length > 0) {
-        return {
-          ok: false,
-          error: quimeraError(
-            PASSPORT_ERROR_CODES.CONTRACT_DRIFT,
-            "CONTRACT",
-            "Response does not match passport contract",
-            false,
-            { drift: issues },
-          ),
-        };
-      }
+    const issues = responseIssues(passport, operationName, body);
+    if (issues.length > 0) {
+      return {
+        ok: false,
+        error: quimeraError(
+          PASSPORT_ERROR_CODES.CONTRACT_DRIFT,
+          "CONTRACT",
+          "Response does not match passport contract",
+          false,
+          { drift: issues },
+        ),
+      };
     }
 
     void redactForLog(body);

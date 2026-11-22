@@ -16,7 +16,7 @@ function jpegImage(byteLength: number): { mimeType: "image/jpeg"; bytes: Uint8Ar
 }
 
 describe("T-CLAI-002 — local payload limits (QR-CLAI-002)", () => {
-  const adapter = createClairicStubAdapter();
+  const adapter = createClairicStubAdapter({ env: { QUIMERA_AI_ENABLED: "true" } });
 
   it("rejects more than 4 images", async () => {
     const images = Array.from({ length: 5 }, () => jpegImage(16));

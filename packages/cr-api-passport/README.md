@@ -59,6 +59,15 @@ Configuración para un cliente MCP (por ejemplo Claude Desktop o Cursor):
 
 Todas las respuestas MCP envuelven los datos externos en `{ untrustedExternalData: true, data }` para mitigar *prompt injection*.
 
+Las herramientas MCP solo aceptan `mode: "fixture" | "mock"`. Para forzar `QUIMERA_PASSPORT_MODE=live` en el servidor se requiere además `QUIMERA_PASSPORT_ALLOW_LIVE=1`; sin esa variable el servidor arranca en `fixture`.
+
+## Guardrails del cliente
+
+- HTTP `5xx` (o error de red/timeout) abre el *circuit breaker* del host durante `rateLimit.quimeraGuardrail.circuitBreakerCooldownSec` del manifiesto. Vencido el plazo entra en `half-open`: admite un único trial, que cierra el breaker si tiene éxito y lo reabre si falla.
+- Las consultas `live` usan `AbortSignal.timeout` (10 s por defecto, configurable con `fetchTimeoutMs`).
+- La clave de caché incluye `passportVersion`, y el esquema de respuesta se revalida en cada *hit*; si el dato cacheado derivó se descarta y se devuelve `ERR_PASSPORT_CONTRACT_DRIFT`.
+- `verifyPassport` solo exige credenciales en modo `live`; en `fixture`/`mock` las omite.
+
 ## Uso programático
 
 ```ts

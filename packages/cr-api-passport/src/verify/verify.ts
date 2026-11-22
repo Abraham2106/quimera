@@ -2,7 +2,7 @@ import type { ApiPassport } from "../schema/api-passport.js";
 import { validateAgainstJsonSchema, type SchemaValidationIssue } from "../schema/json-schema-validate.js";
 import { PassportClient } from "../client/passport-client.js";
 import { PASSPORT_ERROR_CODES, quimeraError } from "../errors.js";
-import type { PassportMode } from "../client/types.js";
+import { normalizeMode, type PassportMode } from "../client/types.js";
 import { loadFixture } from "../client/fixtures.js";
 import { matchContractTest } from "../client/fixtures.js";
 
@@ -28,12 +28,13 @@ export async function verifyPassport(
   passport: ApiPassport,
   options: VerifyOptions = {},
 ): Promise<DriftReport> {
+  const mode = normalizeMode(options.mode ?? "fixture");
   const client =
     options.client ??
-    new PassportClient({ mode: options.mode ?? "fixture", env: options.env ?? process.env });
+    new PassportClient({ mode, env: options.env ?? process.env });
 
   const auth = passport.auth;
-  if (auth.credentialsRequired) {
+  if (mode === "live" && auth.credentialsRequired) {
     const envVar = auth.envVar ?? "BCCR_SDDE_TOKEN";
     if (!(options.env ?? process.env)[envVar]) {
       return {
