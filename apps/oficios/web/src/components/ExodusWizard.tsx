@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import type { DevApiConfig } from "../config.js";
 import { appendDevAuthHeaders } from "../dev-auth-headers.js";
-import { CheckIcon, UploadCloudIcon } from "./Icons.js";
+import { UploadCloudIcon } from "./Icons.js";
 
 type NeedsReview = { column: string; status: string; confidence: number };
 type ConflictRow = { id: string; status: string; summary: string };
@@ -36,39 +36,31 @@ export function ExodusWizard(props: { readonly config: DevApiConfig }) {
         </p>
       </div>
 
-      <ol className="my-5 grid gap-2 sm:grid-cols-4">
-        {STEPS.map((label, index) => {
-          const done = index < step;
-          const active = index === step;
-          return (
-            <li
-              key={label}
-              className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-xs font-medium ${
-                done
-                  ? "border-emerald-200 bg-[var(--status-done)] text-[var(--status-done-ink)]"
-                  : active
-                    ? "border-sky-300 bg-[var(--status-now)] font-semibold text-[var(--status-now-ink)]"
-                    : "border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-[var(--ink-muted)]"
-              }`}
-            >
-              <span
-                className={`num flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
-                  done
-                    ? "bg-[var(--status-done-ink)] text-white"
-                    : active
-                      ? "bg-[var(--status-now-ink)] text-white"
-                      : "bg-[var(--surface-muted)] text-[var(--ink-muted)]"
-                }`}
+      <div className="my-6">
+        <div className="stage-rail" aria-hidden="true">
+          <span style={{ ["--stage" as string]: (step + 0.08) / (STEPS.length - 1) }} />
+        </div>
+        <ol className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {STEPS.map((label, index) => {
+            const done = index < step;
+            const active = index === step;
+            return (
+              <li
+                key={label}
+                className={
+                  active
+                    ? "text-sm font-medium text-[var(--accent)]"
+                    : done
+                      ? "text-sm text-[var(--ink)]"
+                      : "text-sm text-[var(--ink-muted)]"
+                }
               >
-                {done ? <CheckIcon width={12} height={12} /> : index + 1}
-              </span>
-              <span>
                 {index + 1}. {label}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
 
       {step === 0 ? (
         <form
