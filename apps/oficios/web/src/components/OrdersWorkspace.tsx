@@ -162,18 +162,23 @@ export function OrdersWorkspace(props: Props) {
 
   const priceMinor = colonesToMinor(priceInput);
   const totals = priceMinor === null ? null : lineTotals(priceMinor, Number(quantity));
-  const [dataset, setDataset] = useState<"demo" | "worst">(() =>
-    import.meta.env.DEV && new URLSearchParams(window.location.search).get("data") === "worst"
-      ? "worst"
-      : "demo",
-  );
-  function chooseDataset(next: "demo" | "worst") {
+  const [dataset, setDataset] = useState<"demo" | "worst" | "many">(() => {
+    if (!import.meta.env.DEV) return "demo";
+    const data = new URLSearchParams(window.location.search).get("data");
+    if (data === "worst" || data === "many") return data;
+    return "demo";
+  });
+  function chooseDataset(next: "demo" | "worst" | "many") {
     const url = new URL(window.location.href);
-    if (next === "worst") url.searchParams.set("data", "worst");
-    else url.searchParams.delete("data");
+    if (next === "demo") url.searchParams.delete("data");
+    else url.searchParams.set("data", next);
     window.history.replaceState(null, "", url);
     setDataset(next);
   }
+  const listed =
+    dataset === "many" && visible.length > 0
+      ? Array.from({ length: 240 }, (_, index) => visible[index % visible.length]!)
+      : visible;
 
   function displayName(orderId: string, fallback: string): string {
     if (dataset !== "worst") return fallback;
@@ -229,7 +234,7 @@ export function OrdersWorkspace(props: Props) {
               <div>
                 <h2 className="text-base font-semibold tracking-tight text-[var(--ink)]">Órdenes</h2>
                 <p className="text-xs text-[var(--ink-muted)]">
-                  {visible.length} {visible.length === 1 ? "orden visible" : "órdenes visibles"}
+                  {listed.length} {listed.length === 1 ? "orden visible" : "órdenes visibles"}
                 </p>
               </div>
               <button
@@ -293,19 +298,19 @@ export function OrdersWorkspace(props: Props) {
           </div>
 
           <ul className="max-h-[min(70vh,40rem)] divide-y divide-[var(--border-subtle)] overflow-y-auto">
-            {visible.length === 0 ? (
+            {listed.length === 0 ? (
               <li className="px-4 py-10 text-center text-sm text-[var(--ink-muted)]">
                 No hay órdenes para este filtro.
               </li>
             ) : (
-              visible.map((order) => {
+              listed.map((order, index) => {
                 const selected = selectedId === order.id;
                 const customerName = displayName(
                   order.id,
                   names.get(order.customerId) ?? order.customerLegalName ?? "Cliente",
                 );
                 return (
-                  <li key={order.id}>
+                  <li key={`${order.id}-${index}`} className="order-row">
                     <button
                       type="button"
                       className={`touch relative flex w-full min-w-0 flex-col gap-1.5 px-4 py-3.5 text-left ${
@@ -965,6 +970,13 @@ export function OrdersWorkspace(props: Props) {
             onClick={() => chooseDataset("worst")}
           >
             Worst case
+          </button>
+          <button
+            type="button"
+            className={`rounded-full px-3 py-1 ${dataset === "many" ? "bg-white" : ""}`}
+            onClick={() => chooseDataset("many")}
+          >
+            240 filas
           </button>
         </div>
       ) : null}

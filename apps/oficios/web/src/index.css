@@ -118,6 +118,11 @@ h2,
   min-width: 44px;
 }
 
+.order-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 4.75rem;
+}
+
 .stage-rail {
   position: relative;
   height: 4px;
