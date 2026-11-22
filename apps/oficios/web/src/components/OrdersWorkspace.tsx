@@ -776,7 +776,7 @@ export function OrdersWorkspace(props: Props) {
 
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-[var(--ink)]">Evidencia (foto o PDF)</p>
-                      <label className="mt-2.5 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--border-strong)] bg-white px-4 py-6 text-center transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-tint)]/30">
+                      <label className="mt-2.5 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--border-strong)] bg-white px-4 py-6 text-center transition-[border-color,background-color] duration-150 ease-[var(--ease-out)] hover:border-[var(--accent)] hover:bg-[var(--accent-tint)]/30">
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent-tint)] text-[var(--accent)]">
                           <CameraIcon width={20} height={20} />
                         </span>

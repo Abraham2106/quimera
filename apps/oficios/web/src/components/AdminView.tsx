@@ -222,6 +222,7 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
   const [pin, setPin] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [fingerprint, setFingerprint] = useState<string | null>(null);
+  const [certificateName, setCertificateName] = useState<string | null>(null);
 
   useEffect(() => {
     void fetch(`${props.config.apiBase}/api/v1/fiscal/credentials`, { headers: headers(props.config) }).then(
@@ -270,6 +271,7 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
           }).then(async (response) => {
             const json = (await response.json()) as { fingerprint?: string; error?: { message?: string } };
             setPin("");
+            setCertificateName(null);
             if (input instanceof HTMLInputElement) input.value = "";
             if (!response.ok) {
               setMessage(json.error?.message ?? "No se pudo guardar el certificado.");
@@ -280,16 +282,25 @@ function FiscalPanel(props: { readonly config: DevApiConfig; readonly readOnly: 
           });
         }}
       >
-        <label className="text-xs font-medium text-[var(--ink)]">
-          Llave criptográfica (.p12)
-          <input
-            name="file"
-            type="file"
-            accept=".p12,application/x-pkcs12"
-            disabled={props.readOnly}
-            className="mt-1.5 block w-full text-sm text-[var(--ink-muted)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--surface-rail)] file:px-3.5 file:py-2 file:text-xs file:font-semibold file:text-white"
-          />
-        </label>
+        <div className="text-xs font-medium text-[var(--ink)]">
+          <p>Llave criptográfica (.p12)</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-3">
+            <label className="touch btn-secondary cursor-pointer">
+              Elegir certificado
+              <input
+                name="file"
+                type="file"
+                accept=".p12,application/x-pkcs12"
+                disabled={props.readOnly}
+                className="sr-only"
+                onChange={(event) => setCertificateName(event.target.files?.[0]?.name ?? null)}
+              />
+            </label>
+            <span className="text-sm font-normal text-[var(--ink-muted)]">
+              {certificateName ?? "Ningún archivo elegido"}
+            </span>
+          </div>
+        </div>
         <label className="text-xs font-medium text-[var(--ink)]">
           PIN del certificado
           <input

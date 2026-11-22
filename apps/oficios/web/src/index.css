@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* El hover de Tailwind v4 solo mira (hover: hover). Un Android con puntero grueso
+   igual deja el :hover pegado después del toque. Las dos condiciones lo evitan. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
 /*
   Taste deal, primera mano, oficio workshop:
   paleta putty-black-teal (piedra cálida del papel de orden, teal del metal HVAC).
@@ -81,6 +91,8 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html,
@@ -120,6 +132,22 @@ a,
 * {
   scrollbar-color: #8d877e transparent;
   scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #8d877e;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 h1,

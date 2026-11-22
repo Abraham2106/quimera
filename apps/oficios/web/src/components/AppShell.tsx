@@ -56,7 +56,7 @@ export function AppShell(props: Props) {
                 key={item.id}
                 type="button"
                 aria-current={active ? "page" : undefined}
-                className={`touch flex items-center gap-3 rounded-xl px-3.5 text-left text-sm transition-colors ${
+                className={`touch flex items-center gap-3 rounded-xl px-3.5 text-left text-sm transition-[background-color,color] duration-150 ease-[var(--ease-out)] ${
                   active
                     ? "bg-[var(--accent)] font-semibold text-white shadow-sm"
                     : "text-[var(--on-rail-muted)] hover:bg-white/6 hover:text-white"
@@ -77,7 +77,7 @@ export function AppShell(props: Props) {
       </aside>
 
       <div className="flex min-h-dvh flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/95 px-5 py-3 backdrop-blur">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-card)] px-5 py-3">
           <div className="flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface-rail)] text-xs font-bold text-white lg:hidden">
               OF
@@ -92,7 +92,7 @@ export function AppShell(props: Props) {
 
           <button
             type="button"
-            className={`touch inline-flex items-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors ${
+            className={`touch inline-flex items-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-[border-color] duration-150 ease-[var(--ease-out)] ${
               props.online && props.pendingCount === 0
                 ? "border-emerald-200 bg-[var(--status-done)] text-[var(--status-done-ink)] hover:border-emerald-300"
                 : "border-amber-300 bg-[var(--status-warn)] text-[var(--status-warn-ink)] hover:border-amber-400"
