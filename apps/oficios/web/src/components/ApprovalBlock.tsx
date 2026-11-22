@@ -22,14 +22,14 @@ export function ApprovalBlock({ visible, busy, onRegisterApproval }: Props) {
         </span>
         <div>
           <p className="text-sm font-medium text-amber-950">Aprobación del cliente</p>
-          <p className="mt-0.5 text-sm text-amber-950">
+          <p className="mt-0.5 break-words text-sm text-amber-950">
             {"No se puede iniciar ni cerrar esta orden todavía: falta registrar la aprobación del presupuesto por parte del cliente"}
           </p>
         </div>
       </div>
       <button
         type="button"
-        className="touch inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-800 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-amber-900 disabled:opacity-50"
+        className="touch inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-amber-800 px-4 text-sm font-medium text-white transition-transform duration-150 ease-[var(--ease-out)] hover:bg-amber-900 active:scale-[0.97] disabled:opacity-50"
         disabled={busy}
         onClick={onRegisterApproval}
       >

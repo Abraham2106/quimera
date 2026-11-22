@@ -75,7 +75,7 @@ export function CabysRepuestosSearch(props: Props) {
         </div>
         <button
           type="submit"
-          className="touch inline-flex items-center justify-center rounded-lg bg-[var(--surface-rail)] px-4 text-sm font-medium text-white transition-colors hover:bg-[#312922] disabled:opacity-50"
+          className="touch btn-secondary"
           disabled={loading}
         >
           {loading ? "Buscando…" : "Buscar repuestos"}

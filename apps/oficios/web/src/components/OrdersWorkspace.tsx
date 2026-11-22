@@ -271,7 +271,7 @@ export function OrdersWorkspace(props: Props) {
                   <button
                     key={id}
                     type="button"
-                    className={`touch inline-flex items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors ${
+                    className={`touch inline-flex items-center gap-1.5 rounded-full border px-3 text-xs font-medium ${
                       active
                         ? "border-[var(--surface-rail)] bg-[var(--surface-rail)] text-white"
                         : "border-[var(--border-subtle)] bg-white text-[var(--ink-muted)] hover:border-[var(--border-strong)] hover:text-[var(--ink)]"

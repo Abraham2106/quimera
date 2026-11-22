@@ -88,7 +88,7 @@ export function TeamManagementPanel(props: Props) {
       </ul>
 
       <form
-        className="mt-4 space-y-2.5 text-sm"
+        className="mt-4 min-w-0 space-y-2.5 text-sm"
         onSubmit={(event) => {
           event.preventDefault();
           void (async () => {
@@ -107,7 +107,7 @@ export function TeamManagementPanel(props: Props) {
       >
         <label className="block text-xs font-medium text-[var(--ink)]">
           Correo del invitado (ADMIN)
-          <input className="field mt-1" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className="field mt-1 min-w-0" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <button
           type="submit"

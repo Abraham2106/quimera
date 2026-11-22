@@ -23,7 +23,7 @@ export function OrgOnboardingPanel(props: Props) {
         Registro transaccional con cédula CR normalizada y rol ADMIN inicial.
       </p>
       <form
-        className="mt-4 grid gap-3 text-sm sm:grid-cols-2"
+        className="mt-4 grid min-w-0 gap-3 text-sm sm:grid-cols-2"
         onSubmit={(event) => {
           event.preventDefault();
           void (async () => {
@@ -48,34 +48,34 @@ export function OrgOnboardingPanel(props: Props) {
           })();
         }}
       >
-        <label className="flex flex-col text-xs font-medium text-[var(--ink)]">
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
           Nombre comercial
           <input
-            className="field mt-1"
+            className="field mt-1 min-w-0"
             value={commercialName}
             onChange={(e) => setCommercialName(e.target.value)}
           />
         </label>
-        <label className="flex flex-col text-xs font-medium text-[var(--ink)]">
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
           Razón social
           <input
-            className="field mt-1"
+            className="field mt-1 min-w-0"
             value={legalName}
             onChange={(e) => setLegalName(e.target.value)}
           />
         </label>
-        <label className="flex flex-col text-xs font-medium text-[var(--ink)]">
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
           Cédula jurídica / física
           <input
-            className="field num mt-1"
+            className="field num mt-1 min-w-0"
             value={taxId}
             onChange={(e) => setTaxId(e.target.value)}
           />
         </label>
-        <label className="flex flex-col text-xs font-medium text-[var(--ink)]">
+        <label className="flex min-w-0 flex-col text-xs font-medium text-[var(--ink)]">
           Slug
           <input
-            className="field num mt-1"
+            className="field num mt-1 min-w-0"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
           />
@@ -87,11 +87,11 @@ export function OrgOnboardingPanel(props: Props) {
         </div>
       </form>
       {message ? (
-        <p className="mt-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2 text-sm text-[var(--ink)]">
+        <p className="mt-3 break-words rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3.5 py-2 text-sm text-[var(--ink)]">
           {message}
         </p>
       ) : null}
-      {tenantId ? <p className="num mt-1.5 text-xs text-[var(--ink-muted)]">Tenant: {tenantId}</p> : null}
+      {tenantId ? <p className="num mt-1.5 break-all text-xs text-[var(--ink-muted)]">Tenant: {tenantId}</p> : null}
     </section>
   );
 }
