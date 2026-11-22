@@ -326,6 +326,7 @@ export function OrdersWorkspace(props: Props) {
                           ? "bg-[var(--accent-tint)]/75"
                           : "bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)]"
                       }`}
+                      aria-current={selected ? "true" : undefined}
                       onClick={() => void openOrder(order.id)}
                     >
                       <div className="flex items-center justify-between gap-2">

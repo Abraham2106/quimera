@@ -63,6 +63,11 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
           {error ? <p className="mt-2 text-xs text-amber-800">{error}</p> : null}
         </div>
         <ul className="pane-scroll max-h-[min(70dvh,40rem)] divide-y divide-[var(--border-subtle)]">
+          {shown.length === 0 ? (
+            <li className="px-4 py-10 text-center text-sm text-[var(--ink-muted)]">
+              {query.trim() ? "Ningún cliente coincide con la búsqueda." : "No hay clientes registrados."}
+            </li>
+          ) : null}
           {shown.map((customer) => {
             const active = selected === customer.id;
             return (
@@ -74,6 +79,7 @@ export function CustomersView(props: { readonly config: DevApiConfig }) {
                       ? "bg-[var(--accent-tint)]/75 font-semibold text-[var(--ink)]"
                       : "hover:bg-[var(--surface-subtle)]"
                   }`}
+                  aria-current={active ? "true" : undefined}
                   onClick={() => setSelected(customer.id)}
                 >
                   <span className="truncate" title={customer.legalName}>{customer.legalName}</span>
